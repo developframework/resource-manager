@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.github.developframework</groupId>
+    <artifactId>resource-manager</artifactId>
+    <packaging>pom</packaging>
+    <version>0.1-SNAPSHOT</version>
+    <description>资源管理器</description>
+    <modules>
+        <module>resource-manager-commons</module>
+    </modules>
+
+    <properties>
+        <lombok.version>1.18.8</lombok.version>
+        <mapstruct.version>1.3.0.Final</mapstruct.version>
+        <develop.toolkit.version>1.0.0</develop.toolkit.version>
+        <spring.data.version>2.1.5.RELEASE</spring.data.version>
+        <commons-lang3.version>3.8.1</commons-lang3.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-commons</artifactId>
+                <version>${spring.data.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.developframework</groupId>
+                <artifactId>develop-toolkit-base</artifactId>
+                <version>${develop.toolkit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct-jdk8</artifactId>
+                <version>${mapstruct.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>
