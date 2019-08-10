@@ -7,22 +7,19 @@ import com.github.developframework.resource.ResourceHandler;
 import com.github.developframework.resource.exception.DTOCastException;
 
 import java.io.Serializable;
-import java.util.Optional;
 
 /**
- * 添加唯一资源操作
- *
- * @author qiushui on 2019-08-08.
+ * @author qiushui on 2019-08-10.
  */
-public abstract class AddUniqueResourceOperate<
+public abstract class ModifyUniqueResourceOperate<
         ENTITY extends Entity<ID>,
         DTO extends com.github.developframework.resource.DTO,
         ID extends Serializable
-        > extends AddResourceOperate<ENTITY, DTO, ID> {
+        > extends ModifyResourceOperate<ENTITY, DTO, ID> {
 
     private CheckExistsLogic<ENTITY, DTO, ID> logic;
 
-    public AddUniqueResourceOperate(ResourceDefinition<ENTITY> resourceDefinition, ResourceHandler<ENTITY, ID> resourceHandler, Class<DTO> dtoClass) {
+    public ModifyUniqueResourceOperate(ResourceDefinition<ENTITY> resourceDefinition, ResourceHandler<ENTITY, ID> resourceHandler, Class<DTO> dtoClass) {
         super(resourceDefinition, resourceHandler, dtoClass);
         logic = configureCheckExistsLogic();
     }
@@ -35,26 +32,30 @@ public abstract class AddUniqueResourceOperate<
     abstract CheckExistsLogic<ENTITY, DTO, ID> configureCheckExistsLogic();
 
     /**
-     * 添加资源流程
+     * 根据ID修改资源
      *
      * @param obj
-     * @return
+     * @param id
      */
     @Override
     @SuppressWarnings("unchecked")
-    public Optional<ENTITY> addResource(Object obj) {
+    public boolean modifyById(Object obj, ID id) {
         if (dtoClass.isAssignableFrom(obj.getClass())) {
             DTO dto = (DTO) obj;
             if (before(dto)) {
-                if (logic.check(resourceHandler, dto)) {
-                    throw logic.getResourceExistException(resourceDefinition.getResourceName());
+                final ENTITY entity = resourceHandler.queryById(id);
+                if (entity != null) {
+                    if (logic.check(resourceHandler, dto)) {
+                        throw logic.getResourceExistException(resourceDefinition.getResourceName());
+                    }
+                    merge(dto, entity);
+                    prepare(dto, entity);
+                    boolean success = resourceHandler.update(entity);
+                    after(entity);
+                    return success;
                 }
-                ENTITY entity = create(dto);
-                prepare(dto, entity);
-                after(resourceHandler.insert(entity));
-                return Optional.of(entity);
             }
-            return Optional.empty();
+            return false;
         } else {
             throw new DTOCastException();
         }

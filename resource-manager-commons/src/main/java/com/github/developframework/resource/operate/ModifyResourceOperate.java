@@ -6,21 +6,17 @@ import com.github.developframework.resource.ResourceHandler;
 import com.github.developframework.resource.exception.DTOCastException;
 
 import java.io.Serializable;
-import java.util.Optional;
 
 /**
- * 添加资源操作
- *
- * @author qiushui on 2019-08-08.
+ * @author qiushui on 2019-08-10.
  */
-public class AddResourceOperate<
+public class ModifyResourceOperate<
         ENTITY extends Entity<ID>,
         DTO extends com.github.developframework.resource.DTO,
         ID extends Serializable
         > extends PersistResourceOperate<ENTITY, DTO, ID> {
 
-
-    public AddResourceOperate(ResourceDefinition<ENTITY> resourceDefinition, ResourceHandler<ENTITY, ID> resourceHandler, Class<DTO> dtoClass) {
+    public ModifyResourceOperate(ResourceDefinition<ENTITY> resourceDefinition, ResourceHandler<ENTITY, ID> resourceHandler, Class<DTO> dtoClass) {
         super(resourceDefinition, resourceHandler, dtoClass);
     }
 
@@ -35,16 +31,6 @@ public class AddResourceOperate<
     }
 
     /**
-     * 创建实体
-     *
-     * @param dto
-     * @return
-     */
-    protected ENTITY create(DTO dto) {
-        return mapper.toENTITY(dto);
-    }
-
-    /**
      * 在save之前的一步
      *
      * @param dto
@@ -55,22 +41,38 @@ public class AddResourceOperate<
     }
 
     /**
-     * 添加资源流程
+     * 数据合并
      *
-     * @param obj
+     * @param dto
+     * @param entity
      * @return
      */
+    public void merge(DTO dto, ENTITY entity) {
+        mapper.toENTITY(dto, entity);
+    }
+
+    /**
+     * 根据ID修改资源
+     *
+     * @param obj
+     * @param id
+     */
     @SuppressWarnings("unchecked")
-    public Optional<ENTITY> addResource(Object obj) {
+    public boolean modifyById(Object obj, ID id) {
         if (dtoClass.isAssignableFrom(obj.getClass())) {
+            boolean success;
             DTO dto = (DTO) obj;
             if (before(dto)) {
-                ENTITY entity = create(dto);
-                prepare(dto, entity);
-                after(resourceHandler.insert(entity));
-                return Optional.of(entity);
+                final ENTITY entity = resourceHandler.queryById(id);
+                if (entity != null) {
+                    merge(dto, entity);
+                    prepare(dto, entity);
+                    success = resourceHandler.update(entity);
+                    after(entity);
+                    return success;
+                }
             }
-            return Optional.empty();
+            return false;
         } else {
             throw new DTOCastException();
         }

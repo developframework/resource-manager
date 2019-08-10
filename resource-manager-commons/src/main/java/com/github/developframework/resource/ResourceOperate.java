@@ -2,19 +2,24 @@ package com.github.developframework.resource;
 
 import lombok.Getter;
 
+import java.io.Serializable;
+
 /**
  * 资源操作
  *
  * @author qiushui on 2019-08-08.
  */
 @Getter
-public abstract class ResourceOperate<ENTITY extends Entity<?>> {
+public abstract class ResourceOperate<ENTITY extends Entity<ID>, ID extends Serializable> {
 
     protected ResourceOperateContext context = new ResourceOperateContext();
 
-    protected ResourceHandler<ENTITY, ?> resourceHandler;
+    protected ResourceDefinition<ENTITY> resourceDefinition;
 
-    public ResourceOperate(ResourceHandler<ENTITY, ?> resourceHandler) {
+    protected ResourceHandler<ENTITY, ID> resourceHandler;
+
+    public ResourceOperate(ResourceDefinition<ENTITY> resourceDefinition, ResourceHandler<ENTITY, ID> resourceHandler) {
+        this.resourceDefinition = resourceDefinition;
         this.resourceHandler = resourceHandler;
     }
 
