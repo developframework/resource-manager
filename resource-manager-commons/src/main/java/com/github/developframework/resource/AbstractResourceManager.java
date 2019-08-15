@@ -71,6 +71,7 @@ public abstract class AbstractResourceManager <
      * @param dto
      * @return
      */
+    @Override
     public Optional<ENTITY> add(Object dto) {
         return addResourceOperate.addResource(dto);
     }
@@ -82,6 +83,7 @@ public abstract class AbstractResourceManager <
      * @param dto
      * @return
      */
+    @Override
     public boolean modifyById(ID id, Object dto) {
         return modifyResourceOperate.modifyById(dto, id);
     }

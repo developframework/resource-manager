@@ -3,6 +3,7 @@ package com.github.developframework.resource;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 资源操作接口
@@ -33,7 +34,7 @@ public interface ResourceHandler<ENTITY extends Entity<ID>, ID extends Serializa
      * @param entities
      * @return
      */
-    int insertAll(Collection<ENTITY> entities);
+    void insertAll(Collection<ENTITY> entities);
 
     /**
      * 修改资源
@@ -57,7 +58,7 @@ public interface ResourceHandler<ENTITY extends Entity<ID>, ID extends Serializa
      * @param id
      * @return
      */
-    ENTITY delete(ID id);
+    void deleteById(ID id);
 
     /**
      * 根据ID查询单个资源
@@ -65,7 +66,7 @@ public interface ResourceHandler<ENTITY extends Entity<ID>, ID extends Serializa
      * @param id
      * @return
      */
-    ENTITY queryById(ID id);
+    Optional<ENTITY> queryById(ID id);
 
     /**
      * 根据ID查询单个资源（悲观锁）

@@ -11,18 +11,24 @@
     <description>资源管理器</description>
     <modules>
         <module>resource-manager-commons</module>
+        <module>resource-manager-jpa</module>
     </modules>
 
     <properties>
         <lombok.version>1.18.8</lombok.version>
         <mapstruct.version>1.3.0.Final</mapstruct.version>
-        <develop.toolkit.version>1.0.0</develop.toolkit.version>
+        <develop.toolkit.version>1.0.1-SNAPSHOT</develop.toolkit.version>
         <spring.data.version>2.1.5.RELEASE</spring.data.version>
         <commons-lang3.version>3.8.1</commons-lang3.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.github.developframework</groupId>
+                <artifactId>resource-manager-commons</artifactId>
+                <version>0.1-SNAPSHOT</version>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-commons</artifactId>

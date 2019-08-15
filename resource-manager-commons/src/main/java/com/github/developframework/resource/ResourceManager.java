@@ -1,9 +1,5 @@
 package com.github.developframework.resource;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
@@ -50,19 +46,18 @@ public interface ResourceManager<ENTITY extends Entity<ID>, ID extends Serializa
      * 添加资源流程
      *
      * @param dto
-     * @param <T>
      * @return
      */
-    <T extends DTO> ENTITY add(T dto);
+    Optional<ENTITY> add(Object dto);
 
     /**
      * 修改资源流程
      *
      * @param id
      * @param dto
-     * @param <T>
+     * @return
      */
-    <T extends DTO> void modifyById(ID id, T dto);
+    boolean modifyById(ID id, Object dto);
 
     /**
      * 删除资源流程
@@ -87,22 +82,4 @@ public interface ResourceManager<ENTITY extends Entity<ID>, ID extends Serializa
      * @return
      */
     <SEARCH extends Search<ENTITY>> List<ENTITY> list(SEARCH search);
-
-    /**
-     * 查询全部
-     *
-     * @param sort
-     * @param search
-     * @return
-     */
-    <SEARCH extends Search<ENTITY>> List<ENTITY> list(Sort sort, SEARCH search);
-
-    /**
-     * 分页查询
-     *
-     * @param pageable
-     * @param search
-     * @return
-     */
-    <SEARCH extends Search<ENTITY>> Page<ENTITY> pager(Pageable pageable, SEARCH search);
 }
