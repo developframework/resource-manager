@@ -67,7 +67,7 @@ public class AddResourceOperate<
             if (before(dto)) {
                 ENTITY entity = create(dto);
                 prepare(dto, entity);
-                after(resourceHandler.insert(entity));
+                after(obj, resourceHandler.insert(entity));
                 return Optional.of(entity);
             }
             return Optional.empty();

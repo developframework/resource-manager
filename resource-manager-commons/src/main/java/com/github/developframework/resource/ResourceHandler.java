@@ -61,6 +61,13 @@ public interface ResourceHandler<ENTITY extends Entity<ID>, ID extends Serializa
     void deleteById(ID id);
 
     /**
+     * 删除资源
+     *
+     * @param entity
+     */
+    void delete(ENTITY entity);
+
+    /**
      * 根据ID查询单个资源
      *
      * @param id
@@ -69,27 +76,10 @@ public interface ResourceHandler<ENTITY extends Entity<ID>, ID extends Serializa
     Optional<ENTITY> queryById(ID id);
 
     /**
-     * 根据ID查询单个资源（悲观锁）
-     *
-     * @param id
-     * @return
-     */
-    ENTITY queryByIdForUpdate(ID id);
-
-    /**
      * 查询列表
      *
      * @param search
      * @return
      */
     List<ENTITY> query(Search<ENTITY> search);
-
-    /**
-     * 查询列表（悲观锁）
-     *
-     * @param search
-     * @return
-     */
-    List<ENTITY> queryForUpdate(Search<ENTITY> search);
-
 }

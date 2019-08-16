@@ -1,10 +1,10 @@
 package com.github.developframework.resource;
 
 import com.github.developframework.resource.exception.ResourceNotExistException;
-import com.github.developframework.resource.operate.AddResourceOperate;
-import com.github.developframework.resource.operate.ModifyResourceOperate;
+import com.github.developframework.resource.operate.SearchResourceOperate;
 import com.github.developframework.resource.utils.ResourceAssert;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 import java.util.Optional;
@@ -15,6 +15,8 @@ import java.util.Optional;
  * @author qiushui on 2019-07-25.
  */
 @Getter
+@Slf4j
+@SuppressWarnings("unchecked")
 public abstract class AbstractResourceManager <
         ENTITY extends Entity<ID>,
         ID extends Serializable
@@ -24,20 +26,30 @@ public abstract class AbstractResourceManager <
 
     protected ResourceHandler<ENTITY, ID> resourceHandler;
 
-    protected AddResourceOperate<ENTITY, ? extends DTO, ID> addResourceOperate;
-
-    protected ModifyResourceOperate<ENTITY, ? extends DTO, ID> modifyResourceOperate;
+    protected ResourceOperateRegistry resourceOperateRegistry;
 
     public AbstractResourceManager(ResourceDefinition<ENTITY> resourceDefinition, ResourceHandler<ENTITY, ID> resourceHandler) {
         this.resourceDefinition = resourceDefinition;
         this.resourceHandler = resourceHandler;
+        this.resourceOperateRegistry = new ResourceOperateRegistry(resourceDefinition.getEntityClass(), this);
     }
 
+    /**
+     * 根据ID查询是否存在
+     *
+     * @param id
+     * @return
+     */
     @Override
     public boolean existsById(ID id) {
         return resourceHandler.existsById(id);
     }
 
+    /**
+     * 根据ID断言存在
+     *
+     * @param id
+     */
     @Override
     public void assertExistsById(ID id) {
         if (!resourceHandler.existsById(id)) {
@@ -46,38 +58,18 @@ public abstract class AbstractResourceManager <
     }
 
     /**
-     * 配置添加资源操作
-     *
-     * @return
-     */
-    public <T extends DTO> AddResourceOperate<ENTITY, T, ID> configureAddResourceOperate(Class<T> dtoClass) {
-        return new AddResourceOperate<>(resourceDefinition, resourceHandler, dtoClass);
-    }
-
-    /**
-     * 配置修改资源操作
-     *
-     * @param dtoClass
-     * @param <T>
-     * @return
-     */
-    public <T extends DTO> ModifyResourceOperate<ENTITY, T, ID> configureModifyResourceOperate(Class<T> dtoClass) {
-        return new ModifyResourceOperate<>(resourceDefinition, resourceHandler, dtoClass);
-    }
-
-    /**
-     * 添加资源
+     * 添加资源流程
      *
      * @param dto
      * @return
      */
     @Override
     public Optional<ENTITY> add(Object dto) {
-        return addResourceOperate.addResource(dto);
+        return resourceOperateRegistry.getAddResourceOperate(dto.getClass()).addResource(dto);
     }
 
     /**
-     * 根据ID修改资源
+     * 修改资源流程
      *
      * @param id
      * @param dto
@@ -85,7 +77,28 @@ public abstract class AbstractResourceManager <
      */
     @Override
     public boolean modifyById(ID id, Object dto) {
-        return modifyResourceOperate.modifyById(dto, id);
+        return resourceOperateRegistry.getModifyResourceOperate(dto.getClass()).modifyById(dto, id);
+    }
+
+    /**
+     * 删除资源流程
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public ENTITY removeById(ID id) {
+        return (ENTITY) resourceOperateRegistry.getRemoveResourceOperate().removeById(id);
+    }
+
+    /**
+     * 删除资源流程
+     *
+     * @param entity
+     */
+    @Override
+    public void remove(ENTITY entity) {
+        resourceOperateRegistry.getRemoveResourceOperate().remove(entity);
     }
 
     /**
@@ -96,9 +109,12 @@ public abstract class AbstractResourceManager <
      */
     @Override
     public Optional<ENTITY> findOneById(ID id) {
-        ENTITY entity = resourceHandler.queryById(id);
-//        optional.ifPresent(searchOperate::after);
-        return Optional.ofNullable(entity);
+        Optional<ENTITY> optional = resourceHandler.queryById(id);
+        SearchResourceOperate searchResourceOperate = resourceOperateRegistry.getSearchResourceOperate();
+        if (searchResourceOperate != null) {
+            optional.ifPresent(searchResourceOperate::after);
+        }
+        return optional;
     }
 
     /**
@@ -110,9 +126,14 @@ public abstract class AbstractResourceManager <
     @Override
     @SuppressWarnings("unchecked")
     public ENTITY findOneByIdRequired(ID id) {
-        return (ENTITY) ResourceAssert
+        ENTITY entity = (ENTITY) ResourceAssert
                 .resourceExistAssertBuilder(resourceDefinition.getResourceName(), resourceHandler.queryById(id))
                 .addParameter("id", id)
                 .returnValue();
+        SearchResourceOperate searchResourceOperate = resourceOperateRegistry.getSearchResourceOperate();
+        if (searchResourceOperate != null) {
+            searchResourceOperate.after(entity);
+        }
+        return entity;
     }
 }

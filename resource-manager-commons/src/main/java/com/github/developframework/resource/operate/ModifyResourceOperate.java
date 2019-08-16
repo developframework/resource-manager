@@ -60,17 +60,17 @@ public class ModifyResourceOperate<
     @SuppressWarnings("unchecked")
     public boolean modifyById(Object obj, ID id) {
         if (dtoClass.isAssignableFrom(obj.getClass())) {
-            boolean success;
             DTO dto = (DTO) obj;
             if (before(dto)) {
-                final ENTITY entity = resourceHandler.queryById(id);
-                if (entity != null) {
-                    merge(dto, entity);
-                    prepare(dto, entity);
-                    success = resourceHandler.update(entity);
-                    after(entity);
-                    return success;
-                }
+                return resourceHandler
+                        .queryById(id)
+                        .map(entity -> {
+                            merge(dto, entity);
+                            prepare(dto, entity);
+                            boolean success = resourceHandler.update(entity);
+                            after(obj, entity);
+                            return success;
+                        }).orElse(false);
             }
             return false;
         } else {

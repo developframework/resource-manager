@@ -53,9 +53,4 @@ public abstract class SpringDataResourceHandler<
     public Optional<ENTITY> queryById(ID id) {
         return repository.findById(id);
     }
-
-    @Override
-    public ENTITY queryByIdForUpdate(ID id) {
-        return null;
-    }
 }

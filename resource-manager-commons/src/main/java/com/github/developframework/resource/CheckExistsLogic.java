@@ -15,6 +15,13 @@ public interface CheckExistsLogic<
         ID extends Serializable
         > {
 
+    /**
+     * 检查资源存在
+     *
+     * @param resourceHandler
+     * @param dto
+     * @return
+     */
     boolean check(ResourceHandler<ENTITY, ID> resourceHandler, DTO dto);
 
     /**

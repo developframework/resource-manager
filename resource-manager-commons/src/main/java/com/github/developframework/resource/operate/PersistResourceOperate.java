@@ -35,4 +35,14 @@ public abstract class PersistResourceOperate<
             throw new IllegalStateException(e);
         }
     }
+
+    /**
+     * 操作之后
+     *
+     * @param dto
+     * @param entity
+     */
+    public void after(Object dto, ENTITY entity) {
+        // 默认无处理
+    }
 }

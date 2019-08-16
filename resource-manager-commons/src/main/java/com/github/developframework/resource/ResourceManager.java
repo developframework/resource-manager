@@ -68,6 +68,13 @@ public interface ResourceManager<ENTITY extends Entity<ID>, ID extends Serializa
     ENTITY removeById(ID id);
 
     /**
+     * 删除资源流程
+     *
+     * @param entity
+     */
+    void remove(ENTITY entity);
+
+    /**
      * 按ID批量查询
      *
      * @param ids

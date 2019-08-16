@@ -22,13 +22,4 @@ public abstract class ResourceOperate<ENTITY extends Entity<ID>, ID extends Seri
         this.resourceDefinition = resourceDefinition;
         this.resourceHandler = resourceHandler;
     }
-
-    /**
-     * 操作之后
-     *
-     * @param entity
-     */
-    public void after(ENTITY entity) {
-        // 默认无处理
-    }
 }
