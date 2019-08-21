@@ -3,7 +3,6 @@ package com.github.developframework.resource.spring.jpa;
 import com.github.developframework.resource.Entity;
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.Search;
-import com.github.developframework.resource.spring.SpringDataPagingAndSortingResourceHandler;
 import com.github.developframework.resource.spring.SpringDataResourceHandler;
 import org.apache.commons.collections4.IterableUtils;
 import org.springframework.data.domain.Page;
@@ -25,15 +24,10 @@ public class JpaResourceHandler<
         ENTITY extends Entity<ID>,
         ID extends Serializable,
         REPOSITORY extends PagingAndSortingRepository<ENTITY, ID> & JpaSpecificationExecutor<ENTITY>
-        > extends SpringDataResourceHandler<ENTITY, ID, REPOSITORY> implements SpringDataPagingAndSortingResourceHandler<ENTITY, ID> {
+        > extends SpringDataResourceHandler<ENTITY, ID, REPOSITORY> {
 
     public JpaResourceHandler(REPOSITORY repository, ResourceDefinition<ENTITY> resourceDefinition) {
         super(repository, resourceDefinition);
-    }
-
-    @Override
-    public int update(ENTITY entity, Search<ENTITY> search) {
-        return 0;
     }
 
     @Override
@@ -43,13 +37,13 @@ public class JpaResourceHandler<
     }
 
     @Override
-    public List<ENTITY> query(Sort sort, Search<ENTITY> search) {
+    public <SEARCH extends Search<ENTITY>> List<ENTITY> query(Sort sort, SEARCH search) {
         Specification<ENTITY> specification = safeSearch(search);
         return specification != null ? repository.findAll(specification, sort) : IterableUtils.toList(repository.findAll(sort));
     }
 
     @Override
-    public Page<ENTITY> queryPager(Pageable pageable, Search<ENTITY> search) {
+    public <SEARCH extends Search<ENTITY>> Page<ENTITY> queryPager(Pageable pageable, SEARCH search) {
         Specification<ENTITY> specification = safeSearch(search);
         return specification != null ? repository.findAll(specification, pageable) : repository.findAll(pageable);
     }

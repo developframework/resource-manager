@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
+ * MongoDB资源管理器
+ *
  * @author qiushui on 2019-08-21.
  */
 public class MongoResourceManager<

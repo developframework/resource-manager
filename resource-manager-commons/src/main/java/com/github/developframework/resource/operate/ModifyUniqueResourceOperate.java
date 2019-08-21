@@ -43,17 +43,19 @@ public abstract class ModifyUniqueResourceOperate<
         if (dtoClass.isAssignableFrom(obj.getClass())) {
             DTO dto = (DTO) obj;
             if (before(dto)) {
-                final ENTITY entity = resourceHandler.queryById(id);
-                if (entity != null) {
-                    if (logic.check(resourceHandler, dto)) {
-                        throw logic.getResourceExistException(resourceDefinition.getResourceName());
-                    }
-                    merge(dto, entity);
-                    prepare(dto, entity);
-                    boolean success = resourceHandler.update(entity);
-                    after(entity);
-                    return success;
-                }
+                return resourceHandler
+                        .queryById(id)
+                        .map(entity -> {
+                            if (logic.check(resourceHandler, dto)) {
+                                throw logic.getResourceExistException(resourceDefinition.getResourceName());
+                            }
+                            merge(dto, entity);
+                            prepare(dto, entity);
+                            boolean success = resourceHandler.update(entity);
+                            after(obj, entity);
+                            return success;
+                        })
+                        .orElse(false);
             }
             return false;
         } else {

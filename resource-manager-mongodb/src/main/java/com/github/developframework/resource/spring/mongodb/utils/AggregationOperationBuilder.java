@@ -1,33 +1,47 @@
 package com.github.developframework.resource.spring.mongodb.utils;
 
+import com.github.developframework.resource.Entity;
 import org.bson.Document;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * AggregationOperation构建器
  *
  * @author qiushui on 2019-02-25.
  */
-public class AggregationOperationBuilder {
+public class AggregationOperationBuilder<ENTITY extends Entity<ID>, ID extends Serializable> {
 
     private final static String REF_SUFFIX = "Id";
 
     private List<AggregationOperation> aggregationOperations;
 
-    public AggregationOperationBuilder() {
+    private MongoOperations mongoOperations;
+
+    private Class<ENTITY> entityClass;
+
+    public AggregationOperationBuilder(MongoOperations mongoOperations, Class<ENTITY> entityClass) {
         this.aggregationOperations = new LinkedList<>();
+        this.mongoOperations = mongoOperations;
+        this.entityClass = entityClass;
     }
 
-    public AggregationOperationBuilder(List<AggregationOperation> aggregationOperations) {
+    public AggregationOperationBuilder(MongoOperations mongoOperations, Class<ENTITY> entityClass, List<AggregationOperation> aggregationOperations) {
         this.aggregationOperations = new LinkedList<>(aggregationOperations);
+        this.mongoOperations = mongoOperations;
+        this.entityClass = entityClass;
     }
 
     /**
@@ -143,6 +157,7 @@ public class AggregationOperationBuilder {
      * @param fields
      * @return
      */
+    @Deprecated
     public AggregationOperationBuilder project(String... fields) {
         aggregationOperations.add(AggregationOperationUtils.project(fields));
         return this;
@@ -230,5 +245,49 @@ public class AggregationOperationBuilder {
     public AggregationOperationBuilder count(String field) {
         this.aggregationOperations.add(Aggregation.group().count().as(field));
         return this;
+    }
+
+    public <T> Optional<T> one(Class<T> outputClass) {
+        return AggregationQueryHelper.aggregationOne(mongoOperations, aggregationOperations, entityClass, outputClass);
+    }
+
+    public <T> Optional<T> one(String collectionName, Class<T> outputClass) {
+        return AggregationQueryHelper.aggregationOne(mongoOperations, aggregationOperations, collectionName, outputClass);
+    }
+
+    public Optional<ENTITY> one() {
+        return AggregationQueryHelper.aggregationOne(mongoOperations, aggregationOperations, entityClass, entityClass);
+    }
+
+    public <T> List<T> list(Class<?> entityClass, Class<T> outputClass) {
+        return AggregationQueryHelper.aggregationList(mongoOperations, aggregationOperations, entityClass, outputClass);
+    }
+
+    public <T> List<T> list(String collectionName, Class<T> outputClass) {
+        return AggregationQueryHelper.aggregationList(mongoOperations, aggregationOperations, collectionName, outputClass);
+    }
+
+    public List<ENTITY> list() {
+        return AggregationQueryHelper.aggregationList(mongoOperations, aggregationOperations, entityClass, entityClass);
+    }
+
+    public <T> Page<T> pager(Pageable pageable, Class<T> outputClass) {
+        return AggregationQueryHelper.aggregationPager(mongoOperations, pageable, aggregationOperations, entityClass, outputClass);
+    }
+
+    public <T> Page<T> pager(Pageable pageable, String collectionName, Class<T> outputClass) {
+        return AggregationQueryHelper.aggregationPager(mongoOperations, pageable, aggregationOperations, collectionName, outputClass);
+    }
+
+    public Page<ENTITY> pager(Pageable pageable) {
+        return AggregationQueryHelper.aggregationPager(mongoOperations, pageable, aggregationOperations, entityClass);
+    }
+
+    public int count(Class<?> entityClass, String countField) {
+        return AggregationQueryHelper.aggregationCount(mongoOperations, aggregationOperations, entityClass, countField);
+    }
+
+    public int count(String collectionName, String countField) {
+        return AggregationQueryHelper.aggregationCount(mongoOperations, aggregationOperations, collectionName, countField);
     }
 }

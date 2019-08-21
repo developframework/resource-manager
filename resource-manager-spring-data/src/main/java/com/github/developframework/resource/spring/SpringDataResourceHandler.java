@@ -3,13 +3,20 @@ package com.github.developframework.resource.spring;
 import com.github.developframework.resource.Entity;
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.ResourceHandler;
+import com.github.developframework.resource.Search;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 /**
+ *
+ * spring-data资源操作器
  * @author qiushui on 2019-08-15.
  */
 public abstract class SpringDataResourceHandler<
@@ -62,4 +69,8 @@ public abstract class SpringDataResourceHandler<
     public Optional<ENTITY> queryById(ID id) {
         return repository.findById(id);
     }
+
+    public abstract <SEARCH extends Search<ENTITY>> Page<ENTITY> queryPager(Pageable pageable, SEARCH search);
+
+    public abstract <SEARCH extends Search<ENTITY>> List<ENTITY> query(Sort sort, SEARCH search);
 }

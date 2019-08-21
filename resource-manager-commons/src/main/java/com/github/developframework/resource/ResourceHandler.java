@@ -44,15 +44,6 @@ public interface ResourceHandler<ENTITY extends Entity<ID>, ID extends Serializa
     boolean update(ENTITY entity);
 
     /**
-     * 批量修改资源
-     *
-     * @param entity
-     * @param search
-     * @return
-     */
-    int update(ENTITY entity, Search<ENTITY> search);
-
-    /**
      * 根据ID删除资源
      *
      * @param id
