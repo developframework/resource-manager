@@ -1,7 +1,5 @@
 package com.github.developframework.resource;
 
-import org.springframework.lang.NonNull;
-
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -13,11 +11,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ResourceOperateContext extends ConcurrentHashMap<String, Object> {
 
 
-    public <T> T getValue(@NonNull String name, Class<T> clazz) {
+    public <T> T getValue(String name, Class<T> clazz) {
         return (T) get(name);
     }
 
-    public <T> T getValue(@NonNull String name, Class<T> clazz, T defaultValue) {
+    public <T> T getValue(String name, Class<T> clazz, T defaultValue) {
         return (T) getOrDefault(name, defaultValue);
     }
 }

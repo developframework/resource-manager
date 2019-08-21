@@ -1,4 +1,4 @@
-package com.github.developframework.resource.spring;
+package com.github.developframework.resource.spring.jpa;
 
 import com.github.developframework.resource.Entity;
 import com.github.developframework.resource.Search;

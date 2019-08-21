@@ -1,9 +1,10 @@
-package com.github.developframework.resource.spring.handler;
+package com.github.developframework.resource.spring.jpa;
 
 import com.github.developframework.resource.Entity;
+import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.Search;
-import com.github.developframework.resource.spring.JpaSearch;
 import com.github.developframework.resource.spring.SpringDataPagingAndSortingResourceHandler;
+import com.github.developframework.resource.spring.SpringDataResourceHandler;
 import org.apache.commons.collections4.IterableUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,8 +27,8 @@ public class JpaResourceHandler<
         REPOSITORY extends PagingAndSortingRepository<ENTITY, ID> & JpaSpecificationExecutor<ENTITY>
         > extends SpringDataResourceHandler<ENTITY, ID, REPOSITORY> implements SpringDataPagingAndSortingResourceHandler<ENTITY, ID> {
 
-    public JpaResourceHandler(REPOSITORY repository) {
-        super(repository);
+    public JpaResourceHandler(REPOSITORY repository, ResourceDefinition<ENTITY> resourceDefinition) {
+        super(repository, resourceDefinition);
     }
 
     @Override

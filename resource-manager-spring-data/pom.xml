@@ -9,22 +9,21 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>resource-manager-jpa</artifactId>
+    <artifactId>resource-manager-spring-data</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>com.github.developframework</groupId>
-            <artifactId>resource-manager-spring-data</artifactId>
+            <artifactId>resource-manager-commons</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-jpa</artifactId>
-            <version>${spring.data.version}</version>
+            <artifactId>spring-data-commons</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.persistence</groupId>
-            <artifactId>javax.persistence-api</artifactId>
-            <version>2.2</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>4.2</version>
         </dependency>
     </dependencies>
 </project>

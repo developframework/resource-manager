@@ -1,6 +1,7 @@
-package com.github.developframework.resource.spring.handler;
+package com.github.developframework.resource.spring;
 
 import com.github.developframework.resource.Entity;
+import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.ResourceHandler;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
@@ -19,8 +20,11 @@ public abstract class SpringDataResourceHandler<
 
     protected REPOSITORY repository;
 
-    public SpringDataResourceHandler(REPOSITORY repository) {
+    protected ResourceDefinition<ENTITY> resourceDefinition;
+
+    public SpringDataResourceHandler(REPOSITORY repository, ResourceDefinition<ENTITY> resourceDefinition) {
         this.repository = repository;
+        this.resourceDefinition = resourceDefinition;
     }
 
     @Override
@@ -47,6 +51,11 @@ public abstract class SpringDataResourceHandler<
     @Override
     public void deleteById(ID id) {
         repository.deleteById(id);
+    }
+
+    @Override
+    public void delete(ENTITY entity) {
+        repository.delete(entity);
     }
 
     @Override
