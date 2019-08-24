@@ -28,21 +28,24 @@ public abstract class SpringDataResourceManager<
     @Getter
     protected REPOSITORY repository;
 
-    public SpringDataResourceManager(REPOSITORY repository, ResourceDefinition<ENTITY> resourceDefinition, SpringDataResourceHandler<ENTITY, ID, REPOSITORY> resourceHandler) {
-        super(resourceDefinition, resourceHandler);
+    public SpringDataResourceManager(REPOSITORY repository, ResourceDefinition<ENTITY> resourceDefinition) {
+        super(resourceDefinition);
         this.repository = repository;
     }
 
     @Override
     public <SEARCH extends Search<ENTITY>> List<ENTITY> list(SEARCH search) {
-        return resourceHandler.query(search);
-    }
-
-    public <SEARCH extends Search<ENTITY>> Page<ENTITY> pager(Pageable pageable, SEARCH search) {
-        return ((SpringDataResourceHandler) resourceHandler).queryPager(pageable, search);
+        List<ENTITY> list = resourceHandler.query(search);
+        return execSearchOperate(list);
     }
 
     public <SEARCH extends Search<ENTITY>> List<ENTITY> list(Sort sort, SEARCH search) {
-        return ((SpringDataResourceHandler) resourceHandler).query(sort, search);
+        List<ENTITY> list = ((SpringDataResourceHandler) resourceHandler).query(sort, search);
+        return execSearchOperate(list);
+    }
+
+    public <SEARCH extends Search<ENTITY>> Page<ENTITY> pager(Pageable pageable, SEARCH search) {
+        Page<ENTITY> page = ((SpringDataResourceHandler) resourceHandler).queryPager(pageable, search);
+        return execSearchOperate(page);
     }
 }

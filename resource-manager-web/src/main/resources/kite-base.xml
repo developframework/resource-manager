@@ -1,0 +1,66 @@
+<kite-configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xmlns="https://github.com/developframework/kite/schema"
+                    xsi:schemaLocation="
+	https://github.com/developframework/kite/schema kite-configuration.xsd">
+
+    <template-package namespace="kite-base">
+
+        <!-- 成功响应 SuccessKiteResponse -->
+        <template id="success-res">
+            <property data="success"/>
+            <extend-port port-name="data"/>
+        </template>
+
+        <!-- 创建响应 CreatedKiteResponse -->
+        <template id="created-res">
+            <property data="id"/>
+        </template>
+
+        <!-- 错误响应 ErrorKiteResponse -->
+        <template id="error-res">
+            <property data="level"/>
+            <property data="message"/>
+        </template>
+
+        <!-- 带原因的错误响应 ErrorReasonKiteResponse -->
+        <template id="error-reason-res">
+            <include id="error-res"/>
+            <array data="reasons" null-hidden="true">
+                <property data="key" alias="reason"/>
+                <property data="value"/>
+            </array>
+        </template>
+
+        <!-- 资源异常响应 ResourceErrorKiteResponse -->
+        <template id="error-resource-res">
+            <include id="error-res"/>
+            <object-virtual alias="reason">
+                <property data="#resourceName"/>
+                <prototype data="parameters"/>
+            </object-virtual>
+        </template>
+
+        <!-- 验参错误响应 ValidatedKiteResponse -->
+        <template id="error-validate-res">
+            <include id="error-res"/>
+            <array data="hints">
+                <property data="key" alias="field" converter="framework.web.kite.FieldNameConverter"/>
+                <property data="value" alias="hint"/>
+            </array>
+        </template>
+
+        <!-- 分页响应 PagerKiteResponse -->
+        <template id="pager-res">
+            <object data="pagerResult" alias="pager">
+                <property data="pager.page"/>
+                <property data="pager.size"/>
+                <property data="recordTotal"/>
+                <property data="pageTotal"/>
+            </object>
+            <array data="pagerResult.list">
+                <extend-port port-name="list-item"/>
+            </array>
+        </template>
+
+    </template-package>
+</kite-configuration>

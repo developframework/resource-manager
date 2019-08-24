@@ -1,10 +1,8 @@
 package com.github.developframework.resource.operate;
 
-import com.github.developframework.resource.CheckExistsLogic;
-import com.github.developframework.resource.Entity;
-import com.github.developframework.resource.ResourceDefinition;
-import com.github.developframework.resource.ResourceHandler;
+import com.github.developframework.resource.*;
 import com.github.developframework.resource.exception.DTOCastException;
+import lombok.Getter;
 
 import java.io.Serializable;
 
@@ -17,10 +15,11 @@ public abstract class ModifyUniqueResourceOperate<
         ID extends Serializable
         > extends ModifyResourceOperate<ENTITY, DTO, ID> {
 
-    private CheckExistsLogic<ENTITY, DTO, ID> logic;
+    @Getter
+    private ModifyCheckExistsLogic<ENTITY, DTO, ID> logic;
 
-    public ModifyUniqueResourceOperate(ResourceDefinition<ENTITY> resourceDefinition, ResourceHandler<ENTITY, ID> resourceHandler, Class<DTO> dtoClass) {
-        super(resourceDefinition, resourceHandler, dtoClass);
+    public ModifyUniqueResourceOperate(ResourceDefinition<ENTITY> resourceDefinition, ResourceHandler<ENTITY, ID> resourceHandler, Class<DTO> dtoClass, Class<? extends BasicMapper<ENTITY, DTO>> mapperClass) {
+        super(resourceDefinition, resourceHandler, dtoClass, mapperClass);
         logic = configureCheckExistsLogic();
     }
 
@@ -29,7 +28,7 @@ public abstract class ModifyUniqueResourceOperate<
      *
      * @return
      */
-    abstract CheckExistsLogic<ENTITY, DTO, ID> configureCheckExistsLogic();
+    public abstract ModifyCheckExistsLogic<ENTITY, DTO, ID> configureCheckExistsLogic();
 
     /**
      * 根据ID修改资源
@@ -42,22 +41,23 @@ public abstract class ModifyUniqueResourceOperate<
     public boolean modifyById(Object obj, ID id) {
         if (dtoClass.isAssignableFrom(obj.getClass())) {
             DTO dto = (DTO) obj;
-            if (before(dto)) {
-                return resourceHandler
-                        .queryById(id)
-                        .map(entity -> {
-                            if (logic.check(resourceHandler, dto)) {
-                                throw logic.getResourceExistException(resourceDefinition.getResourceName());
+            return resourceHandler
+                    .queryById(id)
+                    .map(entity -> {
+                        if (before(dto, entity)) {
+                            if (logic.check(dto, entity)) {
+                                throw logic.getResourceExistException(dto, resourceDefinition.getResourceName());
                             }
                             merge(dto, entity);
                             prepare(dto, entity);
                             boolean success = resourceHandler.update(entity);
                             after(obj, entity);
                             return success;
-                        })
-                        .orElse(false);
-            }
-            return false;
+                        } else {
+                            return false;
+                        }
+                    })
+                    .orElse(false);
         } else {
             throw new DTOCastException();
         }

@@ -1,7 +1,5 @@
 package com.github.developframework.resource;
 
-import lombok.Getter;
-
 import java.io.Serializable;
 
 /**
@@ -9,7 +7,6 @@ import java.io.Serializable;
  *
  * @author qiushui on 2019-08-08.
  */
-@Getter
 public abstract class ResourceOperate<ENTITY extends Entity<ID>, ID extends Serializable> {
 
     protected ResourceOperateContext context = new ResourceOperateContext();

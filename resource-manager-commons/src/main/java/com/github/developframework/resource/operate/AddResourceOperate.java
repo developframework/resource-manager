@@ -1,5 +1,6 @@
 package com.github.developframework.resource.operate;
 
+import com.github.developframework.resource.BasicMapper;
 import com.github.developframework.resource.Entity;
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.ResourceHandler;
@@ -20,8 +21,8 @@ public class AddResourceOperate<
         > extends PersistResourceOperate<ENTITY, DTO, ID> {
 
 
-    public AddResourceOperate(ResourceDefinition<ENTITY> resourceDefinition, ResourceHandler<ENTITY, ID> resourceHandler, Class<DTO> dtoClass) {
-        super(resourceDefinition, resourceHandler, dtoClass);
+    public AddResourceOperate(ResourceDefinition<ENTITY> resourceDefinition, ResourceHandler<ENTITY, ID> resourceHandler, Class<DTO> dtoClass, Class<? extends BasicMapper<ENTITY, DTO>> mapperClass) {
+        super(resourceDefinition, resourceHandler, dtoClass, mapperClass);
     }
 
     /**

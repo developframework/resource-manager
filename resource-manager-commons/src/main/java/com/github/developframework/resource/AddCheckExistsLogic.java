@@ -9,7 +9,7 @@ import java.io.Serializable;
  *
  * @author qiushui on 2019-08-09.
  */
-public interface CheckExistsLogic<
+public interface AddCheckExistsLogic<
         ENTITY extends Entity<ID>,
         DTO extends com.github.developframework.resource.DTO,
         ID extends Serializable
@@ -18,18 +18,18 @@ public interface CheckExistsLogic<
     /**
      * 检查资源存在
      *
-     * @param resourceHandler
      * @param dto
      * @return
      */
-    boolean check(ResourceHandler<ENTITY, ID> resourceHandler, DTO dto);
+    boolean check(DTO dto);
 
     /**
      * 获取资源存在异常
      *
+     * @param dto
      * @param resourceName
      */
-    default ResourceExistException getResourceExistException(String resourceName) {
+    default ResourceExistException getResourceExistException(DTO dto, String resourceName) {
         return new ResourceExistException(resourceName);
     }
 }

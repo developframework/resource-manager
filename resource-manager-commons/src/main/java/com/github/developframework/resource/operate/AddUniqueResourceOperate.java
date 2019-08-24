@@ -1,10 +1,8 @@
 package com.github.developframework.resource.operate;
 
-import com.github.developframework.resource.CheckExistsLogic;
-import com.github.developframework.resource.Entity;
-import com.github.developframework.resource.ResourceDefinition;
-import com.github.developframework.resource.ResourceHandler;
+import com.github.developframework.resource.*;
 import com.github.developframework.resource.exception.DTOCastException;
+import lombok.Getter;
 
 import java.io.Serializable;
 import java.util.Optional;
@@ -20,10 +18,11 @@ public abstract class AddUniqueResourceOperate<
         ID extends Serializable
         > extends AddResourceOperate<ENTITY, DTO, ID> {
 
-    private CheckExistsLogic<ENTITY, DTO, ID> logic;
+    @Getter
+    private AddCheckExistsLogic<ENTITY, DTO, ID> logic;
 
-    public AddUniqueResourceOperate(ResourceDefinition<ENTITY> resourceDefinition, ResourceHandler<ENTITY, ID> resourceHandler, Class<DTO> dtoClass) {
-        super(resourceDefinition, resourceHandler, dtoClass);
+    public AddUniqueResourceOperate(ResourceDefinition<ENTITY> resourceDefinition, ResourceHandler<ENTITY, ID> resourceHandler, Class<DTO> dtoClass, Class<? extends BasicMapper<ENTITY, DTO>> mapperClass) {
+        super(resourceDefinition, resourceHandler, dtoClass, mapperClass);
         logic = configureCheckExistsLogic();
     }
 
@@ -32,7 +31,7 @@ public abstract class AddUniqueResourceOperate<
      *
      * @return
      */
-    abstract CheckExistsLogic<ENTITY, DTO, ID> configureCheckExistsLogic();
+    public abstract AddCheckExistsLogic<ENTITY, DTO, ID> configureCheckExistsLogic();
 
     /**
      * 添加资源流程
@@ -46,8 +45,8 @@ public abstract class AddUniqueResourceOperate<
         if (dtoClass.isAssignableFrom(obj.getClass())) {
             DTO dto = (DTO) obj;
             if (before(dto)) {
-                if (logic.check(resourceHandler, dto)) {
-                    throw logic.getResourceExistException(resourceDefinition.getResourceName());
+                if (logic.check(dto)) {
+                    throw logic.getResourceExistException(dto, resourceDefinition.getResourceName());
                 }
                 ENTITY entity = create(dto);
                 prepare(dto, entity);

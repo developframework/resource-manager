@@ -28,10 +28,8 @@ public abstract class AbstractResourceManager <
 
     protected ResourceOperateRegistry resourceOperateRegistry;
 
-    public AbstractResourceManager(ResourceDefinition<ENTITY> resourceDefinition, ResourceHandler<ENTITY, ID> resourceHandler) {
+    public AbstractResourceManager(ResourceDefinition<ENTITY> resourceDefinition) {
         this.resourceDefinition = resourceDefinition;
-        this.resourceHandler = resourceHandler;
-        this.resourceOperateRegistry = new ResourceOperateRegistry(resourceDefinition.getEntityClass(), this);
     }
 
     /**
@@ -110,11 +108,7 @@ public abstract class AbstractResourceManager <
     @Override
     public Optional<ENTITY> findOneById(ID id) {
         Optional<ENTITY> optional = resourceHandler.queryById(id);
-        SearchResourceOperate searchResourceOperate = resourceOperateRegistry.getSearchResourceOperate();
-        if (searchResourceOperate != null) {
-            optional.ifPresent(searchResourceOperate::after);
-        }
-        return optional;
+        return execSearchOperate(optional);
     }
 
     /**
@@ -130,10 +124,30 @@ public abstract class AbstractResourceManager <
                 .resourceExistAssertBuilder(resourceDefinition.getResourceName(), resourceHandler.queryById(id))
                 .addParameter("id", id)
                 .returnValue();
+        return execSearchOperate(entity);
+    }
+
+    protected final Optional<ENTITY> execSearchOperate(Optional<ENTITY> optional) {
+        SearchResourceOperate searchResourceOperate = resourceOperateRegistry.getSearchResourceOperate();
+        if (searchResourceOperate != null) {
+            optional.ifPresent(searchResourceOperate::after);
+        }
+        return optional;
+    }
+
+    protected final ENTITY execSearchOperate(ENTITY entity) {
         SearchResourceOperate searchResourceOperate = resourceOperateRegistry.getSearchResourceOperate();
         if (searchResourceOperate != null) {
             searchResourceOperate.after(entity);
         }
         return entity;
+    }
+
+    protected final <T extends Iterable<ENTITY>> T execSearchOperate(T entities) {
+        SearchResourceOperate searchResourceOperate = resourceOperateRegistry.getSearchResourceOperate();
+        if (searchResourceOperate != null) {
+            entities.forEach(searchResourceOperate::after);
+        }
+        return entities;
     }
 }

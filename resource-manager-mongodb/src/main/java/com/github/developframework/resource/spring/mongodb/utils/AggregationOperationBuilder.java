@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * AggregationOperation构建器
@@ -59,7 +60,7 @@ public class AggregationOperationBuilder<ENTITY extends Entity<ID>, ID extends S
      * @param otherAggregationOperations
      * @return
      */
-    public AggregationOperationBuilder merge(List<AggregationOperation> otherAggregationOperations) {
+    public AggregationOperationBuilder<ENTITY, ID> merge(List<AggregationOperation> otherAggregationOperations) {
         aggregationOperations.addAll(otherAggregationOperations);
         return this;
     }
@@ -73,7 +74,7 @@ public class AggregationOperationBuilder<ENTITY extends Entity<ID>, ID extends S
      * @param joinType
      * @return
      */
-    public AggregationOperationBuilder join(String localField, String lookupAs, Class<?> foreignDocClass, JoinType joinType, boolean preserveNullAndEmptyArrays) {
+    public AggregationOperationBuilder<ENTITY, ID> join(String localField, String lookupAs, Class<?> foreignDocClass, JoinType joinType, boolean preserveNullAndEmptyArrays) {
         final String from = AggregationOperationUtils.collectionNameFormDocumentAnnotation(foreignDocClass);
         return join(localField, lookupAs, from, joinType, preserveNullAndEmptyArrays);
     }
@@ -87,7 +88,7 @@ public class AggregationOperationBuilder<ENTITY extends Entity<ID>, ID extends S
      * @param joinType
      * @return
      */
-    public AggregationOperationBuilder join(String localField, String lookupAs, String from, JoinType joinType, boolean preserveNullAndEmptyArrays) {
+    public AggregationOperationBuilder<ENTITY, ID> join(String localField, String lookupAs, String from, JoinType joinType, boolean preserveNullAndEmptyArrays) {
 
         /*
 
@@ -112,7 +113,7 @@ public class AggregationOperationBuilder<ENTITY extends Entity<ID>, ID extends S
      * @param preserveNullAndEmptyArrays
      * @return
      */
-    public AggregationOperationBuilder lookupAndUnwind(String from, String localField, String lookupAs, boolean preserveNullAndEmptyArrays) {
+    public AggregationOperationBuilder<ENTITY, ID> lookupAndUnwind(String from, String localField, String lookupAs, boolean preserveNullAndEmptyArrays) {
         aggregationOperations.add(Aggregation.lookup(from, localField, Fields.UNDERSCORE_ID, lookupAs));
         aggregationOperations.add(Aggregation.unwind(lookupAs, preserveNullAndEmptyArrays));
         return this;
@@ -124,7 +125,7 @@ public class AggregationOperationBuilder<ENTITY extends Entity<ID>, ID extends S
      * @param query
      * @return
      */
-    public AggregationOperationBuilder match(Query query) {
+    public AggregationOperationBuilder<ENTITY, ID> match(Query query) {
         aggregationOperations.add(context -> new Document("$match", query.getQueryObject()));
         return this;
     }
@@ -135,7 +136,7 @@ public class AggregationOperationBuilder<ENTITY extends Entity<ID>, ID extends S
      * @param criteria
      * @return
      */
-    public AggregationOperationBuilder match(Criteria criteria) {
+    public AggregationOperationBuilder<ENTITY, ID> match(Criteria criteria) {
         aggregationOperations.add(Aggregation.match(criteria));
         return this;
     }
@@ -146,7 +147,7 @@ public class AggregationOperationBuilder<ENTITY extends Entity<ID>, ID extends S
      * @param expressions
      * @return
      */
-    public AggregationOperationBuilder addFields(String... expressions) {
+    public AggregationOperationBuilder<ENTITY, ID> addFields(String... expressions) {
         aggregationOperations.add(AggregationOperationUtils.addFields(expressions));
         return this;
     }
@@ -158,7 +159,7 @@ public class AggregationOperationBuilder<ENTITY extends Entity<ID>, ID extends S
      * @return
      */
     @Deprecated
-    public AggregationOperationBuilder project(String... fields) {
+    public AggregationOperationBuilder<ENTITY, ID> project(String... fields) {
         aggregationOperations.add(AggregationOperationUtils.project(fields));
         return this;
     }
@@ -169,7 +170,7 @@ public class AggregationOperationBuilder<ENTITY extends Entity<ID>, ID extends S
      * @param aggregationOperations
      * @return
      */
-    public AggregationOperationBuilder complex(AggregationOperation... aggregationOperations) {
+    public AggregationOperationBuilder<ENTITY, ID> complex(AggregationOperation... aggregationOperations) {
         this.aggregationOperations.addAll(Arrays.asList(aggregationOperations));
         return this;
     }
@@ -180,7 +181,7 @@ public class AggregationOperationBuilder<ENTITY extends Entity<ID>, ID extends S
      * @param aggregationOperation
      * @return
      */
-    public AggregationOperationBuilder aggregation(AggregationOperation aggregationOperation) {
+    public AggregationOperationBuilder<ENTITY, ID> aggregation(AggregationOperation aggregationOperation) {
         this.aggregationOperations.add(aggregationOperation);
         return this;
     }
@@ -192,7 +193,7 @@ public class AggregationOperationBuilder<ENTITY extends Entity<ID>, ID extends S
      * @param preserveNullAndEmptyArrays
      * @return
      */
-    public AggregationOperationBuilder unwind(String field, boolean preserveNullAndEmptyArrays) {
+    public AggregationOperationBuilder<ENTITY, ID> unwind(String field, boolean preserveNullAndEmptyArrays) {
         this.aggregationOperations.add(Aggregation.unwind(field, preserveNullAndEmptyArrays));
         return this;
     }
@@ -203,7 +204,7 @@ public class AggregationOperationBuilder<ENTITY extends Entity<ID>, ID extends S
      * @param json
      * @return
      */
-    public AggregationOperationBuilder json(String json) {
+    public AggregationOperationBuilder<ENTITY, ID> json(String json) {
         this.aggregationOperations.add(context -> Document.parse(json));
         return this;
     }
@@ -213,7 +214,7 @@ public class AggregationOperationBuilder<ENTITY extends Entity<ID>, ID extends S
      *
      * @return
      */
-    public AggregationOperationBuilder distinct(String... fields) {
+    public AggregationOperationBuilder<ENTITY, ID> distinct(String... fields) {
         /*
             {
                 $group: {
@@ -242,7 +243,7 @@ public class AggregationOperationBuilder<ENTITY extends Entity<ID>, ID extends S
      * @param field
      * @return
      */
-    public AggregationOperationBuilder count(String field) {
+    public AggregationOperationBuilder<ENTITY, ID> count(String field) {
         this.aggregationOperations.add(Aggregation.group().count().as(field));
         return this;
     }
@@ -259,7 +260,7 @@ public class AggregationOperationBuilder<ENTITY extends Entity<ID>, ID extends S
         return AggregationQueryHelper.aggregationOne(mongoOperations, aggregationOperations, entityClass, entityClass);
     }
 
-    public <T> List<T> list(Class<?> entityClass, Class<T> outputClass) {
+    public <T> List<T> list(Class<T> outputClass) {
         return AggregationQueryHelper.aggregationList(mongoOperations, aggregationOperations, entityClass, outputClass);
     }
 
@@ -269,6 +270,18 @@ public class AggregationOperationBuilder<ENTITY extends Entity<ID>, ID extends S
 
     public List<ENTITY> list() {
         return AggregationQueryHelper.aggregationList(mongoOperations, aggregationOperations, entityClass, entityClass);
+    }
+
+    public <T> Stream<T> stream(Class<T> outputClass) {
+        return list(outputClass).stream();
+    }
+
+    public <T> Stream<T> stream(String collectionName, Class<T> outputClass) {
+        return list(collectionName, outputClass).stream();
+    }
+
+    public Stream<ENTITY> stream() {
+        return list().stream();
     }
 
     public <T> Page<T> pager(Pageable pageable, Class<T> outputClass) {
@@ -283,11 +296,11 @@ public class AggregationOperationBuilder<ENTITY extends Entity<ID>, ID extends S
         return AggregationQueryHelper.aggregationPager(mongoOperations, pageable, aggregationOperations, entityClass);
     }
 
-    public int count(Class<?> entityClass, String countField) {
+    public int total(String countField) {
         return AggregationQueryHelper.aggregationCount(mongoOperations, aggregationOperations, entityClass, countField);
     }
 
-    public int count(String collectionName, String countField) {
+    public int total(String collectionName, String countField) {
         return AggregationQueryHelper.aggregationCount(mongoOperations, aggregationOperations, collectionName, countField);
     }
 }

@@ -1,7 +1,9 @@
 package com.github.developframework.resource.spring.mongodb;
 
+import com.github.developframework.resource.DTO;
 import com.github.developframework.resource.Entity;
 import com.github.developframework.resource.ResourceDefinition;
+import com.github.developframework.resource.ResourceOperateRegistry;
 import com.github.developframework.resource.spring.SpringDataResourceManager;
 import com.github.developframework.resource.spring.mongodb.utils.Querys;
 import develop.toolkit.base.utils.CollectionAdvice;
@@ -19,6 +21,7 @@ import java.util.stream.Stream;
  *
  * @author qiushui on 2019-08-21.
  */
+@SuppressWarnings("unchecked")
 public class MongoResourceManager<
         ENTITY extends Entity<ID>,
         ID extends Serializable,
@@ -27,14 +30,18 @@ public class MongoResourceManager<
 
     protected MongoOperations mongoOperations;
 
-    public MongoResourceManager(REPOSITORY repository, MongoOperations mongoOperations, ResourceDefinition<ENTITY> resourceDefinition) {
-        super(repository, resourceDefinition, new MongoResourceHandler<>(repository, resourceDefinition, mongoOperations));
+    public MongoResourceManager(REPOSITORY repository, MongoOperations mongoOperations, Class<ENTITY> entityClass, String resourceName) {
+        super(repository, new ResourceDefinition<>(entityClass, resourceName));
         this.mongoOperations = mongoOperations;
+        this.resourceHandler = new MongoResourceHandler<>(repository, resourceDefinition, mongoOperations);
+        this.resourceOperateRegistry = new ResourceOperateRegistry(resourceDefinition.getEntityClass(), this);
     }
 
-    public MongoResourceManager(REPOSITORY repository, ResourceDefinition<ENTITY> resourceDefinition, MongoResourceHandler<ENTITY, ID, REPOSITORY> resourceHandler) {
-        super(repository, resourceDefinition, resourceHandler);
+    public MongoResourceManager(REPOSITORY repository, Class<ENTITY> entityClass, String resourceName, MongoResourceHandler<ENTITY, ID, REPOSITORY> resourceHandler) {
+        super(repository, new ResourceDefinition<>(entityClass, resourceName));
         this.mongoOperations = resourceHandler.getMongoOperations();
+        this.resourceHandler = resourceHandler;
+        this.resourceOperateRegistry = new ResourceOperateRegistry(resourceDefinition.getEntityClass(), this);
     }
 
     @Override
@@ -46,5 +53,9 @@ public class MongoResourceManager<
         return Stream.of(ids)
                 .map(id -> CollectionAdvice.getFirstMatch(list, id, Entity::getId).orElse(null))
                 .collect(Collectors.toList());
+    }
+
+    public <T extends DTO> ByFieldMongoAddCheckExistsLogic<ENTITY, T, ID> byFieldCheck(Class<T> dtoClass, String... fields) {
+        return new ByFieldMongoAddCheckExistsLogic<>(resourceDefinition, mongoOperations, fields);
     }
 }

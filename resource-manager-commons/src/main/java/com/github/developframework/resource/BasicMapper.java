@@ -2,9 +2,6 @@ package com.github.developframework.resource;
 
 import org.mapstruct.MappingTarget;
 
-import java.util.Collection;
-import java.util.List;
-
 /**
  * 基础mapstruct mapper
  *
@@ -16,9 +13,5 @@ public interface BasicMapper<ENTITY extends Entity<?>, DTO extends com.github.de
 	ENTITY toENTITY(DTO dto);
 
 	void toENTITY(DTO dto, @MappingTarget ENTITY entity);
-
-	List<ENTITY> toENTITY(Collection<DTO> dtos);
-
-	ENTITY cloneENTITY(ENTITY entity);
 
 }

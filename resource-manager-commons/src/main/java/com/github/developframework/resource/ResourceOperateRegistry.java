@@ -5,12 +5,12 @@ import com.github.developframework.resource.operate.AddResourceOperate;
 import com.github.developframework.resource.operate.ModifyResourceOperate;
 import com.github.developframework.resource.operate.RemoveResourceOperate;
 import com.github.developframework.resource.operate.SearchResourceOperate;
-import org.apache.commons.lang3.reflect.MethodUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * 资源操作注册器
@@ -30,34 +30,33 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
     protected SearchResourceOperate<ENTITY, ID> searchResourceOperate;
 
     /**
-     * 扫描Manager类带@RegisterOperate注解的方法，识别并注册
+     * 扫描Manager类返回值为ResourceOperate的方法，识别并注册
      *
      * @param entityClass
      * @param manager
      */
     @SuppressWarnings("unchecked")
-    ResourceOperateRegistry(Class<ENTITY> entityClass, AbstractResourceManager manager) {
+    public ResourceOperateRegistry(Class<ENTITY> entityClass, AbstractResourceManager manager) {
         this.entityClass = entityClass;
-        MethodUtils
-                .getMethodsListWithAnnotation(manager.getClass(), RegisterOperate.class)
-                .stream()
+        Stream
+                .of(manager.getClass().getDeclaredMethods())
                 .filter(method -> ResourceOperate.class.isAssignableFrom(method.getReturnType()) && method.getParameterTypes().length == 0)
                 .forEach(method -> {
-                    Class<? extends DTO> dtoClass = method.getAnnotation(RegisterOperate.class).value();
+                    method.setAccessible(true);
                     ResourceOperate<ENTITY, ID> resourceOperate;
                     try {
                         resourceOperate = (ResourceOperate<ENTITY, ID>) method.invoke(manager);
                         if (resourceOperate instanceof AddResourceOperate) {
-                            register(dtoClass, (AddResourceOperate) resourceOperate);
+                            register((AddResourceOperate) resourceOperate);
                         } else if (resourceOperate instanceof ModifyResourceOperate) {
-                            register(dtoClass, (ModifyResourceOperate) resourceOperate);
+                            register((ModifyResourceOperate) resourceOperate);
                         } else if (resourceOperate instanceof RemoveResourceOperate) {
                             register((RemoveResourceOperate) resourceOperate);
                         } else if (resourceOperate instanceof SearchResourceOperate) {
                             register((SearchResourceOperate) resourceOperate);
                         }
                     } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
+                        throw new RuntimeException(e);
                     }
                 });
     }
@@ -65,29 +64,27 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
     /**
      * 注册添加操作
      *
-     * @param dtoClass
      * @param addResourceOperate
      * @param <T>
      */
-    public <T extends DTO> void register(Class<T> dtoClass, AddResourceOperate<ENTITY, T, ID> addResourceOperate) {
+    public <T extends DTO> void register(AddResourceOperate<ENTITY, T, ID> addResourceOperate) {
         if (addResourceOperateMap == null) {
             addResourceOperateMap = new HashMap<>();
         }
-        addResourceOperateMap.put(dtoClass, addResourceOperate);
+        addResourceOperateMap.put(addResourceOperate.getDtoClass(), addResourceOperate);
     }
 
     /**
      * 注册修改操作
      *
-     * @param dtoClass
      * @param modifyResourceOperate
      * @param <T>
      */
-    public <T extends DTO> void register(Class<T> dtoClass, ModifyResourceOperate<ENTITY, T, ID> modifyResourceOperate) {
+    public <T extends DTO> void register(ModifyResourceOperate<ENTITY, T, ID> modifyResourceOperate) {
         if (modifyResourceOperateMap == null) {
             modifyResourceOperateMap = new HashMap<>();
         }
-        modifyResourceOperateMap.put(dtoClass, modifyResourceOperate);
+        modifyResourceOperateMap.put(modifyResourceOperate.getDtoClass(), modifyResourceOperate);
     }
 
     /**

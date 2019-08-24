@@ -12,7 +12,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class ResourceDefinition<ENTITY extends Entity<? extends Serializable>> {
 
-    private String resourceName;
-
     private Class<ENTITY> entityClass;
+
+    private String resourceName;
 }

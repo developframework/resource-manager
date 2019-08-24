@@ -9,25 +9,18 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>resource-manager-commons</artifactId>
+    <artifactId>resource-manager-web</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>com.github.developframework</groupId>
-            <artifactId>develop-toolkit-base</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct-jdk8</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.developframework</groupId>
-            <artifactId>expression</artifactId>
-            <version>1.3.0-SNAPSHOT</version>
+            <artifactId>kite-spring-boot-starter</artifactId>
+            <version>0.14-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

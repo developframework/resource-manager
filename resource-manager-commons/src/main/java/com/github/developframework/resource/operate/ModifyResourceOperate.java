@@ -1,5 +1,6 @@
 package com.github.developframework.resource.operate;
 
+import com.github.developframework.resource.BasicMapper;
 import com.github.developframework.resource.Entity;
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.ResourceHandler;
@@ -16,16 +17,17 @@ public class ModifyResourceOperate<
         ID extends Serializable
         > extends PersistResourceOperate<ENTITY, DTO, ID> {
 
-    public ModifyResourceOperate(ResourceDefinition<ENTITY> resourceDefinition, ResourceHandler<ENTITY, ID> resourceHandler, Class<DTO> dtoClass) {
-        super(resourceDefinition, resourceHandler, dtoClass);
+    public ModifyResourceOperate(ResourceDefinition<ENTITY> resourceDefinition, ResourceHandler<ENTITY, ID> resourceHandler, Class<DTO> dtoClass, Class<? extends BasicMapper<ENTITY, DTO>> mapperClass) {
+        super(resourceDefinition, resourceHandler, dtoClass, mapperClass);
     }
 
     /**
      * 在添加操作的第一步
      *
      * @param dto
+     * @param entity
      */
-    protected boolean before(DTO dto) {
+    protected boolean before(DTO dto, ENTITY entity) {
         // 默认无处理
         return true;
     }
@@ -61,18 +63,19 @@ public class ModifyResourceOperate<
     public boolean modifyById(Object obj, ID id) {
         if (dtoClass.isAssignableFrom(obj.getClass())) {
             DTO dto = (DTO) obj;
-            if (before(dto)) {
-                return resourceHandler
-                        .queryById(id)
-                        .map(entity -> {
+            return resourceHandler
+                    .queryById(id)
+                    .map(entity -> {
+                        if (before(dto, entity)) {
                             merge(dto, entity);
                             prepare(dto, entity);
                             boolean success = resourceHandler.update(entity);
                             after(obj, entity);
                             return success;
-                        }).orElse(false);
-            }
-            return false;
+                        } else {
+                            return false;
+                        }
+                    }).orElse(false);
         } else {
             throw new DTOCastException();
         }
