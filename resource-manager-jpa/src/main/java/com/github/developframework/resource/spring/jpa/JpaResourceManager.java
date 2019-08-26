@@ -1,13 +1,11 @@
 package com.github.developframework.resource.spring.jpa;
 
-import com.github.developframework.resource.DTO;
-import com.github.developframework.resource.Entity;
-import com.github.developframework.resource.ResourceDefinition;
-import com.github.developframework.resource.ResourceOperateRegistry;
+import com.github.developframework.resource.*;
 import com.github.developframework.resource.spring.SpringDataResourceManager;
 import develop.toolkit.base.utils.CollectionAdvice;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
@@ -25,6 +23,7 @@ import java.util.stream.Stream;
  *
  * @author qiushui on 2019-08-15.
  */
+@Transactional
 @SuppressWarnings("unchecked")
 public abstract class JpaResourceManager<
         ENTITY extends Entity<ID>,
@@ -57,7 +56,13 @@ public abstract class JpaResourceManager<
                 .collect(Collectors.toList());
     }
 
-    public <T extends DTO> ByFieldJpaAddCheckExistsLogic<ENTITY, T, ID> byFieldCheck(Class<T> dtoClass, String... fields) {
+    @Override
+    public <T extends DTO> AddCheckExistsLogic<ENTITY, T, ID> byFieldAddCheck(Class<T> dtoClass, String... fields) {
         return new ByFieldJpaAddCheckExistsLogic<>(resourceDefinition, entityManager, fields);
+    }
+
+    @Override
+    public <T extends DTO> ModifyCheckExistsLogic<ENTITY, T, ID> byFieldModifyCheck(Class<T> dtoClass, String... fields) {
+        return new ByFieldJpaModifyCheckExistsLogic<>(resourceDefinition, entityManager, fields);
     }
 }

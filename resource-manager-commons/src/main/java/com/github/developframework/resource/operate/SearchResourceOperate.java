@@ -1,8 +1,6 @@
 package com.github.developframework.resource.operate;
 
 import com.github.developframework.resource.Entity;
-import com.github.developframework.resource.ResourceDefinition;
-import com.github.developframework.resource.ResourceHandler;
 import com.github.developframework.resource.ResourceOperate;
 
 import java.io.Serializable;
@@ -16,10 +14,6 @@ public class SearchResourceOperate<
         ENTITY extends Entity<ID>,
         ID extends Serializable
         > extends ResourceOperate<ENTITY, ID> {
-
-    public SearchResourceOperate(ResourceDefinition<ENTITY> resourceDefinition, ResourceHandler<ENTITY, ID> resourceHandler) {
-        super(resourceDefinition, resourceHandler);
-    }
 
     /**
      * 操作之后

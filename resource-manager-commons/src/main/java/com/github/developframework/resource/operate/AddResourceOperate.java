@@ -2,11 +2,10 @@ package com.github.developframework.resource.operate;
 
 import com.github.developframework.resource.BasicMapper;
 import com.github.developframework.resource.Entity;
-import com.github.developframework.resource.ResourceDefinition;
-import com.github.developframework.resource.ResourceHandler;
 import com.github.developframework.resource.exception.DTOCastException;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
 
 /**
@@ -21,8 +20,8 @@ public class AddResourceOperate<
         > extends PersistResourceOperate<ENTITY, DTO, ID> {
 
 
-    public AddResourceOperate(ResourceDefinition<ENTITY> resourceDefinition, ResourceHandler<ENTITY, ID> resourceHandler, Class<DTO> dtoClass, Class<? extends BasicMapper<ENTITY, DTO>> mapperClass) {
-        super(resourceDefinition, resourceHandler, dtoClass, mapperClass);
+    public AddResourceOperate(Class<DTO> dtoClass, Class<? extends BasicMapper<ENTITY, DTO>> mapperClass) {
+        super(dtoClass, mapperClass);
     }
 
     /**
@@ -42,7 +41,15 @@ public class AddResourceOperate<
      * @return
      */
     protected ENTITY create(DTO dto) {
-        return mapper.toENTITY(dto);
+        if (mapper != null) {
+            return mapper.toENTITY(dto);
+        } else {
+            try {
+                return resourceDefinition.getEntityClass().getConstructor().newInstance();
+            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     /**
@@ -68,7 +75,7 @@ public class AddResourceOperate<
             if (before(dto)) {
                 ENTITY entity = create(dto);
                 prepare(dto, entity);
-                after(obj, resourceHandler.insert(entity));
+                after(dto, resourceHandler.insert(entity));
                 return Optional.of(entity);
             }
             return Optional.empty();

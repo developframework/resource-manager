@@ -9,14 +9,17 @@ import java.io.Serializable;
  */
 public abstract class ResourceOperate<ENTITY extends Entity<ID>, ID extends Serializable> {
 
-    protected ResourceOperateContext context = new ResourceOperateContext();
+    public ResourceOperateContext context = new ResourceOperateContext();
 
     protected ResourceDefinition<ENTITY> resourceDefinition;
 
     protected ResourceHandler<ENTITY, ID> resourceHandler;
 
-    public ResourceOperate(ResourceDefinition<ENTITY> resourceDefinition, ResourceHandler<ENTITY, ID> resourceHandler) {
-        this.resourceDefinition = resourceDefinition;
-        this.resourceHandler = resourceHandler;
+    protected AbstractResourceManager<ENTITY, ID> manager;
+
+    public void setManager(AbstractResourceManager<ENTITY, ID> manager) {
+        this.manager = manager;
+        this.resourceDefinition = manager.getResourceDefinition();
+        this.resourceHandler = manager.getResourceHandler();
     }
 }

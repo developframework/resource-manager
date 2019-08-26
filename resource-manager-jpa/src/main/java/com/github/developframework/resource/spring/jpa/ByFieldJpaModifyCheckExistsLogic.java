@@ -1,10 +1,11 @@
 package com.github.developframework.resource.spring.jpa;
 
 import com.github.developframework.expression.ExpressionUtils;
-import com.github.developframework.resource.AddCheckExistsLogic;
 import com.github.developframework.resource.Entity;
+import com.github.developframework.resource.ModifyCheckExistsLogic;
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.exception.ResourceExistException;
+import com.github.developframework.resource.operate.CheckUniqueByFieldLogic;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
@@ -18,13 +19,12 @@ import java.util.stream.Stream;
 /**
  * 根据字段查重
  *
- * @author qiushui on 2019-08-21.
+ * @author qiushui on 2019-08-26.
  */
-public class ByFieldJpaAddCheckExistsLogic<
-        ENTITY extends Entity<ID>,
+public class ByFieldJpaModifyCheckExistsLogic<ENTITY extends Entity<ID>,
         DTO extends com.github.developframework.resource.DTO,
         ID extends Serializable
-        > implements AddCheckExistsLogic<ENTITY, DTO, ID> {
+        > extends CheckUniqueByFieldLogic<ENTITY, DTO, ID> implements ModifyCheckExistsLogic<ENTITY, DTO, ID> {
 
     private String[] fields;
 
@@ -32,14 +32,17 @@ public class ByFieldJpaAddCheckExistsLogic<
 
     private EntityManager entityManager;
 
-    public ByFieldJpaAddCheckExistsLogic(ResourceDefinition<ENTITY> resourceDefinition, EntityManager entityManager, String... fields) {
+    public ByFieldJpaModifyCheckExistsLogic(ResourceDefinition<ENTITY> resourceDefinition, EntityManager entityManager, String... fields) {
         this.fields = fields;
         this.resourceDefinition = resourceDefinition;
         this.entityManager = entityManager;
     }
 
     @Override
-    public boolean check(DTO dto) {
+    public boolean check(DTO dto, ENTITY entity) {
+        if (!hasNewValue(dto, entity, fields)) {
+            return false;
+        }
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tuple> query = builder.createTupleQuery();
         Root<ENTITY> root = query.from(resourceDefinition.getEntityClass());

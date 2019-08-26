@@ -150,4 +150,8 @@ public abstract class AbstractResourceManager <
         }
         return entities;
     }
+
+    public abstract <T extends DTO> AddCheckExistsLogic<ENTITY, T, ID> byFieldAddCheck(Class<T> dtoClass, String... fields);
+
+    public abstract <T extends DTO> ModifyCheckExistsLogic<ENTITY, T, ID> byFieldModifyCheck(Class<T> dtoClass, String... fields);
 }

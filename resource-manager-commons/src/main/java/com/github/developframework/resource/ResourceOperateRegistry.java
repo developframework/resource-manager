@@ -5,6 +5,7 @@ import com.github.developframework.resource.operate.AddResourceOperate;
 import com.github.developframework.resource.operate.ModifyResourceOperate;
 import com.github.developframework.resource.operate.RemoveResourceOperate;
 import com.github.developframework.resource.operate.SearchResourceOperate;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
@@ -17,6 +18,7 @@ import java.util.stream.Stream;
  *
  * @author qiushui on 2019-08-16.
  */
+@Slf4j
 public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Serializable> {
 
     private Class<ENTITY> entityClass;
@@ -36,7 +38,7 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
      * @param manager
      */
     @SuppressWarnings("unchecked")
-    public ResourceOperateRegistry(Class<ENTITY> entityClass, AbstractResourceManager manager) {
+    public ResourceOperateRegistry(Class<ENTITY> entityClass, AbstractResourceManager<ENTITY, ID> manager) {
         this.entityClass = entityClass;
         Stream
                 .of(manager.getClass().getDeclaredMethods())
@@ -46,6 +48,7 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
                     ResourceOperate<ENTITY, ID> resourceOperate;
                     try {
                         resourceOperate = (ResourceOperate<ENTITY, ID>) method.invoke(manager);
+                        resourceOperate.setManager(manager);
                         if (resourceOperate instanceof AddResourceOperate) {
                             register((AddResourceOperate) resourceOperate);
                         } else if (resourceOperate instanceof ModifyResourceOperate) {
@@ -72,6 +75,7 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
             addResourceOperateMap = new HashMap<>();
         }
         addResourceOperateMap.put(addResourceOperate.getDtoClass(), addResourceOperate);
+        log.info("register {} for {} add operate", addResourceOperate.getDtoClass().getSimpleName(), entityClass.getSimpleName());
     }
 
     /**
@@ -85,15 +89,17 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
             modifyResourceOperateMap = new HashMap<>();
         }
         modifyResourceOperateMap.put(modifyResourceOperate.getDtoClass(), modifyResourceOperate);
+        log.info("register {} for {} modify operate", modifyResourceOperate.getDtoClass().getSimpleName(), entityClass.getSimpleName());
     }
 
     /**
-     * 注册查询操作
+     * 注册删除操作
      *
      * @param removeResourceOperate
      */
     public void register(RemoveResourceOperate<ENTITY, ID> removeResourceOperate) {
         this.removeResourceOperate = removeResourceOperate;
+        log.info("register {} remove operate", entityClass.getSimpleName());
     }
 
     /**
@@ -103,6 +109,7 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
      */
     public void register(SearchResourceOperate<ENTITY, ID> searchResourceOperate) {
         this.searchResourceOperate = searchResourceOperate;
+        log.info("register {} search operate", entityClass.getSimpleName());
     }
 
     /**
@@ -149,9 +156,6 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
      * @return
      */
     public SearchResourceOperate<ENTITY, ID> getSearchResourceOperate() {
-        if (searchResourceOperate != null) {
-            return searchResourceOperate;
-        }
-        throw new UnRegisterOperateException(entityClass, "search");
+        return searchResourceOperate;
     }
 }

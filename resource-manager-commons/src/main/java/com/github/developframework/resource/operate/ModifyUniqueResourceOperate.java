@@ -1,6 +1,9 @@
 package com.github.developframework.resource.operate;
 
-import com.github.developframework.resource.*;
+import com.github.developframework.resource.AbstractResourceManager;
+import com.github.developframework.resource.BasicMapper;
+import com.github.developframework.resource.Entity;
+import com.github.developframework.resource.ModifyCheckExistsLogic;
 import com.github.developframework.resource.exception.DTOCastException;
 import lombok.Getter;
 
@@ -18,8 +21,14 @@ public abstract class ModifyUniqueResourceOperate<
     @Getter
     private ModifyCheckExistsLogic<ENTITY, DTO, ID> logic;
 
-    public ModifyUniqueResourceOperate(ResourceDefinition<ENTITY> resourceDefinition, ResourceHandler<ENTITY, ID> resourceHandler, Class<DTO> dtoClass, Class<? extends BasicMapper<ENTITY, DTO>> mapperClass) {
-        super(resourceDefinition, resourceHandler, dtoClass, mapperClass);
+    public ModifyUniqueResourceOperate(Class<DTO> dtoClass, Class<? extends BasicMapper<ENTITY, DTO>> mapperClass) {
+        super(dtoClass, mapperClass);
+
+    }
+
+    @Override
+    public void setManager(AbstractResourceManager<ENTITY, ID> manager) {
+        super.setManager(manager);
         logic = configureCheckExistsLogic();
     }
 
@@ -51,7 +60,7 @@ public abstract class ModifyUniqueResourceOperate<
                             merge(dto, entity);
                             prepare(dto, entity);
                             boolean success = resourceHandler.update(entity);
-                            after(obj, entity);
+                            after(dto, entity);
                             return success;
                         } else {
                             return false;
@@ -61,5 +70,10 @@ public abstract class ModifyUniqueResourceOperate<
         } else {
             throw new DTOCastException();
         }
+    }
+
+
+    public ModifyCheckExistsLogic<ENTITY, DTO, ID> byField(String... fields) {
+        return manager.byFieldModifyCheck(dtoClass, fields);
     }
 }

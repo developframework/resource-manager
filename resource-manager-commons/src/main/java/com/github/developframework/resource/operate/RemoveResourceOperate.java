@@ -1,8 +1,6 @@
 package com.github.developframework.resource.operate;
 
 import com.github.developframework.resource.Entity;
-import com.github.developframework.resource.ResourceDefinition;
-import com.github.developframework.resource.ResourceHandler;
 import com.github.developframework.resource.ResourceOperate;
 
 import java.io.Serializable;
@@ -17,10 +15,6 @@ public class RemoveResourceOperate<
         ENTITY extends Entity<ID>,
         ID extends Serializable
         > extends ResourceOperate<ENTITY, ID> {
-
-    public RemoveResourceOperate(ResourceDefinition<ENTITY> resourceDefinition, ResourceHandler<ENTITY, ID> resourceHandler) {
-        super(resourceDefinition, resourceHandler);
-    }
 
     /**
      * 在删除操作的第一步

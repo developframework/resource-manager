@@ -2,8 +2,6 @@ package com.github.developframework.resource.operate;
 
 import com.github.developframework.resource.BasicMapper;
 import com.github.developframework.resource.Entity;
-import com.github.developframework.resource.ResourceDefinition;
-import com.github.developframework.resource.ResourceHandler;
 import com.github.developframework.resource.exception.DTOCastException;
 
 import java.io.Serializable;
@@ -17,8 +15,8 @@ public class ModifyResourceOperate<
         ID extends Serializable
         > extends PersistResourceOperate<ENTITY, DTO, ID> {
 
-    public ModifyResourceOperate(ResourceDefinition<ENTITY> resourceDefinition, ResourceHandler<ENTITY, ID> resourceHandler, Class<DTO> dtoClass, Class<? extends BasicMapper<ENTITY, DTO>> mapperClass) {
-        super(resourceDefinition, resourceHandler, dtoClass, mapperClass);
+    public ModifyResourceOperate(Class<DTO> dtoClass, Class<? extends BasicMapper<ENTITY, DTO>> mapperClass) {
+        super(dtoClass, mapperClass);
     }
 
     /**
@@ -50,7 +48,9 @@ public class ModifyResourceOperate<
      * @return
      */
     public void merge(DTO dto, ENTITY entity) {
-        mapper.toENTITY(dto, entity);
+        if (mapper != null) {
+            mapper.toENTITY(dto, entity);
+        }
     }
 
     /**
@@ -70,7 +70,7 @@ public class ModifyResourceOperate<
                             merge(dto, entity);
                             prepare(dto, entity);
                             boolean success = resourceHandler.update(entity);
-                            after(obj, entity);
+                            after(dto, entity);
                             return success;
                         } else {
                             return false;

@@ -55,7 +55,11 @@ public class MongoResourceManager<
                 .collect(Collectors.toList());
     }
 
-    public <T extends DTO> ByFieldMongoAddCheckExistsLogic<ENTITY, T, ID> byFieldCheck(Class<T> dtoClass, String... fields) {
+    public <T extends DTO> ByFieldMongoAddCheckExistsLogic<ENTITY, T, ID> byFieldAddCheck(Class<T> dtoClass, String... fields) {
         return new ByFieldMongoAddCheckExistsLogic<>(resourceDefinition, mongoOperations, fields);
+    }
+
+    public <T extends DTO> ByFieldMongoModifyCheckExistsLogic<ENTITY, T, ID> byFieldModifyCheck(Class<T> dtoClass, String... fields) {
+        return new ByFieldMongoModifyCheckExistsLogic<>(resourceDefinition, mongoOperations, fields);
     }
 }

@@ -1,6 +1,8 @@
 package com.github.developframework.resource.operate;
 
-import com.github.developframework.resource.*;
+import com.github.developframework.resource.BasicMapper;
+import com.github.developframework.resource.Entity;
+import com.github.developframework.resource.ResourceOperate;
 import lombok.Getter;
 import org.mapstruct.factory.Mappers;
 
@@ -22,10 +24,11 @@ public abstract class PersistResourceOperate<
 
     protected BasicMapper<ENTITY, DTO> mapper;
 
-    public PersistResourceOperate(ResourceDefinition<ENTITY> resourceDefinition, ResourceHandler<ENTITY, ID> resourceHandler, Class<DTO> dtoClass, Class<? extends BasicMapper<ENTITY, DTO>> mapperClass) {
-        super(resourceDefinition, resourceHandler);
+    public PersistResourceOperate(Class<DTO> dtoClass, Class<? extends BasicMapper<ENTITY, DTO>> mapperClass) {
         this.dtoClass = dtoClass;
-        this.mapper = Mappers.getMapper(mapperClass);
+        if (mapperClass != null) {
+            this.mapper = Mappers.getMapper(mapperClass);
+        }
     }
 
     /**
@@ -34,7 +37,7 @@ public abstract class PersistResourceOperate<
      * @param dto
      * @param entity
      */
-    public void after(Object dto, ENTITY entity) {
+    public void after(DTO dto, ENTITY entity) {
         // 默认无处理
     }
 }
