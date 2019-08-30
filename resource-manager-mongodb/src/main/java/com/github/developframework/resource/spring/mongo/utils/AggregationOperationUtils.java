@@ -1,4 +1,4 @@
-package com.github.developframework.resource.spring.mongodb.utils;
+package com.github.developframework.resource.spring.mongo.utils;
 
 import com.mongodb.BasicDBObject;
 import org.apache.commons.lang3.StringUtils;

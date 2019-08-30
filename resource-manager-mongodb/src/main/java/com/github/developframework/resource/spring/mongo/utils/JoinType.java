@@ -1,4 +1,4 @@
-package com.github.developframework.resource.spring.mongodb.utils;
+package com.github.developframework.resource.spring.mongo.utils;
 
 /**
  * @author qiushui on 2019-02-25.

@@ -47,7 +47,7 @@ public class ModifyResourceOperate<
      * @param entity
      * @return
      */
-    public void merge(DTO dto, ENTITY entity) {
+    protected void merge(DTO dto, ENTITY entity) {
         if (mapper != null) {
             mapper.toENTITY(dto, entity);
         }

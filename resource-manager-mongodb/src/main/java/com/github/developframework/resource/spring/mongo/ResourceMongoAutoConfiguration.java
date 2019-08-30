@@ -1,7 +1,7 @@
-package com.github.developframework.resource.spring.mongodb;
+package com.github.developframework.resource.spring.mongo;
 
-import com.github.developframework.resource.spring.mongodb.converter.BigDecimalToDecimal128Converter;
-import com.github.developframework.resource.spring.mongodb.converter.Decimal128ToBigDecimalConverter;
+import com.github.developframework.resource.spring.mongo.converter.BigDecimalToDecimal128Converter;
+import com.github.developframework.resource.spring.mongo.converter.Decimal128ToBigDecimalConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;

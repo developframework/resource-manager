@@ -1,4 +1,4 @@
-package com.github.developframework.resource.spring.mongodb.utils;
+package com.github.developframework.resource.spring.mongo.utils;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

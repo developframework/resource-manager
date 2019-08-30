@@ -1,4 +1,4 @@
-package com.github.developframework.resource.spring.mongodb.converter;
+package com.github.developframework.resource.spring.mongo.converter;
 
 import org.bson.types.Decimal128;
 import org.springframework.core.convert.converter.Converter;

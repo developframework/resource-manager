@@ -40,8 +40,9 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
     @SuppressWarnings("unchecked")
     public ResourceOperateRegistry(Class<ENTITY> entityClass, AbstractResourceManager<ENTITY, ID> manager) {
         this.entityClass = entityClass;
+        Class<? extends AbstractResourceManager> managerClass = manager.getClass();
         Stream
-                .of(manager.getClass().getDeclaredMethods())
+                .of(managerClass.getDeclaredMethods())
                 .filter(method -> ResourceOperate.class.isAssignableFrom(method.getReturnType()) && method.getParameterTypes().length == 0)
                 .forEach(method -> {
                     method.setAccessible(true);
@@ -62,6 +63,24 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
                         throw new RuntimeException(e);
                     }
                 });
+
+        // 设置默认值
+        if (managerClass.isAnnotationPresent(DefaultRegister.class)) {
+            DefaultRegister annotation = managerClass.getAnnotation(DefaultRegister.class);
+            if (addResourceOperateMap == null) {
+                AddResourceOperate<ENTITY, DTO, ID> resourceOperate = new AddResourceOperate(annotation.dtoClass(), annotation.mapperClass());
+                resourceOperate.setManager(manager);
+                register(resourceOperate);
+            }
+            if (modifyResourceOperateMap == null) {
+                ModifyResourceOperate<ENTITY, DTO, ID> resourceOperate = new ModifyResourceOperate(annotation.dtoClass(), annotation.mapperClass());
+                resourceOperate.setManager(manager);
+                register(resourceOperate);
+            }
+        }
+        if (removeResourceOperate == null) {
+            removeResourceOperate = new RemoveResourceOperate<>();
+        }
     }
 
     /**
@@ -119,7 +138,7 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
      * @return
      */
     public AddResourceOperate<ENTITY, ?, ID> getAddResourceOperate(Class<?> dtoClass) {
-        if (addResourceOperateMap.containsKey(dtoClass)) {
+        if (addResourceOperateMap != null && addResourceOperateMap.containsKey(dtoClass)) {
             return addResourceOperateMap.get(dtoClass);
         }
         throw new UnRegisterOperateException(entityClass, "add", dtoClass);
@@ -132,7 +151,7 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
      * @return
      */
     public ModifyResourceOperate<ENTITY, ?, ID> getModifyResourceOperate(Class<?> dtoClass) {
-        if (addResourceOperateMap.containsKey(dtoClass)) {
+        if (modifyResourceOperateMap != null && modifyResourceOperateMap.containsKey(dtoClass)) {
             return modifyResourceOperateMap.get(dtoClass);
         }
         throw new UnRegisterOperateException(entityClass, "modify", dtoClass);

@@ -1,10 +1,10 @@
-package com.github.developframework.resource.spring.mongodb;
+package com.github.developframework.resource.spring.mongo;
 
 import com.github.developframework.resource.Entity;
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.Search;
 import com.github.developframework.resource.spring.SpringDataResourceHandler;
-import com.github.developframework.resource.spring.mongodb.utils.AggregationOperationBuilder;
+import com.github.developframework.resource.spring.mongo.utils.AggregationOperationBuilder;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

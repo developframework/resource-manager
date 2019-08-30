@@ -31,7 +31,7 @@ public class RemoveResourceOperate<
      *
      * @param entity
      */
-    public void after(ENTITY entity) {
+    protected void after(ENTITY entity) {
         // 默认无处理
     }
 

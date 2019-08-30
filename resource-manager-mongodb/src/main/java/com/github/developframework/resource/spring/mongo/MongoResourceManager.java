@@ -1,11 +1,11 @@
-package com.github.developframework.resource.spring.mongodb;
+package com.github.developframework.resource.spring.mongo;
 
 import com.github.developframework.resource.DTO;
 import com.github.developframework.resource.Entity;
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.ResourceOperateRegistry;
 import com.github.developframework.resource.spring.SpringDataResourceManager;
-import com.github.developframework.resource.spring.mongodb.utils.Querys;
+import com.github.developframework.resource.spring.mongo.utils.Querys;
 import develop.toolkit.base.utils.CollectionAdvice;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Fields;

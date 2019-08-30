@@ -15,6 +15,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,7 +24,6 @@ import java.util.stream.Stream;
  *
  * @author qiushui on 2019-08-15.
  */
-@Transactional
 @SuppressWarnings("unchecked")
 public abstract class JpaResourceManager<
         ENTITY extends Entity<ID>,
@@ -42,6 +42,30 @@ public abstract class JpaResourceManager<
     public void init() {
         this.resourceHandler = new JpaResourceHandler<>(repository, resourceDefinition, entityManager);
         this.resourceOperateRegistry = new ResourceOperateRegistry(resourceDefinition.getEntityClass(), this);
+    }
+
+    @Transactional
+    @Override
+    public Optional<ENTITY> add(Object dto) {
+        return super.add(dto);
+    }
+
+    @Transactional
+    @Override
+    public boolean modifyById(ID id, Object dto) {
+        return super.modifyById(id, dto);
+    }
+
+    @Transactional
+    @Override
+    public void remove(ENTITY entity) {
+        super.remove(entity);
+    }
+
+    @Transactional
+    @Override
+    public ENTITY removeById(ID id) {
+        return super.removeById(id);
     }
 
     @Override

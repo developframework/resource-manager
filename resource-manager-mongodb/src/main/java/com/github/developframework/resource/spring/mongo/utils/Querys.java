@@ -1,4 +1,4 @@
-package com.github.developframework.resource.spring.mongodb.utils;
+package com.github.developframework.resource.spring.mongo.utils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;

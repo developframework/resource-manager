@@ -1,4 +1,4 @@
-package com.github.developframework.resource.spring.mongodb;
+package com.github.developframework.resource.spring.mongo;
 
 import com.github.developframework.resource.Entity;
 import com.github.developframework.resource.Search;

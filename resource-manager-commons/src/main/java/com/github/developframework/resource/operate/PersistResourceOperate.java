@@ -37,7 +37,7 @@ public abstract class PersistResourceOperate<
      * @param dto
      * @param entity
      */
-    public void after(DTO dto, ENTITY entity) {
+    protected void after(DTO dto, ENTITY entity) {
         // 默认无处理
     }
 }
