@@ -79,7 +79,9 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
             }
         }
         if (removeResourceOperate == null) {
-            removeResourceOperate = new RemoveResourceOperate<>();
+            RemoveResourceOperate<ENTITY, ID> resourceOperate = new RemoveResourceOperate<>();
+            resourceOperate.setManager(manager);
+            register(resourceOperate);
         }
     }
 

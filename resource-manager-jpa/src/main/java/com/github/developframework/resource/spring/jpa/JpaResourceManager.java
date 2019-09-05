@@ -3,6 +3,9 @@ package com.github.developframework.resource.spring.jpa;
 import com.github.developframework.resource.*;
 import com.github.developframework.resource.spring.SpringDataResourceManager;
 import develop.toolkit.base.utils.CollectionAdvice;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,6 +71,7 @@ public abstract class JpaResourceManager<
         return super.removeById(id);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ENTITY> listForIds(ID[] ids) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -78,6 +82,36 @@ public abstract class JpaResourceManager<
         return Stream.of(ids)
                 .map(id -> CollectionAdvice.getFirstMatch(list, id, Entity::getId).orElse(null))
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public ENTITY findOneByIdRequired(ID id) {
+        return super.findOneByIdRequired(id);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<ENTITY> findOneById(ID id) {
+        return super.findOneById(id);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public <SEARCH extends Search<ENTITY>> Page<ENTITY> pager(Pageable pageable, SEARCH search) {
+        return super.pager(pageable, search);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public <SEARCH extends Search<ENTITY>> List<ENTITY> list(SEARCH search) {
+        return super.list(search);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public <SEARCH extends Search<ENTITY>> List<ENTITY> list(Sort sort, SEARCH search) {
+        return super.list(sort, search);
     }
 
     @Override
