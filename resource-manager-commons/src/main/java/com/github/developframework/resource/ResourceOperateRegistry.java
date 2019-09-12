@@ -140,9 +140,12 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
      * @return
      */
     public AddResourceOperate<ENTITY, ?, ID> getAddResourceOperate(Class<?> dtoClass) {
-        if (addResourceOperateMap != null && addResourceOperateMap.containsKey(dtoClass)) {
-            return addResourceOperateMap.get(dtoClass);
-        }
+        do {
+            if (addResourceOperateMap != null && addResourceOperateMap.containsKey(dtoClass)) {
+                return addResourceOperateMap.get(dtoClass);
+            }
+            dtoClass = dtoClass.getSuperclass();
+        } while (dtoClass != Object.class);
         throw new UnRegisterOperateException(entityClass, "add", dtoClass);
     }
 
@@ -153,9 +156,12 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
      * @return
      */
     public ModifyResourceOperate<ENTITY, ?, ID> getModifyResourceOperate(Class<?> dtoClass) {
-        if (modifyResourceOperateMap != null && modifyResourceOperateMap.containsKey(dtoClass)) {
-            return modifyResourceOperateMap.get(dtoClass);
-        }
+        do {
+            if (modifyResourceOperateMap != null && modifyResourceOperateMap.containsKey(dtoClass)) {
+                return modifyResourceOperateMap.get(dtoClass);
+            }
+            dtoClass = dtoClass.getSuperclass();
+        } while (dtoClass != Object.class);
         throw new UnRegisterOperateException(entityClass, "modify", dtoClass);
     }
 
