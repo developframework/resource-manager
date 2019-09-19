@@ -17,6 +17,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -74,6 +75,9 @@ public abstract class JpaResourceManager<
     @Transactional(readOnly = true)
     @Override
     public List<ENTITY> listForIds(ID[] ids) {
+        if (ids.length == 0) {
+            return new ArrayList<>();
+        }
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<ENTITY> query = builder.createQuery(resourceDefinition.getEntityClass());
         Root<ENTITY> root = query.from(resourceDefinition.getEntityClass());

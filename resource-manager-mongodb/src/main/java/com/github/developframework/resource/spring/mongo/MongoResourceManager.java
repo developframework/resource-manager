@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,8 +47,11 @@ public class MongoResourceManager<
 
     @Override
     public List<ENTITY> listForIds(ID[] ids) {
+        if (ids.length == 0) {
+            return new ArrayList<>();
+        }
         List<ENTITY> list = mongoOperations.find(
-                Querys.in(Fields.UNDERSCORE_ID, (Object[]) ids),
+                Querys.in(Fields.UNDERSCORE_ID, ids),
                 resourceDefinition.getEntityClass()
         );
         return Stream.of(ids)

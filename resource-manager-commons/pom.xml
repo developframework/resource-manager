@@ -18,16 +18,7 @@
         </dependency>
         <dependency>
             <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct-jdk8</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.github.developframework</groupId>
-            <artifactId>expression</artifactId>
-            <version>1.3.0-SNAPSHOT</version>
+            <artifactId>mapstruct</artifactId>
         </dependency>
     </dependencies>
 </project>
