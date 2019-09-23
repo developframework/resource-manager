@@ -16,6 +16,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * MongoDB资源操作器
@@ -33,6 +34,11 @@ public class MongoResourceHandler<ENTITY extends Entity<ID>,
     public MongoResourceHandler(REPOSITORY repository, ResourceDefinition<ENTITY> resourceDefinition, MongoOperations mongoOperations) {
         super(repository, resourceDefinition);
         this.mongoOperations = mongoOperations;
+    }
+
+    @Override
+    public Optional<ENTITY> queryByIdForUpdate(ID id) {
+        return queryById(id);
     }
 
     @Override
