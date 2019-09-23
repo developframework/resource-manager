@@ -3,12 +3,16 @@ package com.github.developframework.resource.spring.jpa;
 import com.github.developframework.resource.*;
 import com.github.developframework.resource.spring.SpringDataResourceManager;
 import develop.toolkit.base.utils.CollectionAdvice;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
@@ -38,6 +42,9 @@ public abstract class JpaResourceManager<
     @PersistenceContext
     protected EntityManager entityManager;
 
+    @Autowired
+    private PlatformTransactionManager transactionManager;
+
     public JpaResourceManager(REPOSITORY repository, Class<ENTITY> entityClass, String resourceName) {
         super(repository, new ResourceDefinition<>(entityClass, resourceName));
     }
@@ -48,10 +55,26 @@ public abstract class JpaResourceManager<
         this.resourceOperateRegistry = new ResourceOperateRegistry(resourceDefinition.getEntityClass(), this);
     }
 
-    @Transactional
     @Override
     public Optional<ENTITY> add(Object dto) {
-        return super.add(dto);
+        if (resourceOperateRegistry.isAddUniqueResourceOperate(dto.getClass())) {
+            synchronized (this) {
+                DefaultTransactionDefinition transactionDefinition = new DefaultTransactionDefinition();
+                transactionDefinition.setIsolationLevel(DefaultTransactionDefinition.ISOLATION_REPEATABLE_READ);
+                transactionDefinition.setPropagationBehavior(DefaultTransactionDefinition.PROPAGATION_REQUIRED);
+                TransactionStatus transactionStatus = transactionManager.getTransaction(transactionDefinition);
+                try {
+                    final Optional<ENTITY> optional = super.add(dto);
+                    transactionManager.commit(transactionStatus);
+                    return optional;
+                } catch (Throwable e) {
+                    transactionManager.rollback(transactionStatus);
+                    throw e;
+                }
+            }
+        } else {
+            return super.add(dto);
+        }
     }
 
     @Transactional
@@ -81,7 +104,7 @@ public abstract class JpaResourceManager<
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<ENTITY> query = builder.createQuery(resourceDefinition.getEntityClass());
         Root<ENTITY> root = query.from(resourceDefinition.getEntityClass());
-        query.select(root).where(root.get("id").in((Object[]) ids));
+        query.select(root).where(root.get("id").in(ids));
         List<ENTITY> list = entityManager.createQuery(query).getResultList();
         return Stream.of(ids)
                 .map(id -> CollectionAdvice.getFirstMatch(list, id, Entity::getId).orElse(null))

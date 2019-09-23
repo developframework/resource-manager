@@ -1,10 +1,7 @@
 package com.github.developframework.resource;
 
 import com.github.developframework.resource.exception.UnRegisterOperateException;
-import com.github.developframework.resource.operate.AddResourceOperate;
-import com.github.developframework.resource.operate.ModifyResourceOperate;
-import com.github.developframework.resource.operate.RemoveResourceOperate;
-import com.github.developframework.resource.operate.SearchResourceOperate;
+import com.github.developframework.resource.operate.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
@@ -147,6 +144,16 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
             dtoClass = dtoClass.getSuperclass();
         } while (dtoClass != Object.class);
         throw new UnRegisterOperateException(entityClass, "add", dtoClass);
+    }
+
+    /**
+     * 是否是添加唯一资源操作
+     *
+     * @param dtoClass
+     * @return
+     */
+    public boolean isAddUniqueResourceOperate(Class<?> dtoClass) {
+        return getAddResourceOperate(dtoClass) instanceof AddUniqueResourceOperate;
     }
 
     /**

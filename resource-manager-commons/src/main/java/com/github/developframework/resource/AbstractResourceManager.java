@@ -107,8 +107,7 @@ public abstract class AbstractResourceManager <
      */
     @Override
     public Optional<ENTITY> findOneById(ID id) {
-        Optional<ENTITY> optional = resourceHandler.queryById(id);
-        return execSearchOperate(optional);
+        return resourceHandler.queryById(id).map(this::execSearchOperate);
     }
 
     /**
@@ -125,14 +124,6 @@ public abstract class AbstractResourceManager <
                 .addParameter("id", id)
                 .returnValue();
         return execSearchOperate(entity);
-    }
-
-    protected final Optional<ENTITY> execSearchOperate(Optional<ENTITY> optional) {
-        SearchResourceOperate searchResourceOperate = resourceOperateRegistry.getSearchResourceOperate();
-        if (searchResourceOperate != null) {
-            optional.ifPresent(searchResourceOperate::after);
-        }
-        return optional;
     }
 
     protected final ENTITY execSearchOperate(ENTITY entity) {
