@@ -2,6 +2,7 @@ package com.github.developframework.resource;
 
 import com.github.developframework.resource.exception.UnRegisterOperateException;
 import com.github.developframework.resource.operate.*;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
@@ -27,6 +28,9 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
     protected RemoveResourceOperate<ENTITY, ID> removeResourceOperate;
 
     protected SearchResourceOperate<ENTITY, ID> searchResourceOperate;
+
+    @Getter
+    private boolean uniqueEntity;
 
     /**
      * 扫描Manager类返回值为ResourceOperate的方法，识别并注册
@@ -80,6 +84,8 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
             resourceOperate.setManager(manager);
             register(resourceOperate);
         }
+
+        uniqueEntity = addResourceOperateMap.values().stream().anyMatch(operate -> operate instanceof AddUniqueResourceOperate);
     }
 
     /**
@@ -144,16 +150,6 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
             dtoClass = dtoClass.getSuperclass();
         } while (dtoClass != Object.class);
         throw new UnRegisterOperateException(entityClass, "add", dtoClass);
-    }
-
-    /**
-     * 是否是添加唯一资源操作
-     *
-     * @param dtoClass
-     * @return
-     */
-    public boolean isAddUniqueResourceOperate(Class<?> dtoClass) {
-        return getAddResourceOperate(dtoClass) instanceof AddUniqueResourceOperate;
     }
 
     /**

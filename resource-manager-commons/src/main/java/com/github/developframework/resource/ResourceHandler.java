@@ -67,6 +67,14 @@ public interface ResourceHandler<ENTITY extends Entity<ID>, ID extends Serializa
     Optional<ENTITY> queryById(ID id);
 
     /**
+     * 根据ID查询单个资源（悲观锁模式）
+     *
+     * @param id
+     * @return
+     */
+    Optional<ENTITY> queryByIdForUpdate(ID id);
+
+    /**
      * 查询列表
      *
      * @param search

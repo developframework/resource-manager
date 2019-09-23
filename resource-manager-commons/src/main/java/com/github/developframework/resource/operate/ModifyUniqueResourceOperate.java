@@ -51,7 +51,7 @@ public abstract class ModifyUniqueResourceOperate<
         if (dtoClass.isAssignableFrom(obj.getClass())) {
             DTO dto = (DTO) obj;
             return resourceHandler
-                    .queryById(id)
+                    .queryByIdForUpdate(id)
                     .map(entity -> {
                         if (before(dto, entity)) {
                             if (logic.check(dto, entity)) {

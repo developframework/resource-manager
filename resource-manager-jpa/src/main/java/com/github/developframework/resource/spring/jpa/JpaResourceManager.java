@@ -9,10 +9,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
@@ -43,7 +43,7 @@ public abstract class JpaResourceManager<
     protected EntityManager entityManager;
 
     @Autowired
-    private PlatformTransactionManager transactionManager;
+    protected TransactionTemplate transactionTemplate;
 
     public JpaResourceManager(REPOSITORY repository, Class<ENTITY> entityClass, String resourceName) {
         super(repository, new ResourceDefinition<>(entityClass, resourceName));
@@ -57,42 +57,53 @@ public abstract class JpaResourceManager<
 
     @Override
     public Optional<ENTITY> add(Object dto) {
-        if (resourceOperateRegistry.isAddUniqueResourceOperate(dto.getClass())) {
+        if (resourceOperateRegistry.isUniqueEntity()) {
             synchronized (this) {
-                DefaultTransactionDefinition transactionDefinition = new DefaultTransactionDefinition();
-                transactionDefinition.setIsolationLevel(DefaultTransactionDefinition.ISOLATION_REPEATABLE_READ);
-                transactionDefinition.setPropagationBehavior(DefaultTransactionDefinition.PROPAGATION_REQUIRED);
-                TransactionStatus transactionStatus = transactionManager.getTransaction(transactionDefinition);
-                try {
-                    final Optional<ENTITY> optional = super.add(dto);
-                    transactionManager.commit(transactionStatus);
-                    return optional;
-                } catch (Throwable e) {
-                    transactionManager.rollback(transactionStatus);
-                    throw e;
-                }
+                return transactionTemplate.execute(transactionStatus -> super.add(dto));
             }
         } else {
             return super.add(dto);
         }
     }
 
-    @Transactional
     @Override
     public boolean modifyById(ID id, Object dto) {
-        return super.modifyById(id, dto);
+        if (resourceOperateRegistry.isUniqueEntity()) {
+            synchronized (this) {
+                Boolean result = transactionTemplate.execute(transactionStatus -> super.modifyById(id, dto));
+                return result != null && result;
+            }
+        } else {
+            return super.modifyById(id, dto);
+        }
     }
 
-    @Transactional
     @Override
     public void remove(ENTITY entity) {
-        super.remove(entity);
+        if (resourceOperateRegistry.isUniqueEntity()) {
+            synchronized (this) {
+                transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+                    @Override
+                    protected void doInTransactionWithoutResult(TransactionStatus status) {
+                        JpaResourceManager.super.remove(entity);
+                    }
+                });
+            }
+        } else {
+            super.remove(entity);
+        }
     }
 
-    @Transactional
     @Override
     public ENTITY removeById(ID id) {
-        return super.removeById(id);
+        if (resourceOperateRegistry.isUniqueEntity()) {
+            synchronized (this) {
+                return transactionTemplate.execute(transactionStatus -> super.removeById(id));
+            }
+        } else {
+            return super.removeById(id);
+        }
+
     }
 
     @Transactional(readOnly = true)
