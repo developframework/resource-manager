@@ -85,7 +85,7 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
             register(resourceOperate);
         }
 
-        uniqueEntity = addResourceOperateMap.values().stream().anyMatch(operate -> operate instanceof AddUniqueResourceOperate);
+        uniqueEntity = addResourceOperateMap != null && addResourceOperateMap.values().stream().anyMatch(operate -> operate instanceof AddUniqueResourceOperate);
     }
 
     /**
