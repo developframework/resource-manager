@@ -64,7 +64,7 @@ public class ModifyResourceOperate<
         if (dtoClass.isAssignableFrom(obj.getClass())) {
             DTO dto = (DTO) obj;
             return resourceHandler
-                    .queryByIdForUpdate(id)
+                    .queryById(id)
                     .map(entity -> {
                         if (before(dto, entity)) {
                             merge(dto, entity);
