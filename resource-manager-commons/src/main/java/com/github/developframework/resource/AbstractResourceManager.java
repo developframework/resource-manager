@@ -67,7 +67,7 @@ public abstract class AbstractResourceManager <
     }
 
     /**
-     * 修改资源流程
+     * 根据ID修改资源流程
      *
      * @param id
      * @param dto
@@ -79,14 +79,26 @@ public abstract class AbstractResourceManager <
     }
 
     /**
+     * 修改资源流程
+     *
+     * @param dto
+     * @param entity
+     * @return
+     */
+    @Override
+    public boolean modify(Object dto, ENTITY entity) {
+        return resourceOperateRegistry.getModifyResourceOperate(dto.getClass()).modify(dto, entity);
+    }
+
+    /**
      * 删除资源流程
      *
      * @param id
      * @return
      */
     @Override
-    public ENTITY removeById(ID id) {
-        return (ENTITY) resourceOperateRegistry.getRemoveResourceOperate().removeById(id);
+    public Optional<ENTITY> removeById(ID id) {
+        return resourceOperateRegistry.getRemoveResourceOperate().removeById(id);
     }
 
     /**
@@ -95,8 +107,8 @@ public abstract class AbstractResourceManager <
      * @param entity
      */
     @Override
-    public void remove(ENTITY entity) {
-        resourceOperateRegistry.getRemoveResourceOperate().remove(entity);
+    public boolean remove(ENTITY entity) {
+        return resourceOperateRegistry.getRemoveResourceOperate().remove(entity);
     }
 
     /**
