@@ -7,6 +7,7 @@ import com.github.developframework.resource.ResourceOperateRegistry;
 import com.github.developframework.resource.spring.SpringDataResourceManager;
 import com.github.developframework.resource.spring.mongo.utils.Querys;
 import develop.toolkit.base.utils.CollectionAdvice;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -29,20 +30,19 @@ public class MongoResourceManager<
         REPOSITORY extends MongoRepository<ENTITY, ID>
         > extends SpringDataResourceManager<ENTITY, ID, REPOSITORY> {
 
+    @Autowired
     protected MongoOperations mongoOperations;
 
-    public MongoResourceManager(REPOSITORY repository, MongoOperations mongoOperations, Class<ENTITY> entityClass, String resourceName) {
+    public MongoResourceManager(REPOSITORY repository, Class<ENTITY> entityClass, String resourceName) {
         super(repository, new ResourceDefinition<>(entityClass, resourceName));
-        this.mongoOperations = mongoOperations;
-        this.resourceHandler = new MongoResourceHandler<>(repository, resourceDefinition, mongoOperations);
-        this.resourceOperateRegistry = new ResourceOperateRegistry(resourceDefinition.getEntityClass(), this);
+        this.resourceOperateRegistry = new ResourceOperateRegistry(this);
     }
 
     public MongoResourceManager(REPOSITORY repository, Class<ENTITY> entityClass, String resourceName, MongoResourceHandler<ENTITY, ID, REPOSITORY> resourceHandler) {
         super(repository, new ResourceDefinition<>(entityClass, resourceName));
+        this.resourceOperateRegistry = new ResourceOperateRegistry(this);
         this.mongoOperations = resourceHandler.getMongoOperations();
         this.resourceHandler = resourceHandler;
-        this.resourceOperateRegistry = new ResourceOperateRegistry(resourceDefinition.getEntityClass(), this);
     }
 
     @Override
@@ -66,4 +66,10 @@ public class MongoResourceManager<
     public <T extends DTO> ByFieldMongoModifyCheckExistsLogic<ENTITY, T, ID> byFieldModifyCheck(Class<T> dtoClass, String... fields) {
         return new ByFieldMongoModifyCheckExistsLogic<>(resourceDefinition, mongoOperations, fields);
     }
+
+    public void setMongoOperations(MongoOperations mongoOperations) {
+        this.mongoOperations = mongoOperations;
+        this.resourceHandler = new MongoResourceHandler<>(repository, resourceDefinition, mongoOperations);
+    }
+
 }

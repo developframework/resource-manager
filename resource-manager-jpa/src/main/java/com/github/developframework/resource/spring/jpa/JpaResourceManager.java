@@ -52,7 +52,7 @@ public abstract class JpaResourceManager<
     @PostConstruct
     public void init() {
         this.resourceHandler = new JpaResourceHandler<>(repository, resourceDefinition, entityManager);
-        this.resourceOperateRegistry = new ResourceOperateRegistry(resourceDefinition.getEntityClass(), this);
+        this.resourceOperateRegistry = new ResourceOperateRegistry(this);
     }
 
     @Override

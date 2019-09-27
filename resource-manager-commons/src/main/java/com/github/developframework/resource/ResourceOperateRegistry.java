@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 @Slf4j
 public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Serializable> {
 
-    private Class<ENTITY> entityClass;
+    private AbstractResourceManager<ENTITY, ID> manager;
 
     private Map<Class<?>, AddResourceOperate<ENTITY, ?, ID>> addResourceOperateMap;
 
@@ -35,12 +35,11 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
     /**
      * 扫描Manager类返回值为ResourceOperate的方法，识别并注册
      *
-     * @param entityClass
      * @param manager
      */
     @SuppressWarnings("unchecked")
-    public ResourceOperateRegistry(Class<ENTITY> entityClass, AbstractResourceManager<ENTITY, ID> manager) {
-        this.entityClass = entityClass;
+    public ResourceOperateRegistry(AbstractResourceManager<ENTITY, ID> manager) {
+        this.manager = manager;
         Class<? extends AbstractResourceManager> managerClass = manager.getClass();
         Stream
                 .of(managerClass.getDeclaredMethods())
@@ -99,7 +98,7 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
             addResourceOperateMap = new HashMap<>();
         }
         addResourceOperateMap.put(addResourceOperate.getDtoClass(), addResourceOperate);
-        log.info("register {} for {} add operate", addResourceOperate.getDtoClass().getSimpleName(), entityClass.getSimpleName());
+        log.info("register {} for {} add operate", addResourceOperate.getDtoClass().getSimpleName(), manager.getResourceDefinition().getEntityClass().getSimpleName());
     }
 
     /**
@@ -113,7 +112,7 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
             modifyResourceOperateMap = new HashMap<>();
         }
         modifyResourceOperateMap.put(modifyResourceOperate.getDtoClass(), modifyResourceOperate);
-        log.info("register {} for {} modify operate", modifyResourceOperate.getDtoClass().getSimpleName(), entityClass.getSimpleName());
+        log.info("register {} for {} modify operate", modifyResourceOperate.getDtoClass().getSimpleName(), manager.getResourceDefinition().getEntityClass().getSimpleName());
     }
 
     /**
@@ -123,7 +122,7 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
      */
     public void register(RemoveResourceOperate<ENTITY, ID> removeResourceOperate) {
         this.removeResourceOperate = removeResourceOperate;
-        log.info("register {} remove operate", entityClass.getSimpleName());
+        log.info("register {} remove operate", manager.getResourceDefinition().getEntityClass().getSimpleName());
     }
 
     /**
@@ -133,7 +132,7 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
      */
     public void register(SearchResourceOperate<ENTITY, ID> searchResourceOperate) {
         this.searchResourceOperate = searchResourceOperate;
-        log.info("register {} search operate", entityClass.getSimpleName());
+        log.info("register {} search operate", manager.getResourceDefinition().getEntityClass().getSimpleName());
     }
 
     /**
@@ -142,14 +141,15 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
      * @param dtoClass
      * @return
      */
-    public AddResourceOperate<ENTITY, ?, ID> getAddResourceOperate(Class<?> dtoClass) {
+    public AddResourceOperate<ENTITY, ?, ID> getAddResourceOperate(final Class<?> dtoClass) {
+        Class<?> temp = dtoClass;
         do {
             if (addResourceOperateMap != null && addResourceOperateMap.containsKey(dtoClass)) {
                 return addResourceOperateMap.get(dtoClass);
             }
-            dtoClass = dtoClass.getSuperclass();
-        } while (dtoClass != Object.class);
-        throw new UnRegisterOperateException(entityClass, "add", dtoClass);
+            temp = temp.getSuperclass();
+        } while (temp != Object.class);
+        throw new UnRegisterOperateException(manager.getClass(), "add", dtoClass);
     }
 
     /**
@@ -158,14 +158,15 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
      * @param dtoClass
      * @return
      */
-    public ModifyResourceOperate<ENTITY, ?, ID> getModifyResourceOperate(Class<?> dtoClass) {
+    public ModifyResourceOperate<ENTITY, ?, ID> getModifyResourceOperate(final Class<?> dtoClass) {
+        Class<?> temp = dtoClass;
         do {
             if (modifyResourceOperateMap != null && modifyResourceOperateMap.containsKey(dtoClass)) {
                 return modifyResourceOperateMap.get(dtoClass);
             }
-            dtoClass = dtoClass.getSuperclass();
-        } while (dtoClass != Object.class);
-        throw new UnRegisterOperateException(entityClass, "modify", dtoClass);
+            temp = temp.getSuperclass();
+        } while (temp != Object.class);
+        throw new UnRegisterOperateException(manager.getClass(), "modify", dtoClass);
     }
 
     /**
@@ -177,7 +178,7 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
         if (removeResourceOperate != null) {
             return removeResourceOperate;
         }
-        throw new UnRegisterOperateException(entityClass, "remove");
+        throw new UnRegisterOperateException(manager.getClass(), "remove");
     }
 
     /**
