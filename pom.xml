@@ -14,20 +14,49 @@
         <module>resource-manager-jpa</module>
         <module>resource-manager-spring-data</module>
         <module>resource-manager-mongodb</module>
-        <module>resource-manager-web</module>
     </modules>
+
+    <name>Resource Manager</name>
+    <url>https://github.com/developframework/resource-manager</url>
+    <inceptionYear>2019</inceptionYear>
+
+    <developers>
+        <developer>
+            <name>qiuzhenhao</name>
+            <email>408000511@qq.com</email>
+            <organization>developframework</organization>
+            <organizationUrl>http://blog.qiushuicloud.xyz</organizationUrl>
+        </developer>
+    </developers>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/developframework/resource-manager</url>
+    </issueManagement>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:git@github.com:developframework/resource-manager.git</connection>
+        <developerConnection>scm:git:git@github.com:developframework/resource-manager.git</developerConnection>
+        <url>https://github.com/developframework/resource-manager</url>
+        <tag>${project.version}</tag>
+    </scm>
 
     <properties>
         <lombok.version>1.18.10</lombok.version>
         <mapstruct.version>1.3.0.Final</mapstruct.version>
         <spring.data.version>2.1.10.RELEASE</spring.data.version>
         <spring.boot.version>2.1.8.RELEASE</spring.boot.version>
-        <commons-lang3.version>3.9</commons-lang3.version>
         <commons-collections4.version>4.2</commons-collections4.version>
         <mongo-java-driver.version>3.10.1</mongo-java-driver.version>
         <mysql-connector-java.version>8.0.15</mysql-connector-java.version>
-        <develop.toolkit.version>1.0.1-SNAPSHOT</develop.toolkit.version>
-        <kite.version>0.14-SNAPSHOT</kite.version>
+        <develop.toolkit.version>1.0.1</develop.toolkit.version>
     </properties>
 
     <dependencyManagement>
@@ -79,11 +108,6 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>${commons-lang3.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
                 <version>${commons-collections4.version}</version>
             </dependency>
@@ -97,11 +121,6 @@
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql-connector-java.version}</version>
                 <scope>runtime</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.github.developframework</groupId>
-                <artifactId>kite-spring-boot-starter</artifactId>
-                <version>${kite.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -134,7 +153,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -145,6 +164,61 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <configuration>
+                            <doclint>none</doclint>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>ossrh</id>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                </snapshotRepository>
+                <repository>
+                    <id>ossrh</id>
+                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+    </profiles>
 </project>
