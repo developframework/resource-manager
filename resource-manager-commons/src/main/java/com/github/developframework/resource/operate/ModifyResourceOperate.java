@@ -80,4 +80,32 @@ public class ModifyResourceOperate<
             throw new DTOCastException();
         }
     }
+
+    /**
+     * 修改资源
+     *
+     * @param obj
+     * @param entity
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public boolean modify(Object obj, ENTITY entity) {
+        if (entity.getId() == null) {
+            return false;
+        }
+        if (dtoClass.isAssignableFrom(obj.getClass())) {
+            DTO dto = (DTO) obj;
+            if (before(dto, entity)) {
+                merge(dto, entity);
+                prepare(dto, entity);
+                boolean success = resourceHandler.update(entity);
+                after(dto, entity);
+                return success;
+            } else {
+                return false;
+            }
+        } else {
+            throw new DTOCastException();
+        }
+    }
 }

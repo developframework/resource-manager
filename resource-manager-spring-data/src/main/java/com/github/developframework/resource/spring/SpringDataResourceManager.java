@@ -33,7 +33,6 @@ public abstract class SpringDataResourceManager<
         this.repository = repository;
     }
 
-    @Override
     public <SEARCH extends Search<ENTITY>> List<ENTITY> list(SEARCH search) {
         List<ENTITY> list = resourceHandler.query(search);
         return execSearchOperate(list);

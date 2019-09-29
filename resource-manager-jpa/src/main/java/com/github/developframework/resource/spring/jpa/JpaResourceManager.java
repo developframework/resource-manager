@@ -70,8 +70,8 @@ public abstract class JpaResourceManager<
     public boolean modifyById(ID id, Object dto) {
         if (resourceOperateRegistry.isUniqueEntity()) {
             synchronized (this) {
-                Boolean result = transactionTemplate.execute(transactionStatus -> super.modifyById(id, dto));
-                return result != null && result;
+                Boolean result = transactionTemplate.execute(transactionStatus -> !super.modifyById(id, dto));
+                return result == null || !result;
             }
         } else {
             return super.modifyById(id, dto);
