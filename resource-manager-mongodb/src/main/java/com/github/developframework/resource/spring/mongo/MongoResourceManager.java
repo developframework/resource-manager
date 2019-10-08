@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
+import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,8 +68,8 @@ public class MongoResourceManager<
         return new ByFieldMongoModifyCheckExistsLogic<>(resourceDefinition, mongoOperations, fields);
     }
 
-    public void setMongoOperations(MongoOperations mongoOperations) {
-        this.mongoOperations = mongoOperations;
+    @PostConstruct
+    public void setResourceHandler() {
         this.resourceHandler = new MongoResourceHandler<>(repository, resourceDefinition, mongoOperations);
     }
 

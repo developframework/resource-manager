@@ -9,9 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.PostConstruct;
@@ -79,23 +77,18 @@ public abstract class JpaResourceManager<
     }
 
     @Override
-    public void remove(ENTITY entity) {
+    public boolean remove(ENTITY entity) {
         if (resourceOperateRegistry.isUniqueEntity()) {
             synchronized (this) {
-                transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-                    @Override
-                    protected void doInTransactionWithoutResult(TransactionStatus status) {
-                        JpaResourceManager.super.remove(entity);
-                    }
-                });
+                return transactionTemplate.execute(transactionStatus -> super.remove(entity));
             }
         } else {
-            super.remove(entity);
+            return super.remove(entity);
         }
     }
 
     @Override
-    public ENTITY removeById(ID id) {
+    public Optional<ENTITY> removeById(ID id) {
         if (resourceOperateRegistry.isUniqueEntity()) {
             synchronized (this) {
                 return transactionTemplate.execute(transactionStatus -> super.removeById(id));

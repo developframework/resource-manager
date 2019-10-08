@@ -12,7 +12,6 @@ import org.springframework.data.mongodb.core.aggregation.Field;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.query.Query;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -130,16 +129,6 @@ public final class AggregationOperationUtils {
     }
 
     /**
-     * 查询记录数管道
-     *
-     * @return
-     */
-    @Deprecated
-    public static AggregationOperation groupCount() {
-        return context -> new Document("$group", new Document("_id", null).append("count", new Document("$sum", 1)));
-    }
-
-    /**
      * 实现$addFields
      *
      * @param expressions
@@ -180,11 +169,11 @@ public final class AggregationOperationUtils {
      * @return
      */
     public static List<AggregationOperation> aggregationOperations(AggregationOperation... aggregationOperations) {
-        return new LinkedList<>(Arrays.asList(aggregationOperations));
+        return new LinkedList<>(List.of(aggregationOperations));
     }
 
     /**
-     * 从@Document取得集合名称
+     *从@Document取得集合名称
      *
      * @param docClass
      * @return
