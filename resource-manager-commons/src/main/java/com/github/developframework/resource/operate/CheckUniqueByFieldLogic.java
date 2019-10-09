@@ -2,6 +2,8 @@ package com.github.developframework.resource.operate;
 
 import com.github.developframework.expression.ExpressionUtils;
 import com.github.developframework.resource.Entity;
+import develop.toolkit.base.struct.KeyValuePair;
+import develop.toolkit.base.struct.KeyValuePairs;
 
 import java.io.Serializable;
 
@@ -14,11 +16,26 @@ public abstract class CheckUniqueByFieldLogic<
         ID extends Serializable
         > {
 
-    protected boolean hasNewValue(DTO dto, ENTITY entity, String[] fields) {
-        boolean hasNewValue = false;
+    /**
+     * 解析字段对  DTO字段名: ENTITY字段名
+     *
+     * @param fields
+     * @return
+     */
+    protected KeyValuePairs<String, String> parseFieldPair(String[] fields) {
+        KeyValuePairs<String, String> fieldPairs = new KeyValuePairs<>();
         for (String field : fields) {
-            Object dtoValue = ExpressionUtils.getValue(dto, field);
-            Object entityValue = ExpressionUtils.getValue(entity, field);
+            final String[] parts = field.split(":\\s*");
+            fieldPairs.addKeyValue(parts[0], parts.length == 1 ? parts[0] : parts[1]);
+        }
+        return fieldPairs;
+    }
+
+    protected boolean hasNewValue(DTO dto, ENTITY entity, KeyValuePairs<String, String> fieldPairs) {
+        boolean hasNewValue = false;
+        for (KeyValuePair<String, String> pair : fieldPairs) {
+            Object dtoValue = ExpressionUtils.getValue(dto, pair.getKey());
+            Object entityValue = ExpressionUtils.getValue(entity, pair.getValue());
             if (!dtoValue.equals(entityValue)) {
                 hasNewValue = true;
                 break;

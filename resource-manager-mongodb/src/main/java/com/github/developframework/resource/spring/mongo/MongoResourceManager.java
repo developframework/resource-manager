@@ -36,7 +36,6 @@ public class MongoResourceManager<
 
     public MongoResourceManager(REPOSITORY repository, Class<ENTITY> entityClass, String resourceName) {
         super(repository, new ResourceDefinition<>(entityClass, resourceName));
-        this.resourceOperateRegistry = new ResourceOperateRegistry(this);
     }
 
     public MongoResourceManager(REPOSITORY repository, Class<ENTITY> entityClass, String resourceName, MongoResourceHandler<ENTITY, ID, REPOSITORY> resourceHandler) {
@@ -71,6 +70,7 @@ public class MongoResourceManager<
     @PostConstruct
     public void setResourceHandler() {
         this.resourceHandler = new MongoResourceHandler<>(repository, resourceDefinition, mongoOperations);
+        this.resourceOperateRegistry = new ResourceOperateRegistry(this);
     }
 
 }

@@ -6,6 +6,7 @@ import com.github.developframework.resource.ModifyCheckExistsLogic;
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.exception.ResourceExistException;
 import com.github.developframework.resource.operate.CheckUniqueByFieldLogic;
+import develop.toolkit.base.struct.KeyValuePairs;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
@@ -14,7 +15,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.io.Serializable;
-import java.util.stream.Stream;
 
 /**
  * 根据字段查重
@@ -40,7 +40,8 @@ public class ByFieldJpaModifyCheckExistsLogic<ENTITY extends Entity<ID>,
 
     @Override
     public boolean check(DTO dto, ENTITY entity) {
-        if (!hasNewValue(dto, entity, fields)) {
+        KeyValuePairs<String, String> pairs = parseFieldPair(fields);
+        if (!hasNewValue(dto, entity, pairs)) {
             return false;
         }
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -49,11 +50,11 @@ public class ByFieldJpaModifyCheckExistsLogic<ENTITY extends Entity<ID>,
         query.multiselect(
                 builder.count(builder.literal(1)).as(Integer.class)
         ).where(
-                Stream
-                        .of(fields)
-                        .map(fieldName -> {
-                            Object value = ExpressionUtils.getValue(dto, fieldName);
-                            return builder.equal(root.get(fieldName), value);
+                pairs
+                        .stream()
+                        .map(pair -> {
+                            Object value = ExpressionUtils.getValue(dto, pair.getKey());
+                            return builder.equal(root.get(pair.getValue()), value);
                         })
                         .toArray(Predicate[]::new)
         );

@@ -6,6 +6,8 @@ import com.github.developframework.resource.ModifyCheckExistsLogic;
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.exception.ResourceExistException;
 import com.github.developframework.resource.operate.CheckUniqueByFieldLogic;
+import develop.toolkit.base.struct.KeyValuePair;
+import develop.toolkit.base.struct.KeyValuePairs;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -37,12 +39,15 @@ public class ByFieldMongoModifyCheckExistsLogic<
 
     @Override
     public boolean check(DTO dto, ENTITY entity) {
-        if (!hasNewValue(dto, entity, fields)) {
+        KeyValuePairs<String, String> fieldPairs = parseFieldPair(fields);
+        if (!hasNewValue(dto, entity, fieldPairs)) {
             return false;
         }
-        Criteria criteria = Criteria.where(fields[0]).is(ExpressionUtils.getValue(dto, fields[0]));
-        for (int i = 1; i < fields.length; i++) {
-            criteria.and(fields[i]).is(ExpressionUtils.getValue(dto, fields[i]));
+        KeyValuePair<String, String> tempPair = fieldPairs.get(0);
+        Criteria criteria = Criteria.where(tempPair.getValue()).is(ExpressionUtils.getValue(dto, tempPair.getKey()));
+        for (int i = 1; i < fieldPairs.size(); i++) {
+            tempPair = fieldPairs.get(i);
+            criteria.and(tempPair.getValue()).is(ExpressionUtils.getValue(dto, tempPair.getKey()));
         }
         return mongoOperations.exists(Query.query(criteria), resourceDefinition.getEntityClass());
     }
