@@ -60,7 +60,7 @@ public abstract class JpaResourceManager<
                 return transactionTemplate.execute(transactionStatus -> super.add(dto));
             }
         } else {
-            return super.add(dto);
+            return transactionTemplate.execute(transactionStatus -> super.add(dto));
         }
     }
 
@@ -72,7 +72,8 @@ public abstract class JpaResourceManager<
                 return result == null || !result;
             }
         } else {
-            return super.modifyById(id, dto);
+            Boolean result = transactionTemplate.execute(transactionStatus -> !super.modifyById(id, dto));
+            return result == null || !result;
         }
     }
 
@@ -83,7 +84,7 @@ public abstract class JpaResourceManager<
                 return transactionTemplate.execute(transactionStatus -> super.remove(entity));
             }
         } else {
-            return super.remove(entity);
+            return transactionTemplate.execute(transactionStatus -> super.remove(entity));
         }
     }
 
