@@ -45,13 +45,17 @@ public class MongoResourceManager<
         this.resourceHandler = resourceHandler;
     }
 
-    @Override
     public List<ENTITY> listForIds(ID[] ids) {
+        return listForIds(Fields.UNDERSCORE_ID, ids);
+    }
+
+    @Override
+    public List<ENTITY> listForIds(String idProperty, ID[] ids) {
         if (ids.length == 0) {
             return new ArrayList<>();
         }
         List<ENTITY> list = mongoOperations.find(
-                Querys.in(Fields.UNDERSCORE_ID, ids),
+                Querys.in(idProperty, ids),
                 resourceDefinition.getEntityClass()
         );
         return Stream.of(ids)

@@ -89,5 +89,5 @@ public interface ResourceManager<ENTITY extends Entity<ID>, ID extends Serializa
      * @param ids
      * @return
      */
-    List<ENTITY> listForIds(ID[] ids);
+    List<ENTITY> listForIds(String id, ID[] ids);
 }

@@ -101,15 +101,20 @@ public abstract class JpaResourceManager<
     }
 
     @Transactional(readOnly = true)
-    @Override
     public List<ENTITY> listForIds(ID[] ids) {
+        return listForIds("id", ids);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<ENTITY> listForIds(String idProperty, ID[] ids) {
         if (ids.length == 0) {
             return new ArrayList<>();
         }
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<ENTITY> query = builder.createQuery(resourceDefinition.getEntityClass());
         Root<ENTITY> root = query.from(resourceDefinition.getEntityClass());
-        query.select(root).where(root.get("id").in(ids));
+        query.select(root).where(root.get(idProperty).in(ids));
         List<ENTITY> list = entityManager.createQuery(query).getResultList();
         return Stream.of(ids)
                 .map(id -> CollectionAdvice.getFirstMatch(list, id, Entity::getId).orElse(null))

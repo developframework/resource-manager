@@ -36,7 +36,7 @@ public abstract class CheckUniqueByFieldLogic<
         for (KeyValuePair<String, String> pair : fieldPairs) {
             Object dtoValue = ExpressionUtils.getValue(dto, pair.getKey());
             Object entityValue = ExpressionUtils.getValue(entity, pair.getValue());
-            if (!dtoValue.equals(entityValue)) {
+            if (dtoValue != null && !dtoValue.equals(entityValue)) {
                 hasNewValue = true;
                 break;
             }
