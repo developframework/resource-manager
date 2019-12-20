@@ -44,7 +44,7 @@ public class MongoResourceHandler<ENTITY extends Entity<ID>,
     @Override
     public List<ENTITY> query(Search<ENTITY> search) {
         Query query = safeSearch(search);
-        return mongoOperations.find(query, resourceDefinition.getEntityClass());
+        return query != null ? mongoOperations.find(query, resourceDefinition.getEntityClass()) : mongoOperations.findAll(resourceDefinition.getEntityClass());
     }
 
     @Override
