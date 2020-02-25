@@ -5,6 +5,7 @@ import com.github.developframework.resource.Entity;
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.ResourceOperateRegistry;
 import com.github.developframework.resource.spring.SpringDataResourceManager;
+import com.github.developframework.resource.spring.mongo.utils.AggregationOperationBuilder;
 import com.github.developframework.resource.spring.mongo.utils.Querys;
 import develop.toolkit.base.utils.CollectionAdvice;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,4 +78,12 @@ public class MongoResourceManager<
         this.resourceOperateRegistry = new ResourceOperateRegistry(this);
     }
 
+    /**
+     * 获取AggregationOperation构建器
+     *
+     * @return
+     */
+    public final AggregationOperationBuilder aggregationOperationBuilder() {
+        return new AggregationOperationBuilder(mongoOperations);
+    }
 }

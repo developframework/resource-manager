@@ -50,33 +50,24 @@ public class MongoResourceHandler<ENTITY extends Entity<ID>,
     @Override
     public <SEARCH extends Search<ENTITY>> List<ENTITY> query(Sort sort, SEARCH search) {
         Query query = safeSearch(search);
-        AggregationOperationBuilder<ENTITY, ID> builder = aggregationOperationBuilder();
+        AggregationOperationBuilder builder = new AggregationOperationBuilder(mongoOperations);
         if (query != null) {
             builder.match(query).aggregation(Aggregation.sort(sort));
         }
-        return builder.list();
+        return builder.list(resourceDefinition.getEntityClass(), resourceDefinition.getEntityClass());
     }
 
     @Override
     public <SEARCH extends Search<ENTITY>> Page<ENTITY> queryPager(Pageable pageable, SEARCH search) {
         Query query = safeSearch(search);
-        AggregationOperationBuilder<ENTITY, ID> builder = aggregationOperationBuilder();
+        AggregationOperationBuilder builder = new AggregationOperationBuilder(mongoOperations);
         if (query != null) {
             builder.match(query);
         }
-        return builder.pager(pageable);
+        return builder.pager(pageable, resourceDefinition.getEntityClass(), resourceDefinition.getEntityClass());
     }
 
     private Query safeSearch(Search<ENTITY> search) {
         return search != null ? ((MongoSearch<ENTITY>) search).toQuery() : null;
-    }
-
-    /**
-     * 获取AggregationOperation构建器
-     *
-     * @return
-     */
-    public AggregationOperationBuilder<ENTITY, ID> aggregationOperationBuilder() {
-        return new AggregationOperationBuilder<>(mongoOperations, resourceDefinition.getEntityClass());
     }
 }

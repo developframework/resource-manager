@@ -51,20 +51,6 @@ public final class AggregationQueryHelper {
     }
 
     /**
-     * 按照aggregate方式查询单个
-     *
-     * @param mongoOperations
-     * @param aggregationOperations
-     * @param clazz
-     * @param <T>
-     * @return
-     */
-    public static <T> Optional<T> aggregationOne(MongoOperations mongoOperations, List<AggregationOperation> aggregationOperations, Class<T> clazz) {
-        return aggregationOne(mongoOperations, aggregationOperations, clazz, clazz);
-    }
-
-
-    /**
      * 按照aggregate方式查询列表
      *
      * @param mongoOperations
@@ -95,19 +81,6 @@ public final class AggregationQueryHelper {
     public static <T> List<T> aggregationList(MongoOperations mongoOperations, List<AggregationOperation> aggregationOperations, Class<?> docClass, Class<T> outputClass) {
         String collectionName = AggregationOperationUtils.collectionNameFormDocumentAnnotation(docClass);
         return aggregationList(mongoOperations, aggregationOperations, collectionName, outputClass);
-    }
-
-    /**
-     * 按照aggregate方式查询列表
-     *
-     * @param mongoOperations
-     * @param aggregationOperations
-     * @param clazz
-     * @param <T>
-     * @return
-     */
-    public static <T> List<T> aggregationList(MongoOperations mongoOperations, List<AggregationOperation> aggregationOperations, Class<T> clazz) {
-        return aggregationList(mongoOperations, aggregationOperations, clazz, clazz);
     }
 
     /**
