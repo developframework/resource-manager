@@ -9,14 +9,17 @@ import com.github.developframework.resource.spring.mongo.utils.AggregationOperat
 import com.github.developframework.resource.spring.mongo.utils.Querys;
 import develop.toolkit.base.utils.CollectionAdvice;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,7 +28,6 @@ import java.util.stream.Stream;
  *
  * @author qiushui on 2019-08-21.
  */
-@SuppressWarnings("unchecked")
 public class MongoResourceManager<
         ENTITY extends Entity<ID>,
         ID extends Serializable,
@@ -35,15 +37,70 @@ public class MongoResourceManager<
     @Autowired
     protected MongoOperations mongoOperations;
 
+    protected TransactionTemplate transactionTemplate;
+
     public MongoResourceManager(REPOSITORY repository, Class<ENTITY> entityClass, String resourceName) {
         super(repository, new ResourceDefinition<>(entityClass, resourceName));
     }
 
     public MongoResourceManager(REPOSITORY repository, Class<ENTITY> entityClass, String resourceName, MongoResourceHandler<ENTITY, ID, REPOSITORY> resourceHandler) {
         super(repository, new ResourceDefinition<>(entityClass, resourceName));
-        this.resourceOperateRegistry = new ResourceOperateRegistry(this);
+        this.resourceOperateRegistry = new ResourceOperateRegistry<>(this);
         this.mongoOperations = resourceHandler.getMongoOperations();
         this.resourceHandler = resourceHandler;
+    }
+
+    @Autowired
+    public void setMongoTransactionManager(MongoTransactionManager mongoTransactionManager) {
+        this.transactionTemplate = new TransactionTemplate(mongoTransactionManager);
+    }
+
+    @Override
+    public Optional<ENTITY> add(Object dto) {
+        if (resourceOperateRegistry.isUniqueEntity()) {
+            synchronized (this) {
+                return transactionTemplate.execute(transactionStatus -> super.add(dto));
+            }
+        } else {
+            return transactionTemplate.execute(transactionStatus -> super.add(dto));
+        }
+    }
+
+    @Override
+    public boolean modifyById(ID id, Object dto) {
+        if (resourceOperateRegistry.isUniqueEntity()) {
+            synchronized (this) {
+                Boolean result = transactionTemplate.execute(transactionStatus -> !super.modifyById(id, dto));
+                return result == null || !result;
+            }
+        } else {
+            Boolean result = transactionTemplate.execute(transactionStatus -> !super.modifyById(id, dto));
+            return result == null || !result;
+        }
+    }
+
+    @Override
+    public boolean remove(ENTITY entity) {
+        if (resourceOperateRegistry.isUniqueEntity()) {
+            synchronized (this) {
+                final Boolean execute = transactionTemplate.execute(transactionStatus -> super.remove(entity));
+                return execute != null ? execute : false;
+            }
+        } else {
+            final Boolean execute = transactionTemplate.execute(transactionStatus -> super.remove(entity));
+            return execute != null ? execute : false;
+        }
+    }
+
+    @Override
+    public Optional<ENTITY> removeById(ID id) {
+        if (resourceOperateRegistry.isUniqueEntity()) {
+            synchronized (this) {
+                return transactionTemplate.execute(transactionStatus -> super.removeById(id));
+            }
+        } else {
+            return super.removeById(id);
+        }
     }
 
     public List<ENTITY> listForIds(ID[] ids) {
@@ -75,7 +132,7 @@ public class MongoResourceManager<
     @PostConstruct
     public void setResourceHandler() {
         this.resourceHandler = new MongoResourceHandler<>(repository, resourceDefinition, mongoOperations);
-        this.resourceOperateRegistry = new ResourceOperateRegistry(this);
+        this.resourceOperateRegistry = new ResourceOperateRegistry<>(this);
     }
 
     /**
