@@ -37,7 +37,7 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
      *
      * @param manager
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public ResourceOperateRegistry(AbstractResourceManager<ENTITY, ID> manager) {
         this.manager = manager;
         Class<? extends AbstractResourceManager> managerClass = manager.getClass();

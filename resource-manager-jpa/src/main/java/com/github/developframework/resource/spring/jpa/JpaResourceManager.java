@@ -26,11 +26,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * jpa-data-jpa资源管理器
+ * spring-data-jpa资源管理器
  *
  * @author qiushui on 2019-08-15.
  */
-@SuppressWarnings("unchecked")
 public abstract class JpaResourceManager<
         ENTITY extends Entity<ID>,
         ID extends Serializable,
@@ -50,7 +49,7 @@ public abstract class JpaResourceManager<
     @PostConstruct
     public void init() {
         this.resourceHandler = new JpaResourceHandler<>(repository, resourceDefinition, entityManager);
-        this.resourceOperateRegistry = new ResourceOperateRegistry(this);
+        this.resourceOperateRegistry = new ResourceOperateRegistry<>(this);
     }
 
     @Override
@@ -81,10 +80,12 @@ public abstract class JpaResourceManager<
     public boolean remove(ENTITY entity) {
         if (resourceOperateRegistry.isUniqueEntity()) {
             synchronized (this) {
-                return transactionTemplate.execute(transactionStatus -> super.remove(entity));
+                final Boolean execute = transactionTemplate.execute(transactionStatus -> super.remove(entity));
+                return execute != null ? execute : false;
             }
         } else {
-            return transactionTemplate.execute(transactionStatus -> super.remove(entity));
+            final Boolean execute = transactionTemplate.execute(transactionStatus -> super.remove(entity));
+            return execute != null ? execute : false;
         }
     }
 
