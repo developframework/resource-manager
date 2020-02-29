@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -154,7 +153,7 @@ public class AggregationOperationBuilder {
      * @return
      */
     public AggregationOperationBuilder complex(AggregationOperation... aggregationOperations) {
-        this.aggregationOperations.addAll(Arrays.asList(aggregationOperations));
+        this.aggregationOperations.addAll(List.of(aggregationOperations));
         return this;
     }
 
