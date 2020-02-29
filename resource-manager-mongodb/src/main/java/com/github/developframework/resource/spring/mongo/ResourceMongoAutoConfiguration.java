@@ -4,9 +4,9 @@ import com.github.developframework.resource.spring.mongo.converter.BigDecimalToD
 import com.github.developframework.resource.spring.mongo.converter.Decimal128ToBigDecimalConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.MongoTransactionManager;
-import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.util.List;
@@ -19,11 +19,11 @@ import java.util.List;
 public class ResourceMongoAutoConfiguration {
 
     @Bean
-    public MongoCustomConversions mongoCustomConversions() {
-        return new MongoCustomConversions(List.of(
+    public List<Converter<?, ?>> resourceMongoConverters() {
+        return List.of(
                 BigDecimalToDecimal128Converter.INSTANCE,
                 Decimal128ToBigDecimalConverter.INSTANCE
-        ));
+        );
     }
 
     @Bean

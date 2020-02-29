@@ -98,7 +98,7 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
             addResourceOperateMap = new HashMap<>();
         }
         addResourceOperateMap.put(addResourceOperate.getDtoClass(), addResourceOperate);
-        log.info("register {} for {} add operate", addResourceOperate.getDtoClass().getSimpleName(), manager.getResourceDefinition().getEntityClass().getSimpleName());
+        log.debug("register {} for {} add operate", addResourceOperate.getDtoClass().getSimpleName(), manager.getResourceDefinition().getEntityClass().getSimpleName());
     }
 
     /**
@@ -112,7 +112,7 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
             modifyResourceOperateMap = new HashMap<>();
         }
         modifyResourceOperateMap.put(modifyResourceOperate.getDtoClass(), modifyResourceOperate);
-        log.info("register {} for {} modify operate", modifyResourceOperate.getDtoClass().getSimpleName(), manager.getResourceDefinition().getEntityClass().getSimpleName());
+        log.debug("register {} for {} modify operate", modifyResourceOperate.getDtoClass().getSimpleName(), manager.getResourceDefinition().getEntityClass().getSimpleName());
     }
 
     /**
@@ -122,7 +122,7 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
      */
     public void register(RemoveResourceOperate<ENTITY, ID> removeResourceOperate) {
         this.removeResourceOperate = removeResourceOperate;
-        log.info("register {} remove operate", manager.getResourceDefinition().getEntityClass().getSimpleName());
+        log.debug("register {} remove operate", manager.getResourceDefinition().getEntityClass().getSimpleName());
     }
 
     /**
@@ -132,7 +132,7 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
      */
     public void register(SearchResourceOperate<ENTITY, ID> searchResourceOperate) {
         this.searchResourceOperate = searchResourceOperate;
-        log.info("register {} search operate", manager.getResourceDefinition().getEntityClass().getSimpleName());
+        log.debug("register {} search operate", manager.getResourceDefinition().getEntityClass().getSimpleName());
     }
 
     /**
