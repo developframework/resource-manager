@@ -170,6 +170,19 @@ public class AggregationOperationBuilder {
     }
 
     /**
+     * 原生AggregationOperation， 附加执行条件
+     *
+     * @param aggregationOperation
+     * @return
+     */
+    public AggregationOperationBuilder aggregation(boolean predicate, AggregationOperation aggregationOperation) {
+        if (predicate) {
+            this.aggregationOperations.add(aggregationOperation);
+        }
+        return this;
+    }
+
+    /**
      * $unwind
      *
      * @param field

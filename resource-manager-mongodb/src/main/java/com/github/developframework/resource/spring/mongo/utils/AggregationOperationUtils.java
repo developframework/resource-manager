@@ -101,7 +101,6 @@ public final class AggregationOperationUtils {
             BasicBSONList inList = new BasicBSONList();
             inList.add(new BasicBSONObject("$objectToArray", "$" + sourceFieldName));
             inList.add(1);
-
             BasicBSONObject addFields = new BasicBSONObject("$addFields",
                     new BasicBSONObject(newFieldName,
                             new BasicDBObject("$let",

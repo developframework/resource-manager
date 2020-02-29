@@ -5,6 +5,7 @@ import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.Search;
 import com.github.developframework.resource.spring.SpringDataResourceHandler;
 import com.github.developframework.resource.spring.mongo.utils.AggregationOperationBuilder;
+import develop.toolkit.base.utils.K;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,23 +52,19 @@ public class MongoResourceHandler<ENTITY extends Entity<ID>,
     public <SEARCH extends Search<ENTITY>> List<ENTITY> query(Sort sort, SEARCH search) {
         Query query = safeSearch(search);
         AggregationOperationBuilder builder = new AggregationOperationBuilder(mongoOperations);
-        if (query != null) {
-            builder.match(query).aggregation(Aggregation.sort(sort));
-        }
-        return builder.list(resourceDefinition.getEntityClass(), resourceDefinition.getEntityClass());
+        K.let(query, builder::match);
+        return builder.aggregation(sort != null, Aggregation.sort(sort)).list(resourceDefinition.getEntityClass(), resourceDefinition.getEntityClass());
     }
 
     @Override
     public <SEARCH extends Search<ENTITY>> Page<ENTITY> queryPager(Pageable pageable, SEARCH search) {
         Query query = safeSearch(search);
         AggregationOperationBuilder builder = new AggregationOperationBuilder(mongoOperations);
-        if (query != null) {
-            builder.match(query);
-        }
+        K.let(query, builder::match);
         return builder.pager(pageable, resourceDefinition.getEntityClass(), resourceDefinition.getEntityClass());
     }
 
     private Query safeSearch(Search<ENTITY> search) {
-        return search != null ? ((MongoSearch<ENTITY>) search).toQuery() : null;
+        return K.map(search, s -> ((MongoSearch<ENTITY>) s).toQuery());
     }
 }

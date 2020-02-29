@@ -1,5 +1,6 @@
 package com.github.developframework.resource.spring.mongo.utils;
 
+import develop.toolkit.base.utils.K;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -14,60 +15,88 @@ import java.util.Collection;
  */
 public final class Querys {
 
-    public static Query id(String field, String id) {
-        return is(field, new ObjectId(id));
+    public static Query id(String field, @Nullable String id) {
+        Query query = new Query();
+        K.let(id, v -> query.addCriteria(Criteria.where(field).is(new ObjectId(id))));
+        return query;
     }
 
     public static Query is(String field, @Nullable Object value) {
-        return new Query().addCriteria(Criteria.where(field).is(value));
+        Query query = new Query();
+        K.let(value, v -> query.addCriteria(Criteria.where(field).is(v)));
+        return query;
     }
 
     public static Query ne(String field, @Nullable Object value) {
-        return new Query().addCriteria(Criteria.where(field).ne(value));
+        Query query = new Query();
+        K.let(value, v -> query.addCriteria(Criteria.where(field).ne(v)));
+        return query;
     }
 
-    public static Query gt(String field, Object value) {
-        return new Query().addCriteria(Criteria.where(field).gt(value));
+    public static Query gt(String field, @Nullable Object value) {
+        Query query = new Query();
+        K.let(value, v -> query.addCriteria(Criteria.where(field).gt(v)));
+        return query;
     }
 
-    public static Query gte(String field, Object value) {
-        return new Query().addCriteria(Criteria.where(field).gte(value));
+    public static Query gte(String field, @Nullable Object value) {
+        Query query = new Query();
+        K.let(value, v -> query.addCriteria(Criteria.where(field).gte(v)));
+        return query;
     }
 
-    public static Query lt(String field, Object value) {
-        return new Query().addCriteria(Criteria.where(field).lt(value));
+    public static Query lt(String field, @Nullable Object value) {
+        Query query = new Query();
+        K.let(value, v -> query.addCriteria(Criteria.where(field).lt(v)));
+        return query;
     }
 
     public static Query lte(String field, @Nullable Object value) {
-        return new Query().addCriteria(Criteria.where(field).lte(value));
+        Query query = new Query();
+        K.let(value, v -> query.addCriteria(Criteria.where(field).lte(v)));
+        return query;
     }
 
-    public static Query regex(String field, String keyword) {
-        return new Query().addCriteria(Criteria.where(field).regex(escapeRegex(keyword)));
+    public static Query regex(String field, @Nullable String keyword) {
+        Query query = new Query();
+        K.let(keyword, v -> query.addCriteria(Criteria.where(field).regex(escapeRegex(v))));
+        return query;
     }
 
-    public static Query in(String field, Object... value) {
-        return new Query().addCriteria(Criteria.where(field).in(value));
+    public static Query in(String field, @Nullable Object... value) {
+        Query query = new Query();
+        K.let(value, v -> query.addCriteria(Criteria.where(field).in(v)));
+        return query;
     }
 
-    public static Query in(String field, Collection<?> collection) {
-        return new Query().addCriteria(Criteria.where(field).in(collection));
+    public static Query in(String field, @Nullable Collection<?> collection) {
+        Query query = new Query();
+        K.let(collection, v -> query.addCriteria(Criteria.where(field).in(v)));
+        return query;
     }
 
-    public static Query nin(String field, Object... value) {
-        return new Query().addCriteria(Criteria.where(field).nin(value));
+    public static Query nin(String field, @Nullable Object... value) {
+        Query query = new Query();
+        K.let(value, v -> query.addCriteria(Criteria.where(field).nin(v)));
+        return query;
     }
 
-    public static Query nin(String field, Collection<?> collection) {
-        return new Query().addCriteria(Criteria.where(field).nin(collection));
+    public static Query nin(String field, @Nullable Collection<?> collection) {
+        Query query = new Query();
+        K.let(collection, v -> query.addCriteria(Criteria.where(field).nin(v)));
+        return query;
     }
 
-    public static Query exists(String field, boolean value) {
-        return new Query().addCriteria(Criteria.where(field).exists(value));
+    public static Query exists(String field, @Nullable Boolean value) {
+        Query query = new Query();
+        K.let(value, v -> query.addCriteria(Criteria.where(field).exists(v)));
+        return query;
     }
 
-    public static Query type(String field, int value) {
-        return new Query().addCriteria(Criteria.where(field).type(value));
+    public static Query type(String field, @Nullable Integer value) {
+        Query query = new Query();
+        K.let(value, v -> query.addCriteria(Criteria.where(field).type(v)));
+        return query;
     }
 
     /**

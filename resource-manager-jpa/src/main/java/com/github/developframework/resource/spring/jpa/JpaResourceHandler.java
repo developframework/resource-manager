@@ -4,6 +4,7 @@ import com.github.developframework.resource.Entity;
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.Search;
 import com.github.developframework.resource.spring.SpringDataResourceHandler;
+import develop.toolkit.base.utils.K;
 import lombok.Getter;
 import org.apache.commons.collections4.IterableUtils;
 import org.springframework.data.domain.Page;
@@ -75,6 +76,6 @@ public class JpaResourceHandler<
     }
 
     private Specification<ENTITY> safeSearch(Search<ENTITY> search) {
-        return search != null ? ((JpaSearch<ENTITY>) search).toSpecification() : null;
+        return K.map(search, s -> ((JpaSearch<ENTITY>) s).toSpecification());
     }
 }
