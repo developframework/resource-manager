@@ -55,8 +55,7 @@ public final class PredicateBuilder<T> {
      * @param complexPredicate
      * @return
      */
-    @SuppressWarnings("unchecked")
-    public PredicateBuilder<T> complexPredicate(ComplexPredicate complexPredicate) {
+    public PredicateBuilder<T> complexPredicate(ComplexPredicate<T> complexPredicate) {
         Predicate predicate = complexPredicate.toPredicate(root, criteriaBuilder);
         if (predicate != null) {
             predicates.add(predicate);
