@@ -27,7 +27,7 @@ public class ResourceMongoAutoConfiguration {
     }
 
     @Bean
-    public MongoTransactionManager transactionManager(MongoDbFactory dbFactory) {
+    public MongoTransactionManager mongoTransactionManager(MongoDbFactory dbFactory) {
         return new MongoTransactionManager(dbFactory);
     }
 }
