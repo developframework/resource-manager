@@ -139,7 +139,7 @@ public abstract class AbstractResourceManager <
     }
 
     protected final ENTITY execSearchOperate(ENTITY entity) {
-        SearchResourceOperate searchResourceOperate = resourceOperateRegistry.getSearchResourceOperate();
+        SearchResourceOperate<ENTITY, ID> searchResourceOperate = resourceOperateRegistry.getSearchResourceOperate();
         if (searchResourceOperate != null) {
             searchResourceOperate.after(entity);
         }
@@ -147,7 +147,7 @@ public abstract class AbstractResourceManager <
     }
 
     protected final <T extends Iterable<ENTITY>> T execSearchOperate(T entities) {
-        SearchResourceOperate searchResourceOperate = resourceOperateRegistry.getSearchResourceOperate();
+        SearchResourceOperate<ENTITY, ID> searchResourceOperate = resourceOperateRegistry.getSearchResourceOperate();
         if (searchResourceOperate != null) {
             entities.forEach(searchResourceOperate::after);
         }

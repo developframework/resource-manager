@@ -2,14 +2,11 @@ package com.github.developframework.resource.spring.jpa;
 
 import com.github.developframework.resource.*;
 import com.github.developframework.resource.spring.SpringDataResourceManager;
+import com.github.developframework.resource.utils.ResourceAssert;
 import develop.toolkit.base.utils.CollectionAdvice;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.PostConstruct;
@@ -101,12 +98,22 @@ public abstract class JpaResourceManager<
 
     }
 
-    @Transactional(readOnly = true)
     public List<ENTITY> listForIds(ID[] ids) {
         return listForIds("id", ids);
     }
 
-    @Transactional(readOnly = true)
+    public Optional<ENTITY> findOneByIdForUpdate(ID id) {
+        return resourceHandler.queryByIdForUpdate(id).map(this::execSearchOperate);
+    }
+
+    @SuppressWarnings("unchecked")
+    public ENTITY findOneByIdRequiredForUpdate(ID id) {
+        return (ENTITY) ResourceAssert
+                .resourceExistAssertBuilder(resourceDefinition.getResourceName(), resourceHandler.queryByIdForUpdate(id))
+                .addParameter("id", id)
+                .returnValue();
+    }
+
     @Override
     public List<ENTITY> listForIds(String idProperty, ID[] ids) {
         if (ids.length == 0) {
@@ -120,36 +127,6 @@ public abstract class JpaResourceManager<
         return Stream.of(ids)
                 .map(id -> CollectionAdvice.getFirstMatch(list, id, Entity::getId).orElse(null))
                 .collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public ENTITY findOneByIdRequired(ID id) {
-        return super.findOneByIdRequired(id);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public Optional<ENTITY> findOneById(ID id) {
-        return super.findOneById(id);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public <SEARCH extends Search<ENTITY>> Page<ENTITY> pager(Pageable pageable, SEARCH search) {
-        return super.pager(pageable, search);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public <SEARCH extends Search<ENTITY>> List<ENTITY> list(SEARCH search) {
-        return super.list(search);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public <SEARCH extends Search<ENTITY>> List<ENTITY> list(Sort sort, SEARCH search) {
-        return super.list(sort, search);
     }
 
     @Override
