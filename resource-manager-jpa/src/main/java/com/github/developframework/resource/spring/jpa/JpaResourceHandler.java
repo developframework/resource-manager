@@ -16,11 +16,6 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
@@ -46,15 +41,7 @@ public class JpaResourceHandler<
 
     @Override
     public Optional<ENTITY> queryByIdForUpdate(ID id) {
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<ENTITY> query = builder.createQuery(resourceDefinition.getEntityClass());
-        Root<ENTITY> root = query.from(resourceDefinition.getEntityClass());
-        TypedQuery<ENTITY> typedQuery = entityManager.createQuery(query.where(builder.equal(root.get("id"), id))).setLockMode(LockModeType.PESSIMISTIC_WRITE);
-        try {
-            return Optional.of(typedQuery.getSingleResult());
-        } catch (NoResultException e) {
-            return Optional.empty();
-        }
+        return Optional.ofNullable(entityManager.find(resourceDefinition.getEntityClass(), id, LockModeType.PESSIMISTIC_WRITE));
     }
 
     @Override

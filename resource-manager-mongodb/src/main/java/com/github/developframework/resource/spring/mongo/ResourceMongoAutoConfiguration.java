@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * @author qiushui on 2019-08-24.
  */
-@EnableTransactionManagement
+@EnableTransactionManagement(proxyTargetClass = true)
 @Configuration
 public class ResourceMongoAutoConfiguration {
 
