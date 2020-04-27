@@ -11,6 +11,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author qiushui on 2018-11-05.
@@ -44,8 +46,35 @@ public final class QueryBuilder {
      * @return
      */
     public QueryBuilder id(String field, String id) {
-        if (id != null) {
+        if (id != null && ObjectId.isValid(id)) {
             query.addCriteria(Criteria.where(field).is(new ObjectId(id)));
+        }
+        return this;
+    }
+
+    public QueryBuilder ids(String field, Collection<String> ids) {
+        if (ids != null) {
+            query.addCriteria(Criteria.where(field).in(
+                    ids
+                            .parallelStream()
+                            .filter(ObjectId::isValid)
+                            .map(ObjectId::new)
+                            .collect(Collectors.toUnmodifiableSet()))
+            );
+        }
+        return this;
+    }
+
+    public QueryBuilder ids(String field, String[] ids) {
+        if (ids != null) {
+            query.addCriteria(Criteria.where(field).in(
+                    Stream
+                            .of(ids)
+                            .parallel()
+                            .filter(ObjectId::isValid)
+                            .map(ObjectId::new)
+                            .collect(Collectors.toUnmodifiableSet()))
+            );
         }
         return this;
     }
