@@ -67,15 +67,13 @@ public class MongoResourceManager<
     }
 
     @Override
-    public boolean modifyById(ID id, Object dto) {
+    public Optional<ENTITY> modifyById(ID id, Object dto) {
         if (resourceOperateRegistry.isUniqueEntity()) {
             synchronized (this) {
-                Boolean result = transactionTemplate.execute(transactionStatus -> !super.modifyById(id, dto));
-                return result == null || !result;
+                return transactionTemplate.execute(transactionStatus -> super.modifyById(id, dto));
             }
         } else {
-            Boolean result = transactionTemplate.execute(transactionStatus -> !super.modifyById(id, dto));
-            return result == null || !result;
+            return transactionTemplate.execute(transactionStatus -> super.modifyById(id, dto));
         }
     }
 

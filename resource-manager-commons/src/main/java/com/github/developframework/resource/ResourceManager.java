@@ -57,7 +57,7 @@ public interface ResourceManager<ENTITY extends Entity<ID>, ID extends Serializa
      * @param dto
      * @return
      */
-    boolean modifyById(ID id, Object dto);
+    Optional<ENTITY> modifyById(ID id, Object dto);
 
     /**
      * 修改资源流程

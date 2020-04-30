@@ -26,7 +26,7 @@ public abstract class AbstractResourceManager <
 
     protected ResourceHandler<ENTITY, ID> resourceHandler;
 
-    protected ResourceOperateRegistry resourceOperateRegistry;
+    protected ResourceOperateRegistry<ENTITY, ID> resourceOperateRegistry;
 
     public AbstractResourceManager(ResourceDefinition<ENTITY> resourceDefinition) {
         this.resourceDefinition = resourceDefinition;
@@ -74,7 +74,7 @@ public abstract class AbstractResourceManager <
      * @return
      */
     @Override
-    public boolean modifyById(ID id, Object dto) {
+    public Optional<ENTITY> modifyById(ID id, Object dto) {
         return resourceOperateRegistry.getModifyResourceOperate(dto.getClass()).modifyById(dto, id);
     }
 

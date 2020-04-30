@@ -28,10 +28,10 @@ import java.util.stream.Stream;
  * @author qiushui on 2019-08-15.
  */
 public abstract class JpaResourceManager<
-        ENTITY extends Entity<ID>,
+        PO extends com.github.developframework.resource.spring.jpa.PO<ID>,
         ID extends Serializable,
-        REPOSITORY extends PagingAndSortingRepository<ENTITY, ID> & JpaSpecificationExecutor<ENTITY>
-        > extends SpringDataResourceManager<ENTITY, ID, REPOSITORY> {
+        REPOSITORY extends PagingAndSortingRepository<PO, ID> & JpaSpecificationExecutor<PO>
+        > extends SpringDataResourceManager<PO, ID, REPOSITORY> {
 
     @PersistenceContext
     protected EntityManager entityManager;
@@ -39,7 +39,7 @@ public abstract class JpaResourceManager<
     @Autowired
     protected TransactionTemplate transactionTemplate;
 
-    public JpaResourceManager(REPOSITORY repository, Class<ENTITY> entityClass, String resourceName) {
+    public JpaResourceManager(REPOSITORY repository, Class<PO> entityClass, String resourceName) {
         super(repository, new ResourceDefinition<>(entityClass, resourceName));
     }
 
@@ -50,7 +50,7 @@ public abstract class JpaResourceManager<
     }
 
     @Override
-    public Optional<ENTITY> add(Object dto) {
+    public Optional<PO> add(Object dto) {
         if (resourceOperateRegistry.isUniqueEntity()) {
             synchronized (this) {
                 return transactionTemplate.execute(transactionStatus -> super.add(dto));
@@ -61,20 +61,18 @@ public abstract class JpaResourceManager<
     }
 
     @Override
-    public boolean modifyById(ID id, Object dto) {
+    public Optional<PO> modifyById(ID id, Object dto) {
         if (resourceOperateRegistry.isUniqueEntity()) {
             synchronized (this) {
-                Boolean result = transactionTemplate.execute(transactionStatus -> !super.modifyById(id, dto));
-                return result == null || !result;
+                return transactionTemplate.execute(transactionStatus -> super.modifyById(id, dto));
             }
         } else {
-            Boolean result = transactionTemplate.execute(transactionStatus -> !super.modifyById(id, dto));
-            return result == null || !result;
+            return transactionTemplate.execute(transactionStatus -> super.modifyById(id, dto));
         }
     }
 
     @Override
-    public boolean remove(ENTITY entity) {
+    public boolean remove(PO entity) {
         if (resourceOperateRegistry.isUniqueEntity()) {
             synchronized (this) {
                 final Boolean execute = transactionTemplate.execute(transactionStatus -> super.remove(entity));
@@ -87,7 +85,7 @@ public abstract class JpaResourceManager<
     }
 
     @Override
-    public Optional<ENTITY> removeById(ID id) {
+    public Optional<PO> removeById(ID id) {
         if (resourceOperateRegistry.isUniqueEntity()) {
             synchronized (this) {
                 return transactionTemplate.execute(transactionStatus -> super.removeById(id));
@@ -98,44 +96,44 @@ public abstract class JpaResourceManager<
 
     }
 
-    public List<ENTITY> listForIds(ID[] ids) {
+    public List<PO> listForIds(ID[] ids) {
         return listForIds("id", ids);
     }
 
-    public Optional<ENTITY> findOneByIdForUpdate(ID id) {
+    public Optional<PO> findOneByIdForUpdate(ID id) {
         return resourceHandler.queryByIdForUpdate(id).map(this::execSearchOperate);
     }
 
     @SuppressWarnings("unchecked")
-    public ENTITY findOneByIdRequiredForUpdate(ID id) {
-        return (ENTITY) ResourceAssert
+    public PO findOneByIdRequiredForUpdate(ID id) {
+        return (PO) ResourceAssert
                 .resourceExistAssertBuilder(resourceDefinition.getResourceName(), resourceHandler.queryByIdForUpdate(id))
                 .addParameter("id", id)
                 .returnValue();
     }
 
     @Override
-    public List<ENTITY> listForIds(String idProperty, ID[] ids) {
+    public List<PO> listForIds(String idProperty, ID[] ids) {
         if (ids.length == 0) {
             return new ArrayList<>();
         }
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<ENTITY> query = builder.createQuery(resourceDefinition.getEntityClass());
-        Root<ENTITY> root = query.from(resourceDefinition.getEntityClass());
+        CriteriaQuery<PO> query = builder.createQuery(resourceDefinition.getEntityClass());
+        Root<PO> root = query.from(resourceDefinition.getEntityClass());
         query.select(root).where(root.get(idProperty).in(ids));
-        List<ENTITY> list = entityManager.createQuery(query).getResultList();
+        List<PO> list = entityManager.createQuery(query).getResultList();
         return Stream.of(ids)
                 .map(id -> CollectionAdvice.getFirstMatch(list, id, Entity::getId).orElse(null))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public <T extends DTO> AddCheckExistsLogic<ENTITY, T, ID> byFieldAddCheck(Class<T> dtoClass, String... fields) {
+    public <T extends DTO> AddCheckExistsLogic<PO, T, ID> byFieldAddCheck(Class<T> dtoClass, String... fields) {
         return new ByFieldJpaAddCheckExistsLogic<>(resourceDefinition, entityManager, fields);
     }
 
     @Override
-    public <T extends DTO> ModifyCheckExistsLogic<ENTITY, T, ID> byFieldModifyCheck(Class<T> dtoClass, String... fields) {
+    public <T extends DTO> ModifyCheckExistsLogic<PO, T, ID> byFieldModifyCheck(Class<T> dtoClass, String... fields) {
         return new ByFieldJpaModifyCheckExistsLogic<>(resourceDefinition, entityManager, fields);
     }
 }

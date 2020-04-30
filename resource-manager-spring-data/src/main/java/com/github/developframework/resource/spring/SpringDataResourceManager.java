@@ -18,7 +18,6 @@ import java.util.List;
  *
  * @author qiushui on 2019-08-15.
  */
-@SuppressWarnings("unchecked")
 public abstract class SpringDataResourceManager<
         ENTITY extends Entity<ID>,
         ID extends Serializable,
@@ -39,12 +38,12 @@ public abstract class SpringDataResourceManager<
     }
 
     public <SEARCH extends Search<ENTITY>> List<ENTITY> list(Sort sort, SEARCH search) {
-        List<ENTITY> list = ((SpringDataResourceHandler) resourceHandler).query(sort, search);
+        List<ENTITY> list = ((SpringDataResourceHandler<ENTITY, ID, REPOSITORY>) resourceHandler).query(sort, search);
         return execSearchOperate(list);
     }
 
     public <SEARCH extends Search<ENTITY>> Page<ENTITY> pager(Pageable pageable, SEARCH search) {
-        Page<ENTITY> page = ((SpringDataResourceHandler) resourceHandler).queryPager(pageable, search);
+        Page<ENTITY> page = ((SpringDataResourceHandler<ENTITY, ID, REPOSITORY>) resourceHandler).queryPager(pageable, search);
         return execSearchOperate(page);
     }
 }

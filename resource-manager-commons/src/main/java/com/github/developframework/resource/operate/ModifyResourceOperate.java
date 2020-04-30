@@ -5,6 +5,7 @@ import com.github.developframework.resource.Entity;
 import com.github.developframework.resource.exception.DTOCastException;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 /**
  * @author qiushui on 2019-08-10.
@@ -60,7 +61,7 @@ public class ModifyResourceOperate<
      * @param id
      */
     @SuppressWarnings("unchecked")
-    public boolean modifyById(Object obj, ID id) {
+    public Optional<ENTITY> modifyById(Object obj, ID id) {
         if (dtoClass.isAssignableFrom(obj.getClass())) {
             DTO dto = (DTO) obj;
             return resourceHandler
@@ -71,11 +72,11 @@ public class ModifyResourceOperate<
                             prepare(dto, entity);
                             boolean success = resourceHandler.update(entity);
                             after(dto, entity);
-                            return success;
+                            return success ? entity : null;
                         } else {
-                            return false;
+                            return null;
                         }
-                    }).orElse(false);
+                    });
         } else {
             throw new DTOCastException();
         }
