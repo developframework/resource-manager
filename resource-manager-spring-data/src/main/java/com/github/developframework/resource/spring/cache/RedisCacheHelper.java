@@ -1,4 +1,4 @@
-package com.github.developframework.resource.cache;
+package com.github.developframework.resource.spring.cache;
 
 import develop.toolkit.base.struct.KeyValuePair;
 import org.springframework.data.redis.core.HashOperations;

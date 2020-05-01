@@ -1,4 +1,4 @@
-package com.github.developframework.resource.cache;
+package com.github.developframework.resource.spring.cache;
 
 import com.github.developframework.resource.Entity;
 import org.apache.commons.lang3.StringUtils;

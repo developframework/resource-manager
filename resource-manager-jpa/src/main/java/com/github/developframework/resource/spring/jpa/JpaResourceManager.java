@@ -7,6 +7,7 @@ import develop.toolkit.base.utils.CollectionAdvice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.PostConstruct;
@@ -36,64 +37,19 @@ public abstract class JpaResourceManager<
     @PersistenceContext
     protected EntityManager entityManager;
 
-    @Autowired
-    protected TransactionTemplate transactionTemplate;
-
     public JpaResourceManager(REPOSITORY repository, Class<PO> entityClass, String resourceName) {
         super(repository, new ResourceDefinition<>(entityClass, resourceName));
+    }
+
+    @Autowired
+    public void setJpaTransactionManager(JpaTransactionManager jpaTransactionManager) {
+        super.transactionTemplate = new TransactionTemplate(jpaTransactionManager);
     }
 
     @PostConstruct
     public void init() {
         this.resourceHandler = new JpaResourceHandler<>(repository, resourceDefinition, entityManager);
         this.resourceOperateRegistry = new ResourceOperateRegistry<>(this);
-    }
-
-    @Override
-    public Optional<PO> add(Object dto) {
-        if (resourceOperateRegistry.isUniqueEntity()) {
-            synchronized (this) {
-                return transactionTemplate.execute(transactionStatus -> super.add(dto));
-            }
-        } else {
-            return transactionTemplate.execute(transactionStatus -> super.add(dto));
-        }
-    }
-
-    @Override
-    public Optional<PO> modifyById(ID id, Object dto) {
-        if (resourceOperateRegistry.isUniqueEntity()) {
-            synchronized (this) {
-                return transactionTemplate.execute(transactionStatus -> super.modifyById(id, dto));
-            }
-        } else {
-            return transactionTemplate.execute(transactionStatus -> super.modifyById(id, dto));
-        }
-    }
-
-    @Override
-    public boolean remove(PO entity) {
-        if (resourceOperateRegistry.isUniqueEntity()) {
-            synchronized (this) {
-                final Boolean execute = transactionTemplate.execute(transactionStatus -> super.remove(entity));
-                return execute != null ? execute : false;
-            }
-        } else {
-            final Boolean execute = transactionTemplate.execute(transactionStatus -> super.remove(entity));
-            return execute != null ? execute : false;
-        }
-    }
-
-    @Override
-    public Optional<PO> removeById(ID id) {
-        if (resourceOperateRegistry.isUniqueEntity()) {
-            synchronized (this) {
-                return transactionTemplate.execute(transactionStatus -> super.removeById(id));
-            }
-        } else {
-            return super.removeById(id);
-        }
-
     }
 
     public List<PO> listForIds(ID[] ids) {

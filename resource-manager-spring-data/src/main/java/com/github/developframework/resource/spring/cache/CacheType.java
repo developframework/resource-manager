@@ -1,4 +1,4 @@
-package com.github.developframework.resource.cache;
+package com.github.developframework.resource.spring.cache;
 
 /**
  * @author qiushui on 2020-04-30.

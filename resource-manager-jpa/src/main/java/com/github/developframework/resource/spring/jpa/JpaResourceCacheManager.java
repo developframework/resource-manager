@@ -1,17 +1,30 @@
 package com.github.developframework.resource.spring.jpa;
 
-import com.github.developframework.resource.cache.*;
+import com.github.developframework.resource.*;
+import com.github.developframework.resource.spring.SpringDataResourceCacheManager;
+import com.github.developframework.resource.spring.cache.CacheType;
 import com.github.developframework.resource.utils.ResourceAssert;
+import develop.toolkit.base.utils.CollectionAdvice;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.io.Serializable;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author qiushui on 2020-04-30.
@@ -21,126 +34,64 @@ public abstract class JpaResourceCacheManager<
         PO extends com.github.developframework.resource.spring.jpa.PO<ID>,
         ID extends Serializable,
         REPOSITORY extends PagingAndSortingRepository<PO, ID> & JpaSpecificationExecutor<PO>
-        > extends JpaResourceManager<PO, ID, REPOSITORY> {
+        > extends SpringDataResourceCacheManager<PO, ID, REPOSITORY> {
 
-    @Resource
-    protected RedisTemplate<String, PO> redisTemplate;
+    @PersistenceContext
+    protected EntityManager entityManager;
 
-    protected final String cacheKey;
+    public JpaResourceCacheManager(REPOSITORY repository, Class<PO> entityClass, String resourceName, String cacheKey, Duration timeout, CacheType cacheType) {
+        super(repository, new ResourceDefinition<>(entityClass, resourceName), cacheKey, timeout, cacheType);
+    }
 
-    protected final Duration timeout;
-
-    protected final CacheType cacheType;
-
-    protected ResourceCacheOperate<PO, ID> cacheOperate;
-
-    public JpaResourceCacheManager(
-            REPOSITORY repository,
-            Class<PO> entityClass,
-            String resourceName,
-            String cacheKey,
-            Duration timeout,
-            CacheType cacheType
-    ) {
-        super(repository, entityClass, resourceName);
-        this.cacheKey = cacheKey;
-        this.timeout = timeout;
-        this.cacheType = cacheType;
+    @Autowired
+    public void setJpaTransactionManager(JpaTransactionManager jpaTransactionManager) {
+        super.transactionTemplate = new TransactionTemplate(jpaTransactionManager);
     }
 
     @PostConstruct
-    public void initCacheOperate() {
-        switch (cacheType) {
-            case VALUE:
-                cacheOperate = new ValueResourceCacheOperate<>(redisTemplate, cacheKey, timeout);
-                break;
-            case HASH:
-                cacheOperate = new HashResourceCacheOperate<>(redisTemplate, cacheKey, timeout);
-                break;
-            case LIST:
-                cacheOperate = new ListResourceCacheOperate<>(redisTemplate, cacheKey, timeout);
-                break;
-            default:
-                throw new AssertionError();
-        }
+    public void init() {
+        this.resourceHandler = new JpaResourceHandler<>(repository, resourceDefinition, entityManager);
+        this.resourceOperateRegistry = new ResourceOperateRegistry<>(this);
     }
 
-    @Override
-    public Optional<PO> add(Object dto) {
-        return super.add(dto)
-                .map(entity -> {
-                    if (cacheAble(entity)) {
-                        cacheOperate.addCache(entity);
-                    }
-                    return entity;
-                });
+    public List<PO> listForIds(ID[] ids) {
+        return listForIds("id", ids);
     }
 
-    @Override
-    public Optional<PO> modifyById(ID id, Object dto) {
-        return super.modifyById(id, dto)
-                .map(entity -> {
-                    if (cacheAble(entity)) {
-                        cacheOperate.refreshCache(entity);
-                    } else {
-                        cacheOperate.deleteCache(entity);
-                    }
-                    return entity;
-                });
+    public Optional<PO> findOneByIdForUpdate(ID id) {
+        return resourceHandler.queryByIdForUpdate(id).map(this::execSearchOperate);
     }
 
-    @Override
-    public boolean remove(PO entity) {
-        boolean success = super.remove(entity);
-        cacheOperate.deleteCache(entity);
-        return success;
-    }
-
-    @Override
-    public Optional<PO> removeById(ID id) {
-        return super.removeById(id)
-                .map(entity -> {
-                    cacheOperate.deleteCache(entity);
-                    return entity;
-                });
-    }
-
-    @Override
-    public Optional<PO> findOneById(ID id) {
-        Optional<PO> optional = cacheOperate.readCache(id);
-        if (optional.isPresent()) {
-            return optional;
-        } else {
-            return findOneById(id)
-                    .map(entity -> {
-                        cacheOperate.addCache(entity);
-                        return entity;
-                    });
-        }
-    }
-
-    @Override
     @SuppressWarnings("unchecked")
-    public PO findOneByIdRequired(ID id) {
-        return cacheOperate
-                .readCache(id)
-                .orElseGet(() -> {
-                    PO po = (PO) ResourceAssert
-                            .resourceExistAssertBuilder(resourceDefinition.getResourceName(), resourceHandler.queryById(id))
-                            .addParameter("id", id)
-                            .returnValue();
-                    cacheOperate.addCache(execSearchOperate(po));
-                    return po;
-                });
+    public PO findOneByIdRequiredForUpdate(ID id) {
+        return (PO) ResourceAssert
+                .resourceExistAssertBuilder(resourceDefinition.getResourceName(), resourceHandler.queryByIdForUpdate(id))
+                .addParameter("id", id)
+                .returnValue();
     }
 
-    /**
-     * 判断是否需要缓存
-     *
-     * @param entity
-     * @return
-     */
-    protected boolean cacheAble(PO entity) {
-        return true;
+    @Override
+    public List<PO> listForIds(String idProperty, ID[] ids) {
+        if (ids.length == 0) {
+            return new ArrayList<>();
+        }
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<PO> query = builder.createQuery(resourceDefinition.getEntityClass());
+        Root<PO> root = query.from(resourceDefinition.getEntityClass());
+        query.select(root).where(root.get(idProperty).in(ids));
+        List<PO> list = entityManager.createQuery(query).getResultList();
+        return Stream.of(ids)
+                .map(id -> CollectionAdvice.getFirstMatch(list, id, Entity::getId).orElse(null))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public <T extends DTO> AddCheckExistsLogic<PO, T, ID> byFieldAddCheck(Class<T> dtoClass, String... fields) {
+        return new ByFieldJpaAddCheckExistsLogic<>(resourceDefinition, entityManager, fields);
+    }
+
+    @Override
+    public <T extends DTO> ModifyCheckExistsLogic<PO, T, ID> byFieldModifyCheck(Class<T> dtoClass, String... fields) {
+        return new ByFieldJpaModifyCheckExistsLogic<>(resourceDefinition, entityManager, fields);
     }
 }

@@ -1,4 +1,4 @@
-package com.github.developframework.resource.cache;
+package com.github.developframework.resource.spring.cache;
 
 import com.github.developframework.resource.Entity;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -8,11 +8,14 @@ import java.time.Duration;
 import java.util.Optional;
 
 /**
+ * STRING类型资源缓存操作
+ *
  * @author qiushui on 2020-05-01.
  */
-public class HashResourceCacheOperate<ENTITY extends Entity<ID>, ID extends Serializable> extends ResourceCacheOperate<ENTITY, ID> {
+public class ValueResourceCacheOperate<ENTITY extends Entity<ID>, ID extends Serializable> extends ResourceCacheOperate<ENTITY, ID> {
 
-    public HashResourceCacheOperate(RedisTemplate<String, ENTITY> redisTemplate, String key, Duration timeout) {
+
+    public ValueResourceCacheOperate(RedisTemplate<String, ENTITY> redisTemplate, String key, Duration timeout) {
         super(redisTemplate, key, timeout);
     }
 
@@ -23,18 +26,18 @@ public class HashResourceCacheOperate<ENTITY extends Entity<ID>, ID extends Seri
 
     @Override
     public void refreshCache(ENTITY entity) {
-        redisTemplate.opsForHash().put(key, String.valueOf(entity.getId()), entity);
+        redisTemplate.opsForValue().set(keyWithCondition(entity.getId()), entity, timeout);
     }
 
     @Override
     public void deleteCache(ENTITY entity) {
-        redisTemplate.opsForHash().delete(key, String.valueOf(entity.getId()));
+        redisTemplate.delete(keyWithCondition(entity.getId()));
     }
 
     @Override
     public Optional<ENTITY> readCache(ID id) {
         return Optional.ofNullable(
-                redisTemplate.<String, ENTITY>opsForHash().get(key, String.valueOf(id))
+                redisTemplate.opsForValue().get(keyWithCondition(id))
         );
     }
 }
