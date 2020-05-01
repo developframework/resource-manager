@@ -1,4 +1,4 @@
-package com.github.developframework.resource.utils;
+package com.github.developframework.resource.cache;
 
 /**
  * @author qiushui on 2020-04-30.
@@ -7,5 +7,7 @@ public enum CacheType {
 
     VALUE,
 
-    HASH
+    HASH,
+
+    LIST
 }

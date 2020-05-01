@@ -1,11 +1,14 @@
-package com.github.developframework.resource.utils;
+package com.github.developframework.resource.cache;
 
+import develop.toolkit.base.struct.KeyValuePair;
 import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 import java.time.Duration;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * redis缓存助手
@@ -40,6 +43,56 @@ public final class RedisCacheHelper {
     public static <K, V> long listSize(RedisTemplate<K, V> redisTemplate, K key) {
         Long size = redisTemplate.opsForList().size(key);
         return size != null ? size : 0;
+    }
+
+    /**
+     * 列表是否有值
+     *
+     * @param redisTemplate
+     * @param key
+     * @param <K>
+     * @param <V>
+     * @return
+     */
+    public static <K, V> boolean listNotEmpty(RedisTemplate<K, V> redisTemplate, K key) {
+        Long size = redisTemplate.opsForList().size(key);
+        return size != null && size > 0;
+    }
+
+    /**
+     * 列表是否为空
+     *
+     * @param redisTemplate
+     * @param key
+     * @param <K>
+     * @param <V>
+     * @return
+     */
+    public static <K, V> boolean listEmpty(RedisTemplate<K, V> redisTemplate, K key) {
+        Long size = redisTemplate.opsForList().size(key);
+        return size == null || size == 0;
+    }
+
+    /**
+     * 列表查询匹配的
+     *
+     * @param redisTemplate
+     * @param key
+     * @param predicate
+     * @param <K>
+     * @param <V>
+     * @return
+     */
+    public static <K, V> KeyValuePair<Long, V> listFind(RedisTemplate<K, V> redisTemplate, K key, Predicate<V> predicate) {
+        ListOperations<K, V> listOperations = redisTemplate.opsForList();
+        long size = listSize(redisTemplate, key);
+        for (long i = 0; i < size; i++) {
+            V v = listOperations.index(key, i);
+            if (v != null && predicate.test(v)) {
+                return KeyValuePair.of(i, v);
+            }
+        }
+        return KeyValuePair.of(-1L, null);
     }
 
     /**

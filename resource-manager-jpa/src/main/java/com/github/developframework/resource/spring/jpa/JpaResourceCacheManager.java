@@ -1,12 +1,13 @@
 package com.github.developframework.resource.spring.jpa;
 
-import com.github.developframework.resource.utils.CacheType;
+import com.github.developframework.resource.cache.*;
 import com.github.developframework.resource.utils.ResourceAssert;
 import lombok.Getter;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.Serializable;
 import java.time.Duration;
@@ -27,9 +28,11 @@ public abstract class JpaResourceCacheManager<
 
     protected final String cacheKey;
 
-    private final Duration timeout;
+    protected final Duration timeout;
 
-    private final CacheType cacheType;
+    protected final CacheType cacheType;
+
+    protected ResourceCacheOperate<PO, ID> cacheOperate;
 
     public JpaResourceCacheManager(
             REPOSITORY repository,
@@ -45,37 +48,18 @@ public abstract class JpaResourceCacheManager<
         this.cacheType = cacheType;
     }
 
-    public final void refreshCache(PO entity) {
+    @PostConstruct
+    public void initCacheOperate() {
         switch (cacheType) {
-            case VALUE: {
-                if (timeout == null) {
-                    redisTemplate.opsForValue().set(cacheKey + ":" + entity.getId(), entity);
-                } else {
-                    redisTemplate.opsForValue().set(cacheKey + ":" + entity.getId(), entity, timeout);
-                }
-            }
-            break;
-            case HASH: {
-                redisTemplate.opsForHash().put(cacheKey, String.valueOf(entity.getId()), entity);
-            }
-            break;
-            default:
-                throw new AssertionError();
-        }
-    }
-
-    public final void deleteCache(PO entity) {
-        redisTemplate.opsForHash().delete(cacheKey, String.valueOf(entity.getId()));
-    }
-
-    public final PO readCache(ID id) {
-        switch (cacheType) {
-            case VALUE: {
-                return redisTemplate.opsForValue().get(cacheKey + ":" + id);
-            }
-            case HASH: {
-                return redisTemplate.<String, PO>opsForHash().get(cacheKey, String.valueOf(id));
-            }
+            case VALUE:
+                cacheOperate = new ValueResourceCacheOperate<>(redisTemplate, cacheKey, timeout);
+                break;
+            case HASH:
+                cacheOperate = new HashResourceCacheOperate<>(redisTemplate, cacheKey, timeout);
+                break;
+            case LIST:
+                cacheOperate = new ListResourceCacheOperate<>(redisTemplate, cacheKey, timeout);
+                break;
             default:
                 throw new AssertionError();
         }
@@ -83,47 +67,53 @@ public abstract class JpaResourceCacheManager<
 
     @Override
     public Optional<PO> add(Object dto) {
-        return add(dto)
+        return super.add(dto)
                 .map(entity -> {
-                    this.refreshCache(entity);
+                    if (cacheAble(entity)) {
+                        cacheOperate.addCache(entity);
+                    }
                     return entity;
                 });
     }
 
     @Override
     public Optional<PO> modifyById(ID id, Object dto) {
-        return modifyById(id, dto)
+        return super.modifyById(id, dto)
                 .map(entity -> {
-                    this.refreshCache(entity);
+                    if (cacheAble(entity)) {
+                        cacheOperate.refreshCache(entity);
+                    } else {
+                        cacheOperate.deleteCache(entity);
+                    }
                     return entity;
                 });
     }
 
     @Override
     public boolean remove(PO entity) {
-        boolean success = remove(entity);
-        deleteCache(entity);
+        boolean success = super.remove(entity);
+        cacheOperate.deleteCache(entity);
         return success;
     }
 
     @Override
     public Optional<PO> removeById(ID id) {
-        return removeById(id)
+        return super.removeById(id)
                 .map(entity -> {
-                    deleteCache(entity);
+                    cacheOperate.deleteCache(entity);
                     return entity;
                 });
     }
 
     @Override
     public Optional<PO> findOneById(ID id) {
-        PO po = readCache(id);
-        if (po != null) {
-            return Optional.of(po);
+        Optional<PO> optional = cacheOperate.readCache(id);
+        if (optional.isPresent()) {
+            return optional;
         } else {
             return findOneById(id)
                     .map(entity -> {
-                        refreshCache(entity);
+                        cacheOperate.addCache(entity);
                         return entity;
                     });
         }
@@ -132,14 +122,25 @@ public abstract class JpaResourceCacheManager<
     @Override
     @SuppressWarnings("unchecked")
     public PO findOneByIdRequired(ID id) {
-        PO po = readCache(id);
-        if (po == null) {
-            po = (PO) ResourceAssert
-                    .resourceExistAssertBuilder(resourceDefinition.getResourceName(), resourceHandler.queryById(id))
-                    .addParameter("id", id)
-                    .returnValue();
-            refreshCache(execSearchOperate(po));
-        }
-        return po;
+        return cacheOperate
+                .readCache(id)
+                .orElseGet(() -> {
+                    PO po = (PO) ResourceAssert
+                            .resourceExistAssertBuilder(resourceDefinition.getResourceName(), resourceHandler.queryById(id))
+                            .addParameter("id", id)
+                            .returnValue();
+                    cacheOperate.addCache(execSearchOperate(po));
+                    return po;
+                });
+    }
+
+    /**
+     * 判断是否需要缓存
+     *
+     * @param entity
+     * @return
+     */
+    protected boolean cacheAble(PO entity) {
+        return true;
     }
 }
