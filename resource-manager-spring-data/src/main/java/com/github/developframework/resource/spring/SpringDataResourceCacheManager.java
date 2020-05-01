@@ -3,7 +3,6 @@ package com.github.developframework.resource.spring;
 import com.github.developframework.resource.Entity;
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.spring.cache.*;
-import com.github.developframework.resource.utils.ResourceAssert;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
@@ -111,7 +110,7 @@ public abstract class SpringDataResourceCacheManager<
         if (optional.isPresent()) {
             return optional;
         } else {
-            return findOneById(id)
+            return super.findOneById(id)
                     .map(entity -> {
                         cacheOperate.addCache(entity);
                         return entity;
@@ -120,17 +119,13 @@ public abstract class SpringDataResourceCacheManager<
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public ENTITY findOneByIdRequired(ID id) {
         return cacheOperate
                 .readCache(id)
                 .orElseGet(() -> {
-                    ENTITY po = (ENTITY) ResourceAssert
-                            .resourceExistAssertBuilder(resourceDefinition.getResourceName(), resourceHandler.queryById(id))
-                            .addParameter("id", id)
-                            .returnValue();
-                    cacheOperate.addCache(execSearchOperate(po));
-                    return po;
+                    ENTITY entity = super.findOneByIdRequired(id);
+                    cacheOperate.addCache(execSearchOperate(entity));
+                    return entity;
                 });
     }
 

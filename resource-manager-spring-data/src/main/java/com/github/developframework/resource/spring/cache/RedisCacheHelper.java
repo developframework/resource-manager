@@ -1,14 +1,16 @@
 package com.github.developframework.resource.spring.cache;
 
 import develop.toolkit.base.struct.KeyValuePair;
+import develop.toolkit.base.struct.KeyValuePairs;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 import java.time.Duration;
-import java.util.function.Function;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * redis缓存助手
@@ -74,7 +76,7 @@ public final class RedisCacheHelper {
     }
 
     /**
-     * 列表查询匹配的
+     * 列表匹配查询匹配单个
      *
      * @param redisTemplate
      * @param key
@@ -96,20 +98,43 @@ public final class RedisCacheHelper {
     }
 
     /**
-     * 读取值
+     * 列表匹配查询
      *
      * @param redisTemplate
      * @param key
-     * @param function
+     * @param predicate
      * @param <K>
      * @param <V>
      * @return
      */
-    public static <K, V> V readValue(RedisTemplate<K, V> redisTemplate, K key, Function<K, V> function, Duration timeout) {
+    public static <K, V> KeyValuePairs<Long, V> listFindAll(RedisTemplate<K, V> redisTemplate, K key, Predicate<V> predicate) {
+        KeyValuePairs<Long, V> keyValuePairs = new KeyValuePairs<>();
+        ListOperations<K, V> listOperations = redisTemplate.opsForList();
+        long size = listSize(redisTemplate, key);
+        for (long i = 0; i < size; i++) {
+            V v = listOperations.index(key, i);
+            if (v != null && predicate.test(v)) {
+                keyValuePairs.addKeyValue(i, v);
+            }
+        }
+        return keyValuePairs;
+    }
+
+    /**
+     * 读取值
+     *
+     * @param redisTemplate
+     * @param defaultSupplier
+     * @param key
+     * @param <K>
+     * @param <V>
+     * @return
+     */
+    public static <K, V> V readValue(RedisTemplate<K, V> redisTemplate, K key, Duration timeout, Supplier<V> defaultSupplier) {
         ValueOperations<K, V> valueOperations = redisTemplate.opsForValue();
         V v = valueOperations.get(key);
         if (v == null) {
-            v = function.apply(key);
+            v = defaultSupplier.get();
             if (v != null) {
                 valueOperations.set(key, v, timeout);
             }
@@ -123,21 +148,36 @@ public final class RedisCacheHelper {
      * @param redisTemplate
      * @param key
      * @param hashKey
-     * @param function
+     * @param defaultSupplier
      * @param <H>
      * @param <HK>
      * @param <HV>
      * @return
      */
-    public static <H, HK, HV> HV readHash(RedisTemplate<H, HV> redisTemplate, H key, HK hashKey, Function<HK, HV> function) {
+    public static <H, HK, HV> HV readHash(RedisTemplate<H, HV> redisTemplate, H key, HK hashKey, Supplier<HV> defaultSupplier) {
         HashOperations<H, HK, HV> hashOperations = redisTemplate.opsForHash();
         HV v = hashOperations.get(key, hashKey);
         if (v == null) {
-            v = function.apply(hashKey);
+            v = defaultSupplier.get();
             if (v != null) {
                 hashOperations.put(key, hashKey, v);
             }
         }
         return v;
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param redisTemplate
+     * @param pattern
+     * @param <K>
+     * @param <V>
+     */
+    public static <K, V> void deleteKeys(RedisTemplate<K, V> redisTemplate, K pattern) {
+        Set<K> keys = redisTemplate.keys(pattern);
+        if (keys != null) {
+            redisTemplate.delete(keys);
+        }
     }
 }
