@@ -51,7 +51,7 @@ public class MongoResourceCacheManager<
 
     @Autowired
     public void setMongoTransactionManager(MongoTransactionManager mongoTransactionManager) {
-        this.transactionTemplate = new TransactionTemplate(mongoTransactionManager);
+        super.transactionTemplate = new TransactionTemplate(mongoTransactionManager);
     }
 
     public List<ENTITY> listForIds(ID[] ids) {

@@ -36,8 +36,6 @@ public class MongoResourceManager<
     @Autowired
     protected MongoOperations mongoOperations;
 
-    protected TransactionTemplate transactionTemplate;
-
     public MongoResourceManager(REPOSITORY repository, Class<ENTITY> entityClass, String resourceName) {
         super(repository, new ResourceDefinition<>(entityClass, resourceName));
     }
@@ -51,7 +49,7 @@ public class MongoResourceManager<
 
     @Autowired
     public void setMongoTransactionManager(MongoTransactionManager mongoTransactionManager) {
-        this.transactionTemplate = new TransactionTemplate(mongoTransactionManager);
+        super.transactionTemplate = new TransactionTemplate(mongoTransactionManager);
     }
 
     public List<ENTITY> listForIds(ID[] ids) {
