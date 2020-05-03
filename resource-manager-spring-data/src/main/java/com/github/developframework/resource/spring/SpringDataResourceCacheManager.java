@@ -112,7 +112,9 @@ public abstract class SpringDataResourceCacheManager<
         } else {
             return super.findOneById(id)
                     .map(entity -> {
-                        cacheOperate.addCache(entity);
+                        if (cacheAble(entity)) {
+                            cacheOperate.addCache(entity);
+                        }
                         return entity;
                     });
         }
@@ -124,7 +126,9 @@ public abstract class SpringDataResourceCacheManager<
                 .readCache(id)
                 .orElseGet(() -> {
                     ENTITY entity = super.findOneByIdRequired(id);
-                    cacheOperate.addCache(execSearchOperate(entity));
+                    if (cacheAble(entity)) {
+                        cacheOperate.addCache(entity);
+                    }
                     return entity;
                 });
     }
