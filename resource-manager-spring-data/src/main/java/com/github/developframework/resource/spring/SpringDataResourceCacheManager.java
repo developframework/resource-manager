@@ -104,34 +104,34 @@ public abstract class SpringDataResourceCacheManager<
                 });
     }
 
-    @Override
-    public Optional<ENTITY> findOneById(ID id) {
-        Optional<ENTITY> optional = cacheOperate.readCache(id);
-        if (optional.isPresent()) {
-            return optional;
-        } else {
-            return super.findOneById(id)
-                    .map(entity -> {
-                        if (cacheAble(entity)) {
-                            cacheOperate.addCache(entity);
-                        }
-                        return entity;
-                    });
-        }
-    }
-
-    @Override
-    public ENTITY findOneByIdRequired(ID id) {
-        return cacheOperate
-                .readCache(id)
-                .orElseGet(() -> {
-                    ENTITY entity = super.findOneByIdRequired(id);
-                    if (cacheAble(entity)) {
-                        cacheOperate.addCache(entity);
-                    }
-                    return entity;
-                });
-    }
+//    @Override
+//    public Optional<ENTITY> findOneById(ID id) {
+//        Optional<ENTITY> optional = cacheOperate.readCache(id);
+//        if (optional.isPresent()) {
+//            return optional;
+//        } else {
+//            return super.findOneById(id)
+//                    .map(entity -> {
+//                        if (cacheAble(entity)) {
+//                            cacheOperate.addCache(entity);
+//                        }
+//                        return entity;
+//                    });
+//        }
+//    }
+//
+//    @Override
+//    public ENTITY findOneByIdRequired(ID id) {
+//        return cacheOperate
+//                .readCache(id)
+//                .orElseGet(() -> {
+//                    ENTITY entity = super.findOneByIdRequired(id);
+//                    if (cacheAble(entity)) {
+//                        cacheOperate.addCache(entity);
+//                    }
+//                    return entity;
+//                });
+//    }
 
     /**
      * 判断是否需要缓存
