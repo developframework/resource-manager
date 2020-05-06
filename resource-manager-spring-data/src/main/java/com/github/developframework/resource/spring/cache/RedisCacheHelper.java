@@ -136,7 +136,11 @@ public final class RedisCacheHelper {
         if (v == null) {
             v = defaultSupplier.get();
             if (v != null) {
-                valueOperations.set(key, v, timeout);
+                if (timeout != null) {
+                    valueOperations.set(key, v, timeout);
+                } else {
+                    valueOperations.set(key, v);
+                }
             }
         }
         return v;
