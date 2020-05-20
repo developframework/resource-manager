@@ -23,8 +23,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author qiushui on 2020-04-30.
@@ -80,9 +78,7 @@ public abstract class JpaResourceCacheManager<
         Root<PO> root = query.from(resourceDefinition.getEntityClass());
         query.select(root).where(root.get(idProperty).in(ids));
         List<PO> list = entityManager.createQuery(query).getResultList();
-        return Stream.of(ids)
-                .map(id -> CollectionAdvice.getFirstMatch(list, id, Entity::getId).orElse(null))
-                .collect(Collectors.toList());
+        return CollectionAdvice.sort(list, ids, (po, id) -> po.getId().equals(id));
     }
 
     @Override

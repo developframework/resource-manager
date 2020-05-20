@@ -19,8 +19,6 @@ import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * MongoDB资源管理器
@@ -65,9 +63,7 @@ public class MongoResourceManager<
                 Querys.in(idProperty, ids),
                 resourceDefinition.getEntityClass()
         );
-        return Stream.of(ids)
-                .map(id -> CollectionAdvice.getFirstMatch(list, id, Entity::getId).orElse(null))
-                .collect(Collectors.toList());
+        return CollectionAdvice.sort(list, ids, (po, id) -> po.getId().equals(id));
     }
 
     public <T extends DTO> ByFieldMongoAddCheckExistsLogic<ENTITY, T, ID> byFieldAddCheck(Class<T> dtoClass, String... fields) {
