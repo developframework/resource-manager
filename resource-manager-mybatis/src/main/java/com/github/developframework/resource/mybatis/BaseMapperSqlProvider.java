@@ -15,7 +15,7 @@ import java.util.Map;
  *
  * @author qiushui on 2020-05-28.
  */
-@SuppressWarnings({"unchecked", "rawtypes"})
+@SuppressWarnings({"unchecked", "rawtypes", "unused"})
 public class BaseMapperSqlProvider {
 
     public String insert(MPO entity) {
