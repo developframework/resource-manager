@@ -19,11 +19,11 @@ import java.util.List;
  */
 public final class PredicateBuilder<T> {
 
-    private List<Predicate> predicates;
+    private final List<Predicate> predicates;
 
-    private Root<T> root;
+    private final Root<T> root;
 
-    private CriteriaBuilder criteriaBuilder;
+    private final CriteriaBuilder criteriaBuilder;
 
     public PredicateBuilder(Root<T> root, CriteriaBuilder criteriaBuilder) {
         this.root = root;

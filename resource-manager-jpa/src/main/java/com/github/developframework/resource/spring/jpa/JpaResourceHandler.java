@@ -1,6 +1,5 @@
 package com.github.developframework.resource.spring.jpa;
 
-import com.github.developframework.resource.Entity;
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.Search;
 import com.github.developframework.resource.spring.SpringDataResourceHandler;
@@ -26,43 +25,43 @@ import java.util.Optional;
  * @author qiushui on 2019-08-15.
  */
 public class JpaResourceHandler<
-        ENTITY extends Entity<ID>,
+        PO extends com.github.developframework.resource.spring.jpa.PO<ID>,
         ID extends Serializable,
-        REPOSITORY extends PagingAndSortingRepository<ENTITY, ID> & JpaSpecificationExecutor<ENTITY>
-        > extends SpringDataResourceHandler<ENTITY, ID, REPOSITORY> {
+        REPOSITORY extends PagingAndSortingRepository<PO, ID> & JpaSpecificationExecutor<PO>
+        > extends SpringDataResourceHandler<PO, ID, REPOSITORY> {
 
     @Getter
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
 
-    public JpaResourceHandler(REPOSITORY repository, ResourceDefinition<ENTITY> resourceDefinition, EntityManager entityManager) {
+    public JpaResourceHandler(REPOSITORY repository, ResourceDefinition<PO> resourceDefinition, EntityManager entityManager) {
         super(repository, resourceDefinition);
         this.entityManager = entityManager;
     }
 
     @Override
-    public Optional<ENTITY> queryByIdForUpdate(ID id) {
+    public Optional<PO> queryByIdForUpdate(ID id) {
         return Optional.ofNullable(entityManager.find(resourceDefinition.getEntityClass(), id, LockModeType.PESSIMISTIC_WRITE));
     }
 
     @Override
-    public List<ENTITY> query(Search<ENTITY> search) {
-        Specification<ENTITY> specification = safeSearch(search);
+    public List<PO> query(Search<PO> search) {
+        Specification<PO> specification = safeSearch(search);
         return specification != null ? repository.findAll(specification) : IterableUtils.toList(repository.findAll());
     }
 
     @Override
-    public <SEARCH extends Search<ENTITY>> List<ENTITY> query(Sort sort, SEARCH search) {
-        Specification<ENTITY> specification = safeSearch(search);
+    public <SEARCH extends Search<PO>> List<PO> query(Sort sort, SEARCH search) {
+        Specification<PO> specification = safeSearch(search);
         return specification != null ? repository.findAll(specification, sort) : IterableUtils.toList(repository.findAll(sort));
     }
 
     @Override
-    public <SEARCH extends Search<ENTITY>> Page<ENTITY> queryPager(Pageable pageable, SEARCH search) {
-        Specification<ENTITY> specification = safeSearch(search);
+    public <SEARCH extends Search<PO>> Page<PO> queryPager(Pageable pageable, SEARCH search) {
+        Specification<PO> specification = safeSearch(search);
         return specification != null ? repository.findAll(specification, pageable) : repository.findAll(pageable);
     }
 
-    private Specification<ENTITY> safeSearch(Search<ENTITY> search) {
-        return K.map(search, s -> ((JpaSearch<ENTITY>) s).toSpecification());
+    private Specification<PO> safeSearch(Search<PO> search) {
+        return K.map(search, s -> ((JpaSearch<PO>) s).toSpecification());
     }
 }

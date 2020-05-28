@@ -25,11 +25,11 @@ public class ByFieldMongoModifyCheckExistsLogic<
         ID extends Serializable
         > extends CheckUniqueByFieldLogic<ENTITY, DTO, ID> implements ModifyCheckExistsLogic<ENTITY, DTO, ID> {
 
-    private String[] fields;
+    private final String[] fields;
 
-    private ResourceDefinition<ENTITY> resourceDefinition;
+    private final ResourceDefinition<ENTITY> resourceDefinition;
 
-    private MongoOperations mongoOperations;
+    private final MongoOperations mongoOperations;
 
     public ByFieldMongoModifyCheckExistsLogic(ResourceDefinition<ENTITY> resourceDefinition, MongoOperations mongoOperations, String... fields) {
         this.fields = fields;

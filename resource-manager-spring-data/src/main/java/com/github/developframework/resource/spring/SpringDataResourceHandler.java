@@ -25,9 +25,9 @@ public abstract class SpringDataResourceHandler<
         REPOSITORY extends PagingAndSortingRepository<ENTITY, ID>
         > implements ResourceHandler<ENTITY, ID> {
 
-    protected REPOSITORY repository;
+    protected final REPOSITORY repository;
 
-    protected ResourceDefinition<ENTITY> resourceDefinition;
+    protected final ResourceDefinition<ENTITY> resourceDefinition;
 
     public SpringDataResourceHandler(REPOSITORY repository, ResourceDefinition<ENTITY> resourceDefinition) {
         this.repository = repository;
@@ -40,8 +40,8 @@ public abstract class SpringDataResourceHandler<
     }
 
     @Override
-    public ENTITY insert(ENTITY entity) {
-        return repository.save(entity);
+    public void insert(ENTITY entity) {
+        repository.save(entity);
     }
 
     @Override

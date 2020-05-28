@@ -22,11 +22,11 @@ public class ByFieldMongoAddCheckExistsLogic<
         ID extends Serializable
         > implements AddCheckExistsLogic<ENTITY, DTO, ID> {
 
-    private String[] fields;
+    private final String[] fields;
 
-    private ResourceDefinition<ENTITY> resourceDefinition;
+    private final ResourceDefinition<ENTITY> resourceDefinition;
 
-    private MongoOperations mongoOperations;
+    private final MongoOperations mongoOperations;
 
     public ByFieldMongoAddCheckExistsLogic(ResourceDefinition<ENTITY> resourceDefinition, MongoOperations mongoOperations, String... fields) {
         this.fields = fields;

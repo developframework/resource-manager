@@ -26,7 +26,7 @@ public interface ResourceHandler<ENTITY extends Entity<ID>, ID extends Serializa
      * @param entity
      * @return
      */
-    ENTITY insert(ENTITY entity);
+    void insert(ENTITY entity);
 
     /**
      * 批量插入资源

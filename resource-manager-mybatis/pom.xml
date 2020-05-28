@@ -9,32 +9,32 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>resource-manager-jpa</artifactId>
+    <artifactId>resource-manager-mybatis</artifactId>
+
+    <properties>
+        <version.mybatis-boot>2.1.2</version.mybatis-boot>
+        <version.persistence-api>2.2.3</version.persistence-api>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.github.developframework</groupId>
-            <artifactId>resource-manager-spring-data</artifactId>
+            <artifactId>resource-manager-commons</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-            <exclusions>
-                <exclusion>
-                    <artifactId>jboss-logging</artifactId>
-                    <groupId>org.jboss.logging</groupId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+            <version>${version.mybatis-boot}</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+            <version>${version.persistence-api}</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-            <optional>true</optional>
         </dependency>
     </dependencies>
 </project>

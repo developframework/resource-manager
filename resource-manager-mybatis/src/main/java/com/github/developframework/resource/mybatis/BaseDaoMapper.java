@@ -1,0 +1,54 @@
+package com.github.developframework.resource.mybatis;
+
+import develop.toolkit.base.struct.KeyValuePairs;
+import develop.toolkit.base.struct.TwoValues;
+import org.apache.ibatis.annotations.*;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * 基础Mapper
+ *
+ * @author qiushui on 2020-05-28.
+ */
+public interface BaseDaoMapper<PO extends MPO<ID>, ID extends Serializable> {
+
+    @InsertProvider(type = BaseMapperSqlProvider.class, method = "insert")
+    void insert(PO entity);
+
+    @UpdateProvider(type = BaseMapperSqlProvider.class, method = "update")
+    boolean update(PO entity);
+
+    @DeleteProvider(type = BaseMapperSqlProvider.class, method = "deleteById")
+    void deleteById(@Param("entityClass") Class<PO> entityClass, @Param("id") ID id);
+
+    @SelectProvider(type = BaseMapperSqlProvider.class, method = "existsById")
+    boolean existsById(@Param("entityClass") Class<PO> entityClass, @Param("id") ID id);
+
+    @SelectProvider(type = BaseMapperSqlProvider.class, method = "existsById")
+    boolean existsByFields(@Param("entityClass") Class<PO> entityClass, @Param("fields") KeyValuePairs<String, Object> fields);
+
+    @SelectProvider(type = BaseMapperSqlProvider.class, method = "findById")
+    Optional<PO> findById(@Param("entityClass") Class<PO> entityClass, @Param("id") ID id);
+
+    @SelectProvider(type = BaseMapperSqlProvider.class, method = "findList")
+    List<PO> findList(
+            @Param("entityClass") Class<PO> entityClass,
+            @Param("search") MybatisSearch<PO> search,
+            @Param("orderBy") OrderBy[] orderBy,
+            @Param("limit") TwoValues<Integer, Integer> limit
+    );
+
+    @SelectProvider(type = BaseMapperSqlProvider.class, method = "findListByWhere")
+    List<PO> findListByWhere(
+            @Param("entityClass") Class<PO> entityClass,
+            @Param("where") String where,
+            @Param("orderBy") OrderBy[] orderBy,
+            @Param("limit") TwoValues<Integer, Integer> limit
+    );
+
+    @SelectProvider(type = BaseMapperSqlProvider.class, method = "countBy")
+    long countBy(@Param("entityClass") Class<PO> entityClass, @Param("search") MybatisSearch<PO> search);
+}
