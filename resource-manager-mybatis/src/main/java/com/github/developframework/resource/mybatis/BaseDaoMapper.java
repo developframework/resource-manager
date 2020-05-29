@@ -5,6 +5,7 @@ import develop.toolkit.base.struct.TwoValues;
 import org.apache.ibatis.annotations.*;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,25 +16,34 @@ import java.util.Optional;
  */
 public interface BaseDaoMapper<PO extends MPO<ID>, ID extends Serializable> {
 
-    @InsertProvider(type = BaseMapperSqlProvider.class, method = "insert")
+    @UpdateProvider(type = BaseMapperMysqlProvider.class, method = "createTable")
+    void createTable(Class<PO> entityClass);
+
+    @InsertProvider(type = BaseMapperMysqlProvider.class, method = "insert")
     void insert(PO entity);
 
-    @UpdateProvider(type = BaseMapperSqlProvider.class, method = "update")
+    @InsertProvider(type = BaseMapperMysqlProvider.class, method = "insertAll")
+    void insertAll(@Param("entityClass") Class<PO> entityClass, @Param("entities") Collection<PO> entities);
+
+    @UpdateProvider(type = BaseMapperMysqlProvider.class, method = "update")
     boolean update(PO entity);
 
-    @DeleteProvider(type = BaseMapperSqlProvider.class, method = "deleteById")
+    @DeleteProvider(type = BaseMapperMysqlProvider.class, method = "deleteById")
     void deleteById(@Param("entityClass") Class<PO> entityClass, @Param("id") ID id);
 
-    @SelectProvider(type = BaseMapperSqlProvider.class, method = "existsById")
+    @SelectProvider(type = BaseMapperMysqlProvider.class, method = "existsById")
     boolean existsById(@Param("entityClass") Class<PO> entityClass, @Param("id") ID id);
 
-    @SelectProvider(type = BaseMapperSqlProvider.class, method = "existsById")
+    @SelectProvider(type = BaseMapperMysqlProvider.class, method = "existsById")
     boolean existsByFields(@Param("entityClass") Class<PO> entityClass, @Param("fields") KeyValuePairs<String, Object> fields);
 
-    @SelectProvider(type = BaseMapperSqlProvider.class, method = "findById")
+    @SelectProvider(type = BaseMapperMysqlProvider.class, method = "findById")
     Optional<PO> findById(@Param("entityClass") Class<PO> entityClass, @Param("id") ID id);
 
-    @SelectProvider(type = BaseMapperSqlProvider.class, method = "findList")
+    @SelectProvider(type = BaseMapperMysqlProvider.class, method = "findByIdForUpdate")
+    Optional<PO> findByIdForUpdate(@Param("entityClass") Class<PO> entityClass, @Param("id") ID id);
+
+    @SelectProvider(type = BaseMapperMysqlProvider.class, method = "findList")
     List<PO> findList(
             @Param("entityClass") Class<PO> entityClass,
             @Param("search") MybatisSearch<PO> search,
@@ -41,7 +51,7 @@ public interface BaseDaoMapper<PO extends MPO<ID>, ID extends Serializable> {
             @Param("limit") TwoValues<Integer, Integer> limit
     );
 
-    @SelectProvider(type = BaseMapperSqlProvider.class, method = "findListByWhere")
+    @SelectProvider(type = BaseMapperMysqlProvider.class, method = "findListByWhere")
     List<PO> findListByWhere(
             @Param("entityClass") Class<PO> entityClass,
             @Param("where") String where,
@@ -49,6 +59,6 @@ public interface BaseDaoMapper<PO extends MPO<ID>, ID extends Serializable> {
             @Param("limit") TwoValues<Integer, Integer> limit
     );
 
-    @SelectProvider(type = BaseMapperSqlProvider.class, method = "countBy")
+    @SelectProvider(type = BaseMapperMysqlProvider.class, method = "countBy")
     long countBy(@Param("entityClass") Class<PO> entityClass, @Param("search") MybatisSearch<PO> search);
 }

@@ -6,6 +6,7 @@ import develop.toolkit.base.struct.Pager;
 import develop.toolkit.base.struct.PagerResult;
 import develop.toolkit.base.struct.TwoValues;
 import develop.toolkit.base.utils.CollectionAdvice;
+import lombok.Getter;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
@@ -22,6 +23,7 @@ public class MybatisResourceManager<
         DAOMAPPER extends BaseDaoMapper<PO, ID>
         > extends AbstractResourceManager<PO, ID> {
 
+    @Getter
     protected final DAOMAPPER daoMapper;
 
     public MybatisResourceManager(DAOMAPPER daoMapper, Class<PO> entityClass, String resourceName) {
@@ -61,13 +63,13 @@ public class MybatisResourceManager<
         return execSearchOperate(list);
     }
 
-    public <SEARCH extends MybatisSearch<PO>> List<PO> list(OrderBy[] orderByArray, SEARCH search) {
+    public <SEARCH extends MybatisSearch<PO>> List<PO> list(SEARCH search, OrderBy... orderByArray) {
         List<PO> list = daoMapper.findList(resourceDefinition.getEntityClass(), search, orderByArray, null);
         return execSearchOperate(list);
     }
 
-    public <SEARCH extends MybatisSearch<PO>> PagerResult<PO> pager(Pager pager, OrderBy[] orderByArray, SEARCH search) {
-        TwoValues<Integer, Integer> limit = TwoValues.of((pager.getPage() - 1) * pager.getSize(), pager.getSize());
+    public <SEARCH extends MybatisSearch<PO>> PagerResult<PO> pager(Pager pager, SEARCH search, OrderBy... orderByArray) {
+        TwoValues<Integer, Integer> limit = TwoValues.of(pager.getOffset(), pager.getSize());
         List<PO> list = daoMapper.findList(resourceDefinition.getEntityClass(), search, orderByArray, limit);
         long total = daoMapper.countBy(resourceDefinition.getEntityClass(), search);
         return new PagerResult<>(pager, execSearchOperate(list), total);

@@ -23,6 +23,27 @@ public final class WhereBuilder {
         return StringUtils.join(where, " AND ");
     }
 
+    /**
+     * 复杂条件
+     *
+     * @param enable
+     * @param sql
+     * @return
+     */
+    public WhereBuilder complex(boolean enable, String sql) {
+        if (enable) {
+            where.add(sql);
+        }
+        return this;
+    }
+
+    /**
+     * 相等条件
+     *
+     * @param attribute
+     * @param value
+     * @return
+     */
     public WhereBuilder equal(String attribute, Object value) {
         if (value != null) {
             if (value instanceof String && ((String) value).isEmpty()) {
@@ -35,6 +56,13 @@ public final class WhereBuilder {
         return this;
     }
 
+    /**
+     * 不相等条件
+     *
+     * @param attribute
+     * @param value
+     * @return
+     */
     public WhereBuilder notEqual(String attribute, Object value) {
         if (value != null) {
             if (value instanceof String && ((String) value).isEmpty()) {
@@ -47,6 +75,13 @@ public final class WhereBuilder {
         return this;
     }
 
+    /**
+     * 模糊匹配条件
+     *
+     * @param attribute
+     * @param value
+     * @return
+     */
     public WhereBuilder containsLike(String attribute, String value) {
         if (StringUtils.isNotBlank(value)) {
             where.add(

@@ -40,8 +40,8 @@ public class MybatisResourceHandler<
     }
 
     @Override
-    public void insertAll(Collection<PO> pos) {
-
+    public void insertAll(Collection<PO> entities) {
+        daoMapper.insertAll(resourceDefinition.getEntityClass(), entities);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class MybatisResourceHandler<
 
     @Override
     public Optional<PO> queryByIdForUpdate(ID id) {
-        return Optional.empty();
+        return daoMapper.findByIdForUpdate(resourceDefinition.getEntityClass(), id);
     }
 
     @Override
