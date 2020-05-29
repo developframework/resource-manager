@@ -1,5 +1,9 @@
 package com.github.developframework.resource.mybatis;
 
+import com.github.developframework.resource.mybatis.annotation.Column;
+import com.github.developframework.resource.mybatis.annotation.Id;
+import com.github.developframework.resource.mybatis.annotation.Table;
+import com.github.developframework.resource.mybatis.annotation.Transient;
 import develop.toolkit.base.struct.TwoValues;
 import develop.toolkit.base.utils.JavaBeanUtils;
 import develop.toolkit.base.utils.ObjectAdvice;
@@ -7,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.ibatis.jdbc.SQL;
 
-import javax.persistence.*;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -30,7 +33,7 @@ import java.util.stream.Stream;
 public class BaseMapperMysqlProvider {
 
     public String createTable(Class<MPO> entityClass) {
-        Engine engine = entityClass.getAnnotation(Engine.class);
+        Table table = entityClass.getAnnotation(Table.class);
         return new StringBuilder(String.format("CREATE TABLE IF NOT EXISTS `%s` ", MPO.getTableName(entityClass)))
                 .append(
                         FieldUtils
@@ -41,7 +44,7 @@ public class BaseMapperMysqlProvider {
                                 .collect(Collectors.joining(",", "(", ")"))
                 )
                 .append("ENGINE =")
-                .append(engine == null ? MysqlEngine.InnoDB : engine.value())
+                .append(table.value())
                 .toString();
     }
 
@@ -55,11 +58,9 @@ public class BaseMapperMysqlProvider {
                     .parallelStream()
                     .filter(entry -> {
                         Field field = entry.getKey();
-                        if (field.isAnnotationPresent(Id.class)) {
-                            GeneratedValue annotation = field.getAnnotation(GeneratedValue.class);
-                            if (annotation != null) {
-                                return annotation.strategy() != GenerationType.IDENTITY;
-                            }
+                        Id idAnnotation = field.getAnnotation(Id.class);
+                        if (idAnnotation != null) {
+                            return !idAnnotation.autoIncrement();
                         }
                         return !field.isAnnotationPresent(Transient.class);
                     })
@@ -75,14 +76,12 @@ public class BaseMapperMysqlProvider {
         final List<String> acceptFieldNames = FieldUtils
                 .getAllFieldsList(entityClass)
                 .stream()
-                .filter(f -> {
-                    if (f.isAnnotationPresent(Id.class)) {
-                        GeneratedValue annotation = f.getAnnotation(GeneratedValue.class);
-                        if (annotation != null) {
-                            return annotation.strategy() != GenerationType.IDENTITY;
-                        }
+                .filter(field -> {
+                    Id idAnnotation = field.getAnnotation(Id.class);
+                    if (idAnnotation != null) {
+                        return !idAnnotation.autoIncrement();
                     }
-                    return !f.isAnnotationPresent(Transient.class);
+                    return !field.isAnnotationPresent(Transient.class);
                 })
                 .map(Field::getName)
                 .collect(Collectors.toUnmodifiableList());
@@ -214,13 +213,11 @@ public class BaseMapperMysqlProvider {
 
     private String columnDefinition(Field field) {
         Column annotation = field.getAnnotation(Column.class);
-        String name = null, type;
         int length = 0, precision = 10, scale = 2;
         boolean nullable = true, unique = false;
         if (annotation != null) {
             String columnDefinition = annotation.columnDefinition();
             if (columnDefinition.isEmpty()) {
-                name = annotation.name();
                 length = annotation.length();
                 precision = annotation.precision();
                 scale = annotation.scale();
@@ -230,15 +227,11 @@ public class BaseMapperMysqlProvider {
                 return columnDefinition;
             }
         }
-        if (StringUtils.isEmpty(name)) {
-            name = JavaBeanUtils.camelcaseToUnderline(field.getName());
-        }
-        type = columnTypeForFieldType(field.getType(), length, precision, scale);
         return String.join(
                 " ",
                 new String[]{
-                        String.format("`%s`", name),
-                        type,
+                        String.format("`%s`", JavaBeanUtils.camelcaseToUnderline(field.getName())),
+                        columnTypeForFieldType(field.getType(), length, precision, scale),
                         nullable ? "NULL" : "NOT NULL",
                         unique ? "UNIQUE" : "",
                         field.isAnnotationPresent(Id.class) ? "PRIMARY KEY" : ""

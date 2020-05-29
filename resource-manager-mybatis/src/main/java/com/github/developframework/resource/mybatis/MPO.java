@@ -1,9 +1,9 @@
 package com.github.developframework.resource.mybatis;
 
 import com.github.developframework.resource.Entity;
+import com.github.developframework.resource.mybatis.annotation.Id;
+import com.github.developframework.resource.mybatis.annotation.Table;
 
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.stream.Stream;

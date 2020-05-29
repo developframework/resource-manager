@@ -13,7 +13,6 @@
 
     <properties>
         <version.mybatis-boot>2.1.2</version.mybatis-boot>
-        <version.persistence-api>2.2.3</version.persistence-api>
     </properties>
 
     <dependencies>
@@ -25,11 +24,6 @@
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
             <version>${version.mybatis-boot}</version>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.persistence</groupId>
-            <artifactId>jakarta.persistence-api</artifactId>
-            <version>${version.persistence-api}</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
