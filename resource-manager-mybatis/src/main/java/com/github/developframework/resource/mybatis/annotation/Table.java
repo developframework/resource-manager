@@ -16,5 +16,5 @@ public @interface Table {
 
     String name() default "";
 
-    MysqlEngine value() default MysqlEngine.InnoDB;
+    MysqlEngine engine() default MysqlEngine.InnoDB;
 }

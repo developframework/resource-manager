@@ -44,7 +44,7 @@ public class BaseMapperMysqlProvider {
                                 .collect(Collectors.joining(",", "(", ")"))
                 )
                 .append("ENGINE =")
-                .append(table.value())
+                .append(table.engine())
                 .toString();
     }
 
