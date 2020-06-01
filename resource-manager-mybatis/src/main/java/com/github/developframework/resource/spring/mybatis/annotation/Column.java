@@ -1,4 +1,4 @@
-package com.github.developframework.resource.mybatis.annotation;
+package com.github.developframework.resource.spring.mybatis.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

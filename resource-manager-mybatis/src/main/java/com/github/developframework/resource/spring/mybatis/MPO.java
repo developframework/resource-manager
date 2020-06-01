@@ -1,8 +1,8 @@
-package com.github.developframework.resource.mybatis;
+package com.github.developframework.resource.spring.mybatis;
 
 import com.github.developframework.resource.Entity;
-import com.github.developframework.resource.mybatis.annotation.Id;
-import com.github.developframework.resource.mybatis.annotation.Table;
+import com.github.developframework.resource.spring.mybatis.annotation.Id;
+import com.github.developframework.resource.spring.mybatis.annotation.Table;
 import develop.toolkit.base.utils.JavaBeanUtils;
 
 import java.io.Serializable;

@@ -1,4 +1,4 @@
-package com.github.developframework.resource.mybatis;
+package com.github.developframework.resource.spring.mybatis;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

@@ -1,4 +1,4 @@
-package com.github.developframework.resource.mybatis;
+package com.github.developframework.resource.spring.mybatis;
 
 import develop.toolkit.base.struct.KeyValuePairs;
 import develop.toolkit.base.struct.TwoValues;
@@ -15,6 +15,8 @@ import java.util.Optional;
  * @author qiushui on 2020-05-28.
  */
 public interface BaseDaoMapper<PO extends MPO<ID>, ID extends Serializable> {
+
+    Class<PO> getEntityClass();
 
     @UpdateProvider(type = BaseMapperMysqlProvider.class, method = "createTable")
     void createTable(Class<PO> entityClass);

@@ -1,7 +1,7 @@
-package com.github.developframework.resource.mybatis;
+package com.github.developframework.resource.spring.mybatis;
 
 import com.github.developframework.resource.*;
-import com.github.developframework.resource.mybatis.utils.WhereBuilder;
+import com.github.developframework.resource.spring.mybatis.utils.WhereBuilder;
 import develop.toolkit.base.struct.Pager;
 import develop.toolkit.base.struct.PagerResult;
 import develop.toolkit.base.struct.TwoValues;

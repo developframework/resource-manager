@@ -1,4 +1,4 @@
-package com.github.developframework.resource.mybatis;
+package com.github.developframework.resource.spring.mybatis;
 
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.ResourceHandler;

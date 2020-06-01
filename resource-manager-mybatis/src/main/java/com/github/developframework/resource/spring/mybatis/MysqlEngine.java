@@ -1,4 +1,4 @@
-package com.github.developframework.resource.mybatis;
+package com.github.developframework.resource.spring.mybatis;
 
 /**
  * @author qiushui on 2020-05-29.

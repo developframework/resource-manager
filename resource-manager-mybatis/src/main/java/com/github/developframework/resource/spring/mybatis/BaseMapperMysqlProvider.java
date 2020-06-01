@@ -1,9 +1,9 @@
-package com.github.developframework.resource.mybatis;
+package com.github.developframework.resource.spring.mybatis;
 
-import com.github.developframework.resource.mybatis.annotation.Column;
-import com.github.developframework.resource.mybatis.annotation.Id;
-import com.github.developframework.resource.mybatis.annotation.Table;
-import com.github.developframework.resource.mybatis.annotation.Transient;
+import com.github.developframework.resource.spring.mybatis.annotation.Column;
+import com.github.developframework.resource.spring.mybatis.annotation.Id;
+import com.github.developframework.resource.spring.mybatis.annotation.Table;
+import com.github.developframework.resource.spring.mybatis.annotation.Transient;
 import develop.toolkit.base.struct.TwoValues;
 import develop.toolkit.base.utils.JavaBeanUtils;
 import develop.toolkit.base.utils.ObjectAdvice;
@@ -32,7 +32,7 @@ import java.util.stream.Stream;
 @SuppressWarnings({"unchecked", "rawtypes", "unused"})
 public class BaseMapperMysqlProvider {
 
-    public String createTable(Class<MPO> entityClass) {
+    public String createTable(Class<? extends MPO> entityClass) {
         Table table = entityClass.getAnnotation(Table.class);
         return new StringBuilder(String.format("CREATE TABLE IF NOT EXISTS `%s` ", MPO.getTableName(entityClass)))
                 .append(

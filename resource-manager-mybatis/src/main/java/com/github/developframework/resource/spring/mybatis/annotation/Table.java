@@ -1,6 +1,6 @@
-package com.github.developframework.resource.mybatis.annotation;
+package com.github.developframework.resource.spring.mybatis.annotation;
 
-import com.github.developframework.resource.mybatis.MysqlEngine;
+import com.github.developframework.resource.spring.mybatis.MysqlEngine;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,9 +1,10 @@
-package com.github.developframework.resource.mybatis;
+package com.github.developframework.resource.spring.mybatis;
 
 import com.github.developframework.expression.ExpressionUtils;
-import com.github.developframework.resource.AddCheckExistsLogic;
+import com.github.developframework.resource.ModifyCheckExistsLogic;
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.exception.ResourceExistException;
+import com.github.developframework.resource.operate.CheckUniqueByFieldLogic;
 import develop.toolkit.base.struct.KeyValuePair;
 import develop.toolkit.base.struct.KeyValuePairs;
 import develop.toolkit.base.utils.ObjectAdvice;
@@ -15,13 +16,13 @@ import java.util.stream.Stream;
 /**
  * 根据字段查重
  *
- * @author qiushui on 2020-05-28.
+ * @author qiushui on 2019-08-26.
  */
-public class ByFieldMybatisAddCheckExistsLogic<
+public class ByFieldMybatisModifyCheckExistsLogic<
         PO extends MPO<ID>,
         DTO extends com.github.developframework.resource.DTO,
         ID extends Serializable
-        > implements AddCheckExistsLogic<PO, DTO, ID> {
+        > extends CheckUniqueByFieldLogic<PO, DTO, ID> implements ModifyCheckExistsLogic<PO, DTO, ID> {
 
     private final String[] fields;
 
@@ -29,14 +30,18 @@ public class ByFieldMybatisAddCheckExistsLogic<
 
     private final BaseDaoMapper<PO, ID> daoMapper;
 
-    public ByFieldMybatisAddCheckExistsLogic(ResourceDefinition<PO> resourceDefinition, BaseDaoMapper<PO, ID> daoMapper, String... fields) {
+    public ByFieldMybatisModifyCheckExistsLogic(ResourceDefinition<PO> resourceDefinition, BaseDaoMapper<PO, ID> daoMapper, String... fields) {
+        this.daoMapper = daoMapper;
         this.fields = fields;
         this.resourceDefinition = resourceDefinition;
-        this.daoMapper = daoMapper;
     }
 
     @Override
-    public boolean check(DTO dto) {
+    public boolean check(DTO dto, PO entity) {
+        KeyValuePairs<String, String> pairs = parseFieldPair(fields);
+        if (!hasNewValue(dto, entity, pairs)) {
+            return false;
+        }
         KeyValuePairs<String, Object> fields = KeyValuePairs.of(
                 Stream
                         .of(this.fields)

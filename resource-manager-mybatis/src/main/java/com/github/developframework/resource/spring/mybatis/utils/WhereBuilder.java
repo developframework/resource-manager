@@ -1,4 +1,4 @@
-package com.github.developframework.resource.mybatis.utils;
+package com.github.developframework.resource.spring.mybatis.utils;
 
 import develop.toolkit.base.utils.JavaBeanUtils;
 import org.apache.commons.lang3.StringUtils;
