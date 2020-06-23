@@ -1,7 +1,6 @@
 package com.github.developframework.resource.spring.mongo;
 
 import com.github.developframework.resource.DTO;
-import com.github.developframework.resource.Entity;
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.ResourceOperateRegistry;
 import com.github.developframework.resource.spring.SpringDataResourceCacheManager;
@@ -28,19 +27,19 @@ import java.util.List;
  * @author qiushui on 2019-08-21.
  */
 public class MongoResourceCacheManager<
-        ENTITY extends Entity<ID>,
+        DOC extends com.github.developframework.resource.spring.mongo.DOC<ID>,
         ID extends Serializable,
-        REPOSITORY extends MongoRepository<ENTITY, ID>
-        > extends SpringDataResourceCacheManager<ENTITY, ID, REPOSITORY> {
+        REPOSITORY extends MongoRepository<DOC, ID>
+        > extends SpringDataResourceCacheManager<DOC, ID, REPOSITORY> {
 
     @Autowired
     protected MongoOperations mongoOperations;
 
-    public MongoResourceCacheManager(REPOSITORY repository, Class<ENTITY> entityClass, String resourceName, String cacheKey, Duration timeout, CacheType cacheType) {
+    public MongoResourceCacheManager(REPOSITORY repository, Class<DOC> entityClass, String resourceName, String cacheKey, Duration timeout, CacheType cacheType) {
         super(repository, new ResourceDefinition<>(entityClass, resourceName), cacheKey, timeout, cacheType);
     }
 
-    public MongoResourceCacheManager(REPOSITORY repository, Class<ENTITY> entityClass, String resourceName, MongoResourceHandler<ENTITY, ID, REPOSITORY> resourceHandler, String cacheKey, Duration timeout, CacheType cacheType) {
+    public MongoResourceCacheManager(REPOSITORY repository, Class<DOC> entityClass, String resourceName, MongoResourceHandler<DOC, ID, REPOSITORY> resourceHandler, String cacheKey, Duration timeout, CacheType cacheType) {
         super(repository, new ResourceDefinition<>(entityClass, resourceName), cacheKey, timeout, cacheType);
         this.resourceOperateRegistry = new ResourceOperateRegistry<>(this);
         this.mongoOperations = resourceHandler.getMongoOperations();
@@ -52,27 +51,27 @@ public class MongoResourceCacheManager<
         super.transactionTemplate = new TransactionTemplate(mongoTransactionManager);
     }
 
-    public List<ENTITY> listForIds(ID[] ids) {
+    public List<DOC> listForIds(ID[] ids) {
         return listForIds(Fields.UNDERSCORE_ID, ids);
     }
 
     @Override
-    public List<ENTITY> listForIds(String idProperty, ID[] ids) {
+    public List<DOC> listForIds(String idProperty, ID[] ids) {
         if (ids.length == 0) {
             return new ArrayList<>();
         }
-        List<ENTITY> list = mongoOperations.find(
+        List<DOC> list = mongoOperations.find(
                 Querys.in(idProperty, ids),
                 resourceDefinition.getEntityClass()
         );
         return CollectionAdvice.sort(list, ids, (po, id) -> po.getId().equals(id));
     }
 
-    public <T extends DTO> ByFieldMongoAddCheckExistsLogic<ENTITY, T, ID> byFieldAddCheck(Class<T> dtoClass, String... fields) {
+    public <T extends DTO> ByFieldMongoAddCheckExistsLogic<DOC, T, ID> byFieldAddCheck(Class<T> dtoClass, String... fields) {
         return new ByFieldMongoAddCheckExistsLogic<>(resourceDefinition, mongoOperations, fields);
     }
 
-    public <T extends DTO> ByFieldMongoModifyCheckExistsLogic<ENTITY, T, ID> byFieldModifyCheck(Class<T> dtoClass, String... fields) {
+    public <T extends DTO> ByFieldMongoModifyCheckExistsLogic<DOC, T, ID> byFieldModifyCheck(Class<T> dtoClass, String... fields) {
         return new ByFieldMongoModifyCheckExistsLogic<>(resourceDefinition, mongoOperations, fields);
     }
 

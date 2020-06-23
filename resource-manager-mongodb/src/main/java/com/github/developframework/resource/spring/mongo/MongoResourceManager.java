@@ -1,7 +1,6 @@
 package com.github.developframework.resource.spring.mongo;
 
 import com.github.developframework.resource.DTO;
-import com.github.developframework.resource.Entity;
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.ResourceOperateRegistry;
 import com.github.developframework.resource.spring.SpringDataResourceManager;
@@ -26,19 +25,19 @@ import java.util.List;
  * @author qiushui on 2019-08-21.
  */
 public class MongoResourceManager<
-        ENTITY extends Entity<ID>,
+        DOC extends com.github.developframework.resource.spring.mongo.DOC<ID>,
         ID extends Serializable,
-        REPOSITORY extends MongoRepository<ENTITY, ID>
-        > extends SpringDataResourceManager<ENTITY, ID, REPOSITORY> {
+        REPOSITORY extends MongoRepository<DOC, ID>
+        > extends SpringDataResourceManager<DOC, ID, REPOSITORY> {
 
     @Autowired
     protected MongoOperations mongoOperations;
 
-    public MongoResourceManager(REPOSITORY repository, Class<ENTITY> entityClass, String resourceName) {
+    public MongoResourceManager(REPOSITORY repository, Class<DOC> entityClass, String resourceName) {
         super(repository, new ResourceDefinition<>(entityClass, resourceName));
     }
 
-    public MongoResourceManager(REPOSITORY repository, Class<ENTITY> entityClass, String resourceName, MongoResourceHandler<ENTITY, ID, REPOSITORY> resourceHandler) {
+    public MongoResourceManager(REPOSITORY repository, Class<DOC> entityClass, String resourceName, MongoResourceHandler<DOC, ID, REPOSITORY> resourceHandler) {
         super(repository, new ResourceDefinition<>(entityClass, resourceName));
         this.resourceOperateRegistry = new ResourceOperateRegistry<>(this);
         this.mongoOperations = resourceHandler.getMongoOperations();
@@ -50,27 +49,27 @@ public class MongoResourceManager<
         super.transactionTemplate = new TransactionTemplate(mongoTransactionManager);
     }
 
-    public List<ENTITY> listForIds(ID[] ids) {
+    public List<DOC> listForIds(ID[] ids) {
         return listForIds(Fields.UNDERSCORE_ID, ids);
     }
 
     @Override
-    public List<ENTITY> listForIds(String idProperty, ID[] ids) {
+    public List<DOC> listForIds(String idProperty, ID[] ids) {
         if (ids.length == 0) {
             return new ArrayList<>();
         }
-        List<ENTITY> list = mongoOperations.find(
+        List<DOC> list = mongoOperations.find(
                 Querys.in(idProperty, ids),
                 resourceDefinition.getEntityClass()
         );
         return CollectionAdvice.sort(list, ids, (po, id) -> po.getId().equals(id));
     }
 
-    public <T extends DTO> ByFieldMongoAddCheckExistsLogic<ENTITY, T, ID> byFieldAddCheck(Class<T> dtoClass, String... fields) {
+    public <T extends DTO> ByFieldMongoAddCheckExistsLogic<DOC, T, ID> byFieldAddCheck(Class<T> dtoClass, String... fields) {
         return new ByFieldMongoAddCheckExistsLogic<>(resourceDefinition, mongoOperations, fields);
     }
 
-    public <T extends DTO> ByFieldMongoModifyCheckExistsLogic<ENTITY, T, ID> byFieldModifyCheck(Class<T> dtoClass, String... fields) {
+    public <T extends DTO> ByFieldMongoModifyCheckExistsLogic<DOC, T, ID> byFieldModifyCheck(Class<T> dtoClass, String... fields) {
         return new ByFieldMongoModifyCheckExistsLogic<>(resourceDefinition, mongoOperations, fields);
     }
 

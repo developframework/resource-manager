@@ -1,6 +1,5 @@
 package com.github.developframework.resource.spring.mongo;
 
-import com.github.developframework.resource.Entity;
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.Search;
 import com.github.developframework.resource.spring.SpringDataResourceHandler;
@@ -24,32 +23,32 @@ import java.util.Optional;
  *
  * @author qiushui on 2019-08-21.
  */
-public class MongoResourceHandler<ENTITY extends Entity<ID>,
+public class MongoResourceHandler<DOC extends com.github.developframework.resource.spring.mongo.DOC<ID>,
         ID extends Serializable,
-        REPOSITORY extends MongoRepository<ENTITY, ID>
-        > extends SpringDataResourceHandler<ENTITY, ID, REPOSITORY> {
+        REPOSITORY extends MongoRepository<DOC, ID>
+        > extends SpringDataResourceHandler<DOC, ID, REPOSITORY> {
 
     @Getter
-    private MongoOperations mongoOperations;
+    private final MongoOperations mongoOperations;
 
-    public MongoResourceHandler(REPOSITORY repository, ResourceDefinition<ENTITY> resourceDefinition, MongoOperations mongoOperations) {
+    public MongoResourceHandler(REPOSITORY repository, ResourceDefinition<DOC> resourceDefinition, MongoOperations mongoOperations) {
         super(repository, resourceDefinition);
         this.mongoOperations = mongoOperations;
     }
 
     @Override
-    public Optional<ENTITY> queryByIdForUpdate(ID id) {
+    public Optional<DOC> queryByIdForUpdate(ID id) {
         return queryById(id);
     }
 
     @Override
-    public List<ENTITY> query(Search<ENTITY> search) {
+    public List<DOC> query(Search<DOC> search) {
         Query query = safeSearch(search);
         return query != null ? mongoOperations.find(query, resourceDefinition.getEntityClass()) : mongoOperations.findAll(resourceDefinition.getEntityClass());
     }
 
     @Override
-    public <SEARCH extends Search<ENTITY>> List<ENTITY> query(Sort sort, SEARCH search) {
+    public <SEARCH extends Search<DOC>> List<DOC> query(Sort sort, SEARCH search) {
         Query query = safeSearch(search);
         AggregationOperationBuilder builder = new AggregationOperationBuilder(mongoOperations);
         K.let(query, builder::match);
@@ -57,14 +56,14 @@ public class MongoResourceHandler<ENTITY extends Entity<ID>,
     }
 
     @Override
-    public <SEARCH extends Search<ENTITY>> Page<ENTITY> queryPager(Pageable pageable, SEARCH search) {
+    public <SEARCH extends Search<DOC>> Page<DOC> queryPager(Pageable pageable, SEARCH search) {
         Query query = safeSearch(search);
         AggregationOperationBuilder builder = new AggregationOperationBuilder(mongoOperations);
         K.let(query, builder::match);
         return builder.pager(pageable, resourceDefinition.getEntityClass(), resourceDefinition.getEntityClass());
     }
 
-    private Query safeSearch(Search<ENTITY> search) {
-        return K.map(search, s -> ((MongoSearch<ENTITY>) s).toQuery());
+    private Query safeSearch(Search<DOC> search) {
+        return K.map(search, s -> ((MongoSearch<DOC>) s).toQuery());
     }
 }
