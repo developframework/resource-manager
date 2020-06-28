@@ -58,6 +58,18 @@
         <develop.toolkit.version>1.0.3</develop.toolkit.version>
     </properties>
 
+    <!-- 配置私库地址 -->
+    <distributionManagement>
+        <snapshotRepository>
+            <id>hclc nexus</id>
+            <url>http://nexus.hclc-tech.com:8081/repository/maven-snapshots/</url>
+        </snapshotRepository>
+        <repository>
+            <id>hclc nexus</id>
+            <url>http://nexus.hclc-tech.com:8081/repository/maven-releases/</url>
+        </repository>
+    </distributionManagement>
+
     <dependencyManagement>
         <dependencies>
             <dependency>

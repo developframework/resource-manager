@@ -3,7 +3,7 @@ package com.github.developframework.resource.spring.jpa.converter;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.AttributeConverter;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,6 +22,12 @@ public class IntegerListAttributeConverter implements AttributeConverter<List<In
 
     @Override
     public List<Integer> convertToEntityAttribute(String dbData) {
-        return dbData != null ? Stream.of(dbData.split(",")).map(Integer::parseInt).collect(Collectors.toList()) : new ArrayList<>();
+        if (dbData == null) {
+            return null;
+        } else if (dbData.isEmpty()) {
+            return new LinkedList<>();
+        } else {
+            return Stream.of(dbData.split(",")).map(Integer::parseInt).collect(Collectors.toList());
+        }
     }
 }

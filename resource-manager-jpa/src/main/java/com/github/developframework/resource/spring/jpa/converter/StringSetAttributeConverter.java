@@ -3,6 +3,7 @@ package com.github.developframework.resource.spring.jpa.converter;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.AttributeConverter;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -19,6 +20,12 @@ public class StringSetAttributeConverter implements AttributeConverter<Set<Strin
 
     @Override
     public Set<String> convertToEntityAttribute(String dbData) {
-        return dbData != null ? Set.of(dbData.split(",")) : Set.of();
+        if (dbData == null) {
+            return null;
+        } else if (dbData.isEmpty()) {
+            return new HashSet<>();
+        } else {
+            return new HashSet<>(Set.of(dbData.split(",")));
+        }
     }
 }

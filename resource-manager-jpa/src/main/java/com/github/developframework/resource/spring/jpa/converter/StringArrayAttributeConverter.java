@@ -18,6 +18,12 @@ public class StringArrayAttributeConverter implements AttributeConverter<String[
 
     @Override
     public String[] convertToEntityAttribute(String dbData) {
-        return dbData != null ? dbData.split(",") : new String[0];
+        if (dbData == null) {
+            return null;
+        } else if (dbData.isEmpty()) {
+            return new String[0];
+        } else {
+            return dbData.split(",");
+        }
     }
 }

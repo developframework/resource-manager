@@ -19,6 +19,12 @@ public class IntegerArrayAttributeConverter implements AttributeConverter<Intege
 
     @Override
     public Integer[] convertToEntityAttribute(String dbData) {
-        return dbData != null ? Stream.of(dbData.split(",")).map(Integer::parseInt).toArray(Integer[]::new) : new Integer[0];
+        if (dbData == null) {
+            return null;
+        } else if (dbData.isEmpty()) {
+            return new Integer[0];
+        } else {
+            return Stream.of(dbData.split(",")).map(Integer::parseInt).toArray(Integer[]::new);
+        }
     }
 }

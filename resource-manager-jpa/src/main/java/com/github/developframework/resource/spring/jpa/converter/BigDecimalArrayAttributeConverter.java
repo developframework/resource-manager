@@ -20,6 +20,12 @@ public class BigDecimalArrayAttributeConverter implements AttributeConverter<Big
 
     @Override
     public BigDecimal[] convertToEntityAttribute(String dbData) {
-        return dbData != null ? Stream.of(dbData.split(",")).map(BigDecimal::new).toArray(BigDecimal[]::new) : new BigDecimal[0];
+        if (dbData == null) {
+            return null;
+        } else if (dbData.isEmpty()) {
+            return new BigDecimal[0];
+        } else {
+            return Stream.of(dbData.split(",")).map(BigDecimal::new).toArray(BigDecimal[]::new);
+        }
     }
 }

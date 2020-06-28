@@ -19,6 +19,12 @@ public class LongArrayAttributeConverter implements AttributeConverter<Long[], S
 
     @Override
     public Long[] convertToEntityAttribute(String dbData) {
-        return dbData != null ? Stream.of(dbData.split(",")).map(Long::valueOf).toArray(Long[]::new) : new Long[0];
+        if (dbData == null) {
+            return null;
+        } else if (dbData.isEmpty()) {
+            return new Long[0];
+        } else {
+            return Stream.of(dbData.split(",")).map(Long::parseLong).toArray(Long[]::new);
+        }
     }
 }

@@ -3,6 +3,7 @@ package com.github.developframework.resource.spring.jpa.converter;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.AttributeConverter;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -19,6 +20,12 @@ public class StringListAttributeConverter implements AttributeConverter<List<Str
 
     @Override
     public List<String> convertToEntityAttribute(String dbData) {
-        return dbData != null ? List.of(dbData.split(",")) : List.of();
+        if (dbData == null) {
+            return null;
+        } else if (dbData.isEmpty()) {
+            return new LinkedList<>();
+        } else {
+            return new LinkedList<>(List.of(dbData.split(",")));
+        }
     }
 }

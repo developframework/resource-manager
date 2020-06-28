@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.AttributeConverter;
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -23,6 +23,12 @@ public class BigDecimalListAttributeConverter implements AttributeConverter<List
 
     @Override
     public List<BigDecimal> convertToEntityAttribute(String dbData) {
-        return dbData != null ? Stream.of(dbData.split(",")).map(BigDecimal::new).collect(Collectors.toList()) : new ArrayList<>();
+        if (dbData == null) {
+            return null;
+        } else if (dbData.isEmpty()) {
+            return new LinkedList<>();
+        } else {
+            return Stream.of(dbData.split(",")).map(BigDecimal::new).collect(Collectors.toList());
+        }
     }
 }

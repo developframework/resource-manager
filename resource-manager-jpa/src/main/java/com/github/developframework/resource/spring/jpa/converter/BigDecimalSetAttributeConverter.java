@@ -23,6 +23,12 @@ public class BigDecimalSetAttributeConverter implements AttributeConverter<Set<B
 
     @Override
     public Set<BigDecimal> convertToEntityAttribute(String dbData) {
-        return dbData != null ? Stream.of(dbData.split(",")).map(BigDecimal::new).collect(Collectors.toSet()) : new HashSet<>();
+        if (dbData == null) {
+            return null;
+        } else if (dbData.isEmpty()) {
+            return new HashSet<>();
+        } else {
+            return Stream.of(dbData.split(",")).map(BigDecimal::new).collect(Collectors.toSet());
+        }
     }
 }
