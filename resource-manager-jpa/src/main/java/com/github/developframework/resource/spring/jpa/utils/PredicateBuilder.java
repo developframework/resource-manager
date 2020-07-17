@@ -1,12 +1,12 @@
 package com.github.developframework.resource.spring.jpa.utils;
 
+import develop.toolkit.base.constants.DateFormatConstants;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.criteria.*;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
@@ -294,10 +294,13 @@ public final class PredicateBuilder<T> {
      * @return
      */
     public PredicateBuilder<T> dateEqual(String attribute, LocalDate date) {
-        Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal("%Y-%m-%d"));
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         if (date != null) {
-            predicates.add(criteriaBuilder.equal(function, date.format(dateTimeFormatter)));
+            predicates.add(
+                    criteriaBuilder.equal(
+                            criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal(DateFormatConstants.MYSQL_FORMAT_DATE)),
+                            date.format(DateFormatConstants.DATE_FORMATTER)
+                    )
+            );
         }
         return this;
     }
@@ -310,10 +313,13 @@ public final class PredicateBuilder<T> {
      * @return
      */
     public PredicateBuilder<T> dateEqual(String attribute, Date date) {
-        Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal("%Y-%m-%d"));
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         if (date != null) {
-            predicates.add(criteriaBuilder.equal(function, sdf.format(date)));
+            predicates.add(
+                    criteriaBuilder.equal(
+                            criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal(DateFormatConstants.MYSQL_FORMAT_DATE)),
+                            new SimpleDateFormat(DateFormatConstants.DATE).format(date)
+                    )
+            );
         }
         return this;
     }
@@ -326,9 +332,13 @@ public final class PredicateBuilder<T> {
      * @return
      */
     public PredicateBuilder<T> dateEqual(String attribute, String date) {
-        Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal("%Y-%m-%d"));
         if (date != null) {
-            predicates.add(criteriaBuilder.equal(function, date));
+            predicates.add(
+                    criteriaBuilder.equal(
+                            criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal(DateFormatConstants.MYSQL_FORMAT_DATE)),
+                            date
+                    )
+            );
         }
         return this;
     }
@@ -341,9 +351,13 @@ public final class PredicateBuilder<T> {
      * @return
      */
     public PredicateBuilder<T> monthEqual(String attribute, String month) {
-        Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal("%Y-%m"));
         if (month != null) {
-            predicates.add(criteriaBuilder.equal(function, month));
+            predicates.add(
+                    criteriaBuilder.equal(
+                            criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal(DateFormatConstants.MYSQL_FORMAT_MONTH)),
+                            month
+                    )
+            );
         }
         return this;
     }
@@ -372,14 +386,13 @@ public final class PredicateBuilder<T> {
      * @return
      */
     public PredicateBuilder<T> dateRange(String attribute, LocalDate start, LocalDate end) {
-        Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal("%Y-%m-%d"));
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal(DateFormatConstants.MYSQL_FORMAT_DATE));
         if (start != null && end == null) {
-            predicates.add(criteriaBuilder.greaterThanOrEqualTo(function, start.format(dateTimeFormatter)));
+            predicates.add(criteriaBuilder.greaterThanOrEqualTo(function, start.format(DateFormatConstants.DATE_FORMATTER)));
         } else if (start == null && end != null) {
-            predicates.add(criteriaBuilder.lessThanOrEqualTo(function, end.format(dateTimeFormatter)));
+            predicates.add(criteriaBuilder.lessThanOrEqualTo(function, end.format(DateFormatConstants.DATE_FORMATTER)));
         } else if (start != null) {
-            predicates.add(criteriaBuilder.between(function, start.format(dateTimeFormatter), end.format(dateTimeFormatter)));
+            predicates.add(criteriaBuilder.between(function, start.format(DateFormatConstants.DATE_FORMATTER), end.format(DateFormatConstants.DATE_FORMATTER)));
         }
         return this;
     }
@@ -393,8 +406,8 @@ public final class PredicateBuilder<T> {
      * @return
      */
     public PredicateBuilder<T> dateRange(String attribute, Date start, Date end) {
-        Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal("%Y-%m-%d"));
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal(DateFormatConstants.MYSQL_FORMAT_DATE));
+        SimpleDateFormat sdf = new SimpleDateFormat(DateFormatConstants.DATE);
         if (start != null && end == null) {
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(function, sdf.format(start)));
         } else if (start == null && end != null) {
@@ -414,7 +427,7 @@ public final class PredicateBuilder<T> {
      * @return
      */
     public PredicateBuilder<T> dateRange(String attribute, String start, String end) {
-        Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal("%Y-%m-%d"));
+        Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal(DateFormatConstants.MYSQL_FORMAT_DATE));
         if (start != null && end == null) {
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(function, start));
         } else if (start == null && end != null) {
@@ -433,10 +446,9 @@ public final class PredicateBuilder<T> {
      * @return
      */
     public PredicateBuilder<T> dateTimeEqual(String attribute, LocalDateTime dateTime) {
-        Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal("%Y-%m-%d %H:%i:%S"));
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         if (dateTime != null) {
-            predicates.add(criteriaBuilder.equal(function, dateTime.format(dateTimeFormatter)));
+            Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal(DateFormatConstants.MYSQL_FORMAT_DATETIME));
+            predicates.add(criteriaBuilder.equal(function, dateTime.format(DateFormatConstants.STANDARD_FORMATTER)));
         }
         return this;
     }
@@ -449,10 +461,9 @@ public final class PredicateBuilder<T> {
      * @return
      */
     public PredicateBuilder<T> dateTimeEqual(String attribute, Date date) {
-        Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal("%Y-%m-%d %H:%i:%S"));
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         if (date != null) {
-            predicates.add(criteriaBuilder.equal(function, sdf.format(date)));
+            Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal(DateFormatConstants.MYSQL_FORMAT_DATETIME));
+            predicates.add(criteriaBuilder.equal(function, new SimpleDateFormat(DateFormatConstants.STANDARD).format(date)));
         }
         return this;
     }
@@ -465,8 +476,8 @@ public final class PredicateBuilder<T> {
      * @return
      */
     public PredicateBuilder<T> dateTimeEqual(String attribute, String date) {
-        Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal("%Y-%m-%d %H:%i:%S"));
         if (date != null) {
+            Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal(DateFormatConstants.MYSQL_FORMAT_DATETIME));
             predicates.add(criteriaBuilder.equal(function, date));
         }
         return this;
@@ -481,14 +492,13 @@ public final class PredicateBuilder<T> {
      * @return
      */
     public PredicateBuilder<T> dateTimeRange(String attribute, LocalDateTime start, LocalDateTime end) {
-        Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal("%Y-%m-%d %H:%i:%S"));
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal(DateFormatConstants.MYSQL_FORMAT_DATETIME));
         if (start != null && end == null) {
-            predicates.add(criteriaBuilder.greaterThanOrEqualTo(function, start.format(dateTimeFormatter)));
+            predicates.add(criteriaBuilder.greaterThanOrEqualTo(function, start.format(DateFormatConstants.STANDARD_FORMATTER)));
         } else if (start == null && end != null) {
-            predicates.add(criteriaBuilder.lessThanOrEqualTo(function, end.format(dateTimeFormatter)));
+            predicates.add(criteriaBuilder.lessThanOrEqualTo(function, end.format(DateFormatConstants.STANDARD_FORMATTER)));
         } else if (start != null) {
-            predicates.add(criteriaBuilder.between(function, start.format(dateTimeFormatter), end.format(dateTimeFormatter)));
+            predicates.add(criteriaBuilder.between(function, start.format(DateFormatConstants.STANDARD_FORMATTER), end.format(DateFormatConstants.STANDARD_FORMATTER)));
         }
         return this;
     }
@@ -502,8 +512,8 @@ public final class PredicateBuilder<T> {
      * @return
      */
     public PredicateBuilder<T> dateTimeRange(String attribute, Date start, Date end) {
-        Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal("%Y-%m-%d %H:%i:%S"));
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal(DateFormatConstants.MYSQL_FORMAT_DATETIME));
+        SimpleDateFormat sdf = new SimpleDateFormat(DateFormatConstants.STANDARD);
         if (start != null && end == null) {
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(function, sdf.format(start)));
         } else if (start == null && end != null) {
@@ -523,7 +533,7 @@ public final class PredicateBuilder<T> {
      * @return
      */
     public PredicateBuilder<T> dateTimeRange(String attribute, String start, String end) {
-        Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal("%Y-%m-%d %H:%i:%S"));
+        Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal(DateFormatConstants.MYSQL_FORMAT_DATETIME));
         if (start != null && end == null) {
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(function, start));
         } else if (start == null && end != null) {
@@ -543,7 +553,7 @@ public final class PredicateBuilder<T> {
      * @return
      */
     public PredicateBuilder<T> monthRange(String attribute, String start, String end) {
-        Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal("%Y-%m"));
+        Expression<String> function = criteriaBuilder.function("DATE_FORMAT", String.class, Specifications.path(root, attribute), criteriaBuilder.literal(DateFormatConstants.MYSQL_FORMAT_MONTH));
         if (start != null && end == null) {
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(function, start));
         } else if (start == null && end != null) {

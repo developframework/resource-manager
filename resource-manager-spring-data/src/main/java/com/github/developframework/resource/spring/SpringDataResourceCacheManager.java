@@ -70,6 +70,8 @@ public abstract class SpringDataResourceCacheManager<
                 .map(entity -> {
                     if (cacheAble(entity)) {
                         cacheOperate.addCache(entity);
+                    } else {
+                        cacheOperate.deleteCache(entity);
                     }
                     return entity;
                 });

@@ -9,7 +9,7 @@ import java.io.Serializable;
  */
 public abstract class ResourceOperate<ENTITY extends Entity<ID>, ID extends Serializable> {
 
-    public ResourceOperateContext context = new ResourceOperateContext();
+    public final ResourceOperateContext context = new ResourceOperateContext();
 
     protected ResourceDefinition<ENTITY> resourceDefinition;
 

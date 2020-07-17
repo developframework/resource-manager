@@ -55,7 +55,7 @@
         <commons-collections4.version>4.3</commons-collections4.version>
         <mongo-java-driver.version>3.10.1</mongo-java-driver.version>
         <mysql-connector-java.version>8.0.15</mysql-connector-java.version>
-        <develop.toolkit.version>1.0.3</develop.toolkit.version>
+        <develop.toolkit.version>1.0.4-SNAPSHOT</develop.toolkit.version>
     </properties>
 
     <!-- 配置私库地址 -->
