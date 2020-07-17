@@ -34,9 +34,6 @@ public abstract class AbstractResourceManager <
 
     /**
      * 根据ID查询是否存在
-     *
-     * @param id
-     * @return
      */
     @Override
     public boolean existsById(ID id) {
@@ -45,8 +42,6 @@ public abstract class AbstractResourceManager <
 
     /**
      * 根据ID断言存在
-     *
-     * @param id
      */
     @Override
     public void assertExistsById(ID id) {
@@ -57,9 +52,6 @@ public abstract class AbstractResourceManager <
 
     /**
      * 添加资源流程
-     *
-     * @param dto
-     * @return
      */
     @Override
     public Optional<ENTITY> add(Object dto) {
@@ -68,10 +60,6 @@ public abstract class AbstractResourceManager <
 
     /**
      * 根据ID修改资源流程
-     *
-     * @param id
-     * @param dto
-     * @return
      */
     @Override
     public Optional<ENTITY> modifyById(ID id, Object dto) {
@@ -80,21 +68,22 @@ public abstract class AbstractResourceManager <
 
     /**
      * 修改资源流程
-     *
-     * @param dto
-     * @param entity
-     * @return
      */
     @Override
     public boolean modify(Object dto, ENTITY entity) {
-        return resourceOperateRegistry.getModifyResourceOperate(dto.getClass()).modify(dto, entity);
+        return resourceOperateRegistry.getModifyResourceOperate(dto.getClass()).modifyResource(dto, entity);
+    }
+
+    /**
+     * 合并资源流程
+     */
+    @Override
+    public Optional<ENTITY> merge(Object dto) {
+        return resourceOperateRegistry.getMergeResourceOperate(dto.getClass()).mergeResource(dto);
     }
 
     /**
      * 删除资源流程
-     *
-     * @param id
-     * @return
      */
     @Override
     public Optional<ENTITY> removeById(ID id) {
@@ -103,19 +92,14 @@ public abstract class AbstractResourceManager <
 
     /**
      * 删除资源流程
-     *
-     * @param entity
      */
     @Override
     public boolean remove(ENTITY entity) {
-        return resourceOperateRegistry.getRemoveResourceOperate().remove(entity);
+        return resourceOperateRegistry.getRemoveResourceOperate().removeResource(entity);
     }
 
     /**
      * 根据ID单查询
-     *
-     * @param id
-     * @return
      */
     @Override
     public Optional<ENTITY> findOneById(ID id) {
@@ -124,9 +108,6 @@ public abstract class AbstractResourceManager <
 
     /**
      * 根据ID单查询（必须有值）
-     *
-     * @param id
-     * @return
      */
     @Override
     @SuppressWarnings("unchecked")

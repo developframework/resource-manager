@@ -19,23 +19,23 @@ import java.util.stream.Stream;
 @Slf4j
 public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Serializable> {
 
-    private AbstractResourceManager<ENTITY, ID> manager;
+    private final AbstractResourceManager<ENTITY, ID> manager;
 
     private Map<Class<?>, AddResourceOperate<ENTITY, ?, ID>> addResourceOperateMap;
 
     private Map<Class<?>, ModifyResourceOperate<ENTITY, ?, ID>> modifyResourceOperateMap;
+
+    private Map<Class<?>, MergeResourceOperate<ENTITY, ?, ID>> mergeResourceOperateMap;
 
     protected RemoveResourceOperate<ENTITY, ID> removeResourceOperate;
 
     protected SearchResourceOperate<ENTITY, ID> searchResourceOperate;
 
     @Getter
-    private boolean uniqueEntity;
+    private final boolean uniqueEntity;
 
     /**
      * 扫描Manager类返回值为ResourceOperate的方法，识别并注册
-     *
-     * @param manager
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public ResourceOperateRegistry(AbstractResourceManager<ENTITY, ID> manager) {
@@ -54,6 +54,8 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
                             register((AddResourceOperate) resourceOperate);
                         } else if (resourceOperate instanceof ModifyResourceOperate) {
                             register((ModifyResourceOperate) resourceOperate);
+                        } else if (resourceOperate instanceof MergeResourceOperate) {
+                            register((MergeResourceOperate) resourceOperate);
                         } else if (resourceOperate instanceof RemoveResourceOperate) {
                             register((RemoveResourceOperate) resourceOperate);
                         } else if (resourceOperate instanceof SearchResourceOperate) {
@@ -89,9 +91,6 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
 
     /**
      * 注册添加操作
-     *
-     * @param addResourceOperate
-     * @param <T>
      */
     public <T extends DTO> void register(AddResourceOperate<ENTITY, T, ID> addResourceOperate) {
         if (addResourceOperateMap == null) {
@@ -103,9 +102,6 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
 
     /**
      * 注册修改操作
-     *
-     * @param modifyResourceOperate
-     * @param <T>
      */
     public <T extends DTO> void register(ModifyResourceOperate<ENTITY, T, ID> modifyResourceOperate) {
         if (modifyResourceOperateMap == null) {
@@ -116,9 +112,18 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
     }
 
     /**
+     * 注册合并操作
+     */
+    public <T extends DTO> void register(MergeResourceOperate<ENTITY, T, ID> mergeResourceOperate) {
+        if (mergeResourceOperateMap == null) {
+            mergeResourceOperateMap = new HashMap<>();
+        }
+        mergeResourceOperateMap.put(mergeResourceOperate.getDtoClass(), mergeResourceOperate);
+        log.debug("register {} for {} merge operate", mergeResourceOperate.getDtoClass().getSimpleName(), manager.getResourceDefinition().getEntityClass().getSimpleName());
+    }
+
+    /**
      * 注册删除操作
-     *
-     * @param removeResourceOperate
      */
     public void register(RemoveResourceOperate<ENTITY, ID> removeResourceOperate) {
         this.removeResourceOperate = removeResourceOperate;
@@ -127,8 +132,6 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
 
     /**
      * 注册查询操作
-     *
-     * @param searchResourceOperate
      */
     public void register(SearchResourceOperate<ENTITY, ID> searchResourceOperate) {
         this.searchResourceOperate = searchResourceOperate;
@@ -137,9 +140,6 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
 
     /**
      * 获取添加操作
-     *
-     * @param dtoClass
-     * @return
      */
     public AddResourceOperate<ENTITY, ?, ID> getAddResourceOperate(final Class<?> dtoClass) {
         Class<?> temp = dtoClass;
@@ -154,9 +154,6 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
 
     /**
      * 获取修改操作
-     *
-     * @param dtoClass
-     * @return
      */
     public ModifyResourceOperate<ENTITY, ?, ID> getModifyResourceOperate(final Class<?> dtoClass) {
         Class<?> temp = dtoClass;
@@ -170,9 +167,21 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
     }
 
     /**
+     * 获取合并操作
+     */
+    public MergeResourceOperate<ENTITY, ?, ID> getMergeResourceOperate(final Class<?> dtoClass) {
+        Class<?> temp = dtoClass;
+        do {
+            if (mergeResourceOperateMap != null && mergeResourceOperateMap.containsKey(temp)) {
+                return mergeResourceOperateMap.get(temp);
+            }
+            temp = temp.getSuperclass();
+        } while (temp != Object.class);
+        throw new UnRegisterOperateException(manager.getClass(), "merge", dtoClass);
+    }
+
+    /**
      * 获取删除操作
-     *
-     * @return
      */
     public RemoveResourceOperate<ENTITY, ID> getRemoveResourceOperate() {
         if (removeResourceOperate != null) {
@@ -183,8 +192,6 @@ public class ResourceOperateRegistry<ENTITY extends Entity<ID>, ID extends Seria
 
     /**
      * 获取查询操作
-     *
-     * @return
      */
     public SearchResourceOperate<ENTITY, ID> getSearchResourceOperate() {
         return searchResourceOperate;

@@ -42,7 +42,7 @@ public class RemoveResourceOperate<
      */
     public Optional<ENTITY> removeById(ID id) {
         Optional<ENTITY> optional = resourceHandler.queryById(id);
-        optional.ifPresent(this::remove);
+        optional.ifPresent(this::removeResource);
         return optional;
     }
 
@@ -51,7 +51,7 @@ public class RemoveResourceOperate<
      *
      * @param entity
      */
-    public boolean remove(ENTITY entity) {
+    public boolean removeResource(ENTITY entity) {
         if (entity.getId() != null) {
             if (before(entity)) {
                 resourceHandler.delete(entity);

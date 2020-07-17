@@ -90,7 +90,7 @@ public class ModifyResourceOperate<
      * @return
      */
     @SuppressWarnings("unchecked")
-    public boolean modify(Object obj, ENTITY entity) {
+    public boolean modifyResource(Object obj, ENTITY entity) {
         if (entity.getId() == null) {
             return false;
         }

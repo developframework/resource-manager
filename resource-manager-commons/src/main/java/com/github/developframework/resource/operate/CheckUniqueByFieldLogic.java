@@ -18,9 +18,6 @@ public abstract class CheckUniqueByFieldLogic<
 
     /**
      * 解析字段对  DTO字段名: ENTITY字段名
-     *
-     * @param fields
-     * @return
      */
     protected KeyValuePairs<String, String> parseFieldPair(String[] fields) {
         KeyValuePairs<String, String> fieldPairs = new KeyValuePairs<>();
