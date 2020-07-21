@@ -91,6 +91,19 @@ public abstract class SpringDataResourceCacheManager<
     }
 
     @Override
+    public Optional<ENTITY> merge(Object dto) {
+        return super.merge(dto)
+                .map(entity -> {
+                    if (cacheAble(entity)) {
+                        cacheOperate.refreshCache(entity);
+                    } else {
+                        cacheOperate.deleteCache(entity);
+                    }
+                    return entity;
+                });
+    }
+
+    @Override
     public boolean remove(ENTITY entity) {
         boolean success = super.remove(entity);
         cacheOperate.deleteCache(entity);
