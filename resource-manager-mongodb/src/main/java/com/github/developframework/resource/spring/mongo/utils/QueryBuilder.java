@@ -53,7 +53,7 @@ public final class QueryBuilder {
     }
 
     public QueryBuilder ids(String field, Collection<String> ids) {
-        if (ids != null) {
+        if (ids != null && !ids.isEmpty()) {
             query.addCriteria(Criteria.where(field).in(
                     ids
                             .parallelStream()
@@ -66,7 +66,7 @@ public final class QueryBuilder {
     }
 
     public QueryBuilder ids(String field, String[] ids) {
-        if (ids != null) {
+        if (ids != null && ids.length > 0) {
             query.addCriteria(Criteria.where(field).in(
                     Stream
                             .of(ids)
