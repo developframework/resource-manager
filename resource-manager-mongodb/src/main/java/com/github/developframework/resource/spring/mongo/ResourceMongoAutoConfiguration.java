@@ -5,7 +5,7 @@ import com.github.developframework.resource.spring.mongo.converter.Decimal128ToB
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.data.mongodb.MongoDbFactory;
+import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -27,7 +27,7 @@ public class ResourceMongoAutoConfiguration {
     }
 
     @Bean
-    public MongoTransactionManager mongoTransactionManager(MongoDbFactory dbFactory) {
+    public MongoTransactionManager mongoTransactionManager(MongoDatabaseFactory dbFactory) {
         return new MongoTransactionManager(dbFactory);
     }
 }
