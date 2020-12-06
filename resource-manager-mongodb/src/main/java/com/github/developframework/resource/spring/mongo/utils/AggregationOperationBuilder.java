@@ -25,9 +25,9 @@ public class AggregationOperationBuilder {
 
     private final static String REF_SUFFIX = "Id";
 
-    private List<AggregationOperation> aggregationOperations;
+    private final List<AggregationOperation> aggregationOperations;
 
-    private MongoOperations mongoOperations;
+    private final MongoOperations mongoOperations;
 
     public AggregationOperationBuilder(MongoOperations mongoOperations) {
         this.aggregationOperations = new LinkedList<>();
@@ -243,7 +243,7 @@ public class AggregationOperationBuilder {
         return this;
     }
 
-    public <ENTITY extends Entity, OUT> Optional<OUT> one(Class<ENTITY> entityClass, Class<OUT> outputClass) {
+    public <ENTITY extends Entity<?>, OUT> Optional<OUT> one(Class<ENTITY> entityClass, Class<OUT> outputClass) {
         return AggregationQueryHelper.aggregationOne(mongoOperations, aggregationOperations, entityClass, outputClass);
     }
 
@@ -251,7 +251,7 @@ public class AggregationOperationBuilder {
         return AggregationQueryHelper.aggregationOne(mongoOperations, aggregationOperations, collectionName, outputClass);
     }
 
-    public <ENTITY extends Entity, OUT> List<OUT> list(Class<ENTITY> entityClass, Class<OUT> outputClass) {
+    public <ENTITY extends Entity<?>, OUT> List<OUT> list(Class<ENTITY> entityClass, Class<OUT> outputClass) {
         return AggregationQueryHelper.aggregationList(mongoOperations, aggregationOperations, entityClass, outputClass);
     }
 
@@ -259,7 +259,7 @@ public class AggregationOperationBuilder {
         return AggregationQueryHelper.aggregationList(mongoOperations, aggregationOperations, collectionName, outputClass);
     }
 
-    public <ENTITY extends Entity, OUT> Stream<OUT> stream(Class<ENTITY> entityClass, Class<OUT> outputClass) {
+    public <ENTITY extends Entity<?>, OUT> Stream<OUT> stream(Class<ENTITY> entityClass, Class<OUT> outputClass) {
         return list(entityClass, outputClass).stream();
     }
 
@@ -267,7 +267,7 @@ public class AggregationOperationBuilder {
         return list(collectionName, outputClass).stream();
     }
 
-    public <ENTITY extends Entity, OUT> Page<OUT> pager(Pageable pageable, Class<ENTITY> entityClass, Class<OUT> outputClass) {
+    public <ENTITY extends Entity<?>, OUT> Page<OUT> pager(Pageable pageable, Class<ENTITY> entityClass, Class<OUT> outputClass) {
         return AggregationQueryHelper.aggregationPager(mongoOperations, pageable, aggregationOperations, entityClass, outputClass);
     }
 
@@ -275,7 +275,7 @@ public class AggregationOperationBuilder {
         return AggregationQueryHelper.aggregationPager(mongoOperations, pageable, aggregationOperations, collectionName, outputClass);
     }
 
-    public <ENTITY extends Entity> int total(Class<ENTITY> entityClass, String countField) {
+    public <ENTITY extends Entity<?>> int total(Class<ENTITY> entityClass, String countField) {
         return AggregationQueryHelper.aggregationCount(mongoOperations, aggregationOperations, entityClass, countField);
     }
 
