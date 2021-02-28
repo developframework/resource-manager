@@ -23,18 +23,36 @@ public class StringArrayTypeHandler implements TypeHandler<String[]> {
     @Override
     public String[] getResult(ResultSet rs, String columnName) throws SQLException {
         String string = rs.getString(columnName);
-        return string == null ? null : string.split(",");
+        if (string == null) {
+            return null;
+        } else if (string.isEmpty()) {
+            return new String[0];
+        } else {
+            return string.split(",");
+        }
     }
 
     @Override
     public String[] getResult(ResultSet rs, int columnIndex) throws SQLException {
         String string = rs.getString(columnIndex);
-        return string == null ? null : string.split(",");
+        if (string == null) {
+            return null;
+        } else if (string.isEmpty()) {
+            return new String[0];
+        } else {
+            return string.split(",");
+        }
     }
 
     @Override
     public String[] getResult(CallableStatement cs, int columnIndex) throws SQLException {
         String string = cs.getString(columnIndex);
-        return string == null ? null : string.split(",");
+        if (string == null) {
+            return null;
+        } else if (string.isEmpty()) {
+            return new String[0];
+        } else {
+            return string.split(",");
+        }
     }
 }

@@ -5,6 +5,7 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 
 import java.sql.*;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -24,18 +25,36 @@ public class StringSetTypeHandler implements TypeHandler<Set<String>> {
     @Override
     public Set<String> getResult(ResultSet rs, String columnName) throws SQLException {
         String string = rs.getString(columnName);
-        return string == null ? null : Set.of(string.split(","));
+        if (string == null) {
+            return null;
+        } else if (string.isEmpty()) {
+            return Collections.emptySet();
+        } else {
+            return Set.of(string.split(","));
+        }
     }
 
     @Override
     public Set<String> getResult(ResultSet rs, int columnIndex) throws SQLException {
         String string = rs.getString(columnIndex);
-        return string == null ? null : Set.of(string.split(","));
+        if (string == null) {
+            return null;
+        } else if (string.isEmpty()) {
+            return Collections.emptySet();
+        } else {
+            return Set.of(string.split(","));
+        }
     }
 
     @Override
     public Set<String> getResult(CallableStatement cs, int columnIndex) throws SQLException {
         String string = cs.getString(columnIndex);
-        return string == null ? null : Set.of(string.split(","));
+        if (string == null) {
+            return null;
+        } else if (string.isEmpty()) {
+            return Collections.emptySet();
+        } else {
+            return Set.of(string.split(","));
+        }
     }
 }
