@@ -1,6 +1,7 @@
 package com.github.developframework.resource;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -66,4 +67,9 @@ public interface ResourceManager<ENTITY extends Entity<ID>, ID extends Serializa
      * 按ID批量查询
      */
     List<ENTITY> listForIds(String id, ID[] ids);
+
+    /**
+     * 按ID批量查询
+     */
+    List<ENTITY> listForIds(String id, Collection<ID> ids);
 }

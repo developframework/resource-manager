@@ -19,6 +19,7 @@ import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -55,6 +56,10 @@ public class MongoResourceCacheManager<
         return listForIds(Fields.UNDERSCORE_ID, ids);
     }
 
+    public List<DOC> listForIds(List<ID> ids) {
+        return listForIds(Fields.UNDERSCORE_ID, ids);
+    }
+
     @Override
     public List<DOC> listForIds(String idProperty, ID[] ids) {
         if (ids.length == 0) {
@@ -65,6 +70,18 @@ public class MongoResourceCacheManager<
                 resourceDefinition.getEntityClass()
         );
         return CollectionAdvice.sort(list, ids, (po, id) -> po.getId().equals(id));
+    }
+
+    @Override
+    public List<DOC> listForIds(String idProperty, Collection<ID> ids) {
+        if (ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<DOC> list = mongoOperations.find(
+                Querys.in(idProperty, ids),
+                resourceDefinition.getEntityClass()
+        );
+        return ids instanceof List ? CollectionAdvice.sort(list, ids, (po, id) -> po.getId().equals(id)) : list;
     }
 
     public <T extends DTO> ByFieldMongoAddCheckExistsLogic<DOC, T, ID> byFieldAddCheck(Class<T> dtoClass, String... fields) {
@@ -83,8 +100,6 @@ public class MongoResourceCacheManager<
 
     /**
      * 获取AggregationOperation构建器
-     *
-     * @return
      */
     public final AggregationOperationBuilder aggregationOperationBuilder() {
         return new AggregationOperationBuilder(mongoOperations);

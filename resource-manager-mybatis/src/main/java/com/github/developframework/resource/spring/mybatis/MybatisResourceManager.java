@@ -10,6 +10,7 @@ import lombok.Getter;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -56,6 +57,17 @@ public class MybatisResourceManager<
                 null
         );
         return CollectionAdvice.sort(list, ids, (po, i) -> po.getId().equals(i));
+    }
+
+    @Override
+    public List<PO> listForIds(String id, Collection<ID> ids) {
+        List<PO> list = daoMapper.findListByWhere(
+                resourceDefinition.getEntityClass(),
+                new WhereBuilder().in(id, ids).build(),
+                null,
+                null
+        );
+        return ids instanceof List ? CollectionAdvice.sort(list, ids, (po, i) -> po.getId().equals(i)) : list;
     }
 
     public <SEARCH extends MybatisSearch<PO>> List<PO> list(SEARCH search) {

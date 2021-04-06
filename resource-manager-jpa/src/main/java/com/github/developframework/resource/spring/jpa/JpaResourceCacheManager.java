@@ -21,6 +21,7 @@ import javax.persistence.criteria.Root;
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,6 +57,10 @@ public abstract class JpaResourceCacheManager<
         return listForIds("id", ids);
     }
 
+    public List<PO> listForIds(List<ID> ids) {
+        return listForIds("id", ids);
+    }
+
     public Optional<PO> findOneByIdForUpdate(ID id) {
         return resourceHandler.queryByIdForUpdate(id).map(this::execSearchOperate);
     }
@@ -79,6 +84,19 @@ public abstract class JpaResourceCacheManager<
         query.select(root).where(root.get(idProperty).in(ids));
         List<PO> list = entityManager.createQuery(query).getResultList();
         return CollectionAdvice.sort(list, ids, (po, id) -> po.getId().equals(id));
+    }
+
+    @Override
+    public List<PO> listForIds(String idProperty, Collection<ID> ids) {
+        if (ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<PO> query = builder.createQuery(resourceDefinition.getEntityClass());
+        Root<PO> root = query.from(resourceDefinition.getEntityClass());
+        query.select(root).where(root.get(idProperty).in(ids));
+        List<PO> list = entityManager.createQuery(query).getResultList();
+        return ids instanceof List ? CollectionAdvice.sort(list, ids, (po, id) -> po.getId().equals(id)) : list;
     }
 
     @Override

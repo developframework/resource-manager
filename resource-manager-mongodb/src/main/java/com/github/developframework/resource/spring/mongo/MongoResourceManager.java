@@ -17,6 +17,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -63,6 +64,22 @@ public class MongoResourceManager<
                 resourceDefinition.getEntityClass()
         );
         return CollectionAdvice.sort(list, ids, (po, id) -> po.getId().equals(id));
+    }
+
+    public List<DOC> listForIds(Collection<ID> ids) {
+        return listForIds(Fields.UNDERSCORE_ID, ids);
+    }
+
+    @Override
+    public List<DOC> listForIds(String idProperty, Collection<ID> ids) {
+        if (ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<DOC> list = mongoOperations.find(
+                Querys.in(idProperty, ids),
+                resourceDefinition.getEntityClass()
+        );
+        return ids instanceof List ? CollectionAdvice.sort(list, ids, (po, id) -> po.getId().equals(id)) : list;
     }
 
     public <T extends DTO> ByFieldMongoAddCheckExistsLogic<DOC, T, ID> byFieldAddCheck(Class<T> dtoClass, String... fields) {
