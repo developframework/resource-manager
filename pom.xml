@@ -61,11 +61,11 @@
     <distributionManagement>
         <snapshotRepository>
             <id>hclc nexus</id>
-            <url>http://nexus.hclc-tech.com:8081/repository/maven-snapshots/</url>
+            <url>http://nexus.hclcaliyun.com:8082/repository/maven-snapshots/</url>
         </snapshotRepository>
         <repository>
             <id>hclc nexus</id>
-            <url>http://nexus.hclc-tech.com:8081/repository/maven-releases/</url>
+            <url>http://nexus.hclcaliyun.com:8082/repository/maven-releases/</url>
         </repository>
     </distributionManagement>
 
