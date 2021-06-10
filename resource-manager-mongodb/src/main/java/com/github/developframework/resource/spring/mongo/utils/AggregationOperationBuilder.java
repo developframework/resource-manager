@@ -121,7 +121,7 @@ public final class AggregationOperationBuilder {
     public AggregationOperationBuilder joinDBRef(String dbRefField, String from, String lookupAs) {
         /*
             {$lookup:{from: "",localField:".$id",foreignField:"_id",as:"Doc"}},
-            {$addFields:{customerDoc:{$arrayElemAt:["$Doc", 0]}}},
+            {$addFields:{Doc:{$arrayElemAt:["$Doc", 0]}}},
          */
 
         // Aggregation.lookup 的localField内不能使用$id，所以只能使用原生json了
