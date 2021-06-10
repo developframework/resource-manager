@@ -31,12 +31,14 @@ public final class AggregationOperationUtils {
      * @param joinType
      * @return
      */
+    @Deprecated
     public static AggregationOperation addRefFields(String newFieldName, String sourceFieldName, JoinType joinType) {
         return joinType == JoinType.OBJECT ? addRefFieldsForObject(newFieldName, sourceFieldName) : addRefFieldsForArray(newFieldName, sourceFieldName);
     }
 
 
     @SuppressWarnings("unchecked")
+    @Deprecated
     private static AggregationOperation addRefFieldsForArray(String newFieldName, String sourceFieldName) {
 
         /*
@@ -79,6 +81,7 @@ public final class AggregationOperationUtils {
     }
 
     @SuppressWarnings("unchecked")
+    @Deprecated
     private static AggregationOperation addRefFieldsForObject(String newFieldName, String sourceFieldName) {
         /*
             等价于：
