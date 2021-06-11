@@ -79,7 +79,7 @@ public final class AggregationQueryHelper {
      * @return
      */
     public static <T> List<T> aggregationList(MongoOperations mongoOperations, List<AggregationOperation> aggregationOperations, Class<?> docClass, Class<T> outputClass) {
-        String collectionName = AggregationOperationUtils.collectionNameFormDocumentAnnotation(docClass);
+        String collectionName = AggregationOperations.collectionNameFormDocumentAnnotation(docClass);
         return aggregationList(mongoOperations, aggregationOperations, collectionName, outputClass);
     }
 
@@ -135,7 +135,7 @@ public final class AggregationQueryHelper {
      * @return
      */
     public static <T> Page<T> aggregationPager(MongoOperations mongoOperations, Pageable pageable, List<AggregationOperation> aggregationOperations, Class<?> docClass, Class<T> outputClass) {
-        String collectionName = AggregationOperationUtils.collectionNameFormDocumentAnnotation(docClass);
+        String collectionName = AggregationOperations.collectionNameFormDocumentAnnotation(docClass);
         return aggregationPager(mongoOperations, pageable, aggregationOperations, collectionName, outputClass);
     }
 
@@ -150,7 +150,7 @@ public final class AggregationQueryHelper {
      * @return
      */
     public static <T> Page<T> aggregationPager(MongoOperations mongoOperations, Pageable pageable, List<AggregationOperation> aggregationOperations, Class<T> clazz) {
-        String collectionName = AggregationOperationUtils.collectionNameFormDocumentAnnotation(clazz);
+        String collectionName = AggregationOperations.collectionNameFormDocumentAnnotation(clazz);
         return aggregationPager(mongoOperations, pageable, aggregationOperations, collectionName, clazz);
     }
 
@@ -178,7 +178,7 @@ public final class AggregationQueryHelper {
      * @return
      */
     public static int aggregationCount(MongoOperations mongoOperations, List<AggregationOperation> aggregationOperations, Class<?> docClass, String countField) {
-        String collectionName = AggregationOperationUtils.collectionNameFormDocumentAnnotation(docClass);
+        String collectionName = AggregationOperations.collectionNameFormDocumentAnnotation(docClass);
         return aggregationCount(mongoOperations, aggregationOperations, collectionName, countField);
     }
 

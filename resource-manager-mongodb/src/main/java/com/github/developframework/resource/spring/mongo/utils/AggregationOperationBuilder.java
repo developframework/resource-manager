@@ -1,13 +1,11 @@
 package com.github.developframework.resource.spring.mongo.utils;
 
 import com.github.developframework.resource.Entity;
-import org.bson.Document;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
-import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -24,8 +22,6 @@ import java.util.stream.Stream;
  * @author qiushui on 2019-02-25.
  */
 public final class AggregationOperationBuilder {
-
-    private final static String REF_SUFFIX = "Id";
 
     private final List<AggregationOperation> aggregationOperations;
 
@@ -51,66 +47,12 @@ public final class AggregationOperationBuilder {
     }
 
     /**
-     * 合并
-     *
-     * @param otherAggregationOperations
-     * @return
-     */
-    public AggregationOperationBuilder merge(List<AggregationOperation> otherAggregationOperations) {
-        aggregationOperations.addAll(otherAggregationOperations);
-        return this;
-    }
-
-    /**
-     * 关联
-     *
-     * @param localField
-     * @param lookupAs
-     * @param foreignDocClass
-     * @param joinType
-     * @return
-     * @deprecated 已过时，请使用joinDBRef方法代替
-     */
-    @Deprecated
-    public AggregationOperationBuilder join(String localField, String lookupAs, Class<?> foreignDocClass, JoinType joinType, boolean preserveNullAndEmptyArrays) {
-        final String from = AggregationOperationUtils.collectionNameFormDocumentAnnotation(foreignDocClass);
-        return join(localField, lookupAs, from, joinType, preserveNullAndEmptyArrays);
-    }
-
-    /**
-     * 关联
-     *
-     * @param localField
-     * @param lookupAs
-     * @param from
-     * @param joinType
-     * @return
-     * @deprecated 已过时，请使用joinDBRef方法代替
-     */
-    @Deprecated
-    public AggregationOperationBuilder join(String localField, String lookupAs, String from, JoinType joinType, boolean preserveNullAndEmptyArrays) {
-
-        /*
-
-         等价于
-         {$addFields:{"fieldId":{$let:{vars:{myVar:{$arrayElemAt:[{$objectToArray:"$field"},1]}},in:"$$myVar.v"}}}},
-         {$lookup:{from: "foreignDocClass", localField:"fieldId", foreignField:"_id", as:"lookupAs"}},
-         {$unwind: {path: "$lookupAs", preserveNullAndEmptyArrays: true}}
-
-         */
-
-        final String localFieldId = localField + REF_SUFFIX;
-        aggregationOperations.add(AggregationOperationUtils.addRefFields(localFieldId, localField, joinType));
-        return lookupAndUnwind(from, localFieldId, lookupAs, preserveNullAndEmptyArrays);
-    }
-
-    /**
      * 关联
      */
     public AggregationOperationBuilder joinDBRef(String dbRefField, Class<?> foreignDocClass, String lookupAs) {
         return joinDBRef(
                 dbRefField,
-                AggregationOperationUtils.collectionNameFormDocumentAnnotation(foreignDocClass),
+                AggregationOperations.collectionNameFormDocumentAnnotation(foreignDocClass),
                 lookupAs
         );
     }
@@ -125,26 +67,8 @@ public final class AggregationOperationBuilder {
          */
 
         // Aggregation.lookup 的localField内不能使用$id，所以只能使用原生json了
-        nativeMap(
-                Map.of(
-                        "$lookup",
-                        Map.of(
-                                "from", from,
-                                "localField", dbRefField + ".$id",
-                                "foreignField", Fields.UNDERSCORE_ID,
-                                "as", lookupAs
-                        )
-                )
-        );
-        aggregationOperations.add(
-                Aggregation
-                        .addFields()
-                        .addFieldWithValue(
-                                lookupAs,
-                                ArrayOperators.ArrayElemAt.arrayOf(lookupAs).elementAt(0)
-                        )
-                        .build()
-        );
+        aggregationOperations.add(AggregationOperations.lookupDBRef(from, dbRefField, lookupAs));
+        aggregationOperations.add(AggregationOperations.addFieldsForArrayFirst(lookupAs, lookupAs));
         return this;
     }
 
@@ -170,7 +94,7 @@ public final class AggregationOperationBuilder {
      * @return
      */
     public AggregationOperationBuilder match(Query query) {
-        aggregationOperations.add(context -> context.getMappedObject(new Document("$match", query.getQueryObject())));
+        aggregationOperations.add(AggregationOperations.matchForQuery(query));
         return this;
     }
 
@@ -186,26 +110,14 @@ public final class AggregationOperationBuilder {
     }
 
     /**
-     * 添加字段
-     *
-     * @param expressions
-     * @return
-     */
-    public AggregationOperationBuilder addFields(String... expressions) {
-        aggregationOperations.add(AggregationOperationUtils.addFields(expressions));
-        return this;
-    }
-
-    /**
-     * 复杂AggregationOperation
+     * 原生AggregationOperation
      *
      * @param aggregationOperations
      * @return
-     * @deprecated 已过时，请直接使用aggregation
      */
-    @Deprecated
-    public AggregationOperationBuilder complex(AggregationOperation... aggregationOperations) {
-        return aggregation(aggregationOperations);
+    public AggregationOperationBuilder aggregations(List<AggregationOperation> aggregationOperations) {
+        this.aggregationOperations.addAll(aggregationOperations);
+        return this;
     }
 
     /**
@@ -215,7 +127,7 @@ public final class AggregationOperationBuilder {
      * @return
      */
 
-    public AggregationOperationBuilder aggregation(AggregationOperation... aggregationOperations) {
+    public AggregationOperationBuilder aggregations(AggregationOperation... aggregationOperations) {
         if (aggregationOperations.length == 1) {
             this.aggregationOperations.add(aggregationOperations[0]);
         } else {
@@ -253,7 +165,6 @@ public final class AggregationOperationBuilder {
      * 原生json方式
      *
      * @param json
-     * @return
      * @deprecated 已过时 请使用nativeJson
      */
     @Deprecated
@@ -262,7 +173,7 @@ public final class AggregationOperationBuilder {
     }
 
     public AggregationOperationBuilder nativeJson(String json) {
-        this.aggregationOperations.add(context -> context.getMappedObject(Document.parse(json)));
+        this.aggregationOperations.add(AggregationOperations.buildForJson(json));
         return this;
     }
 
@@ -270,17 +181,14 @@ public final class AggregationOperationBuilder {
      * 原生map方式
      *
      * @param map
-     * @return
      */
     public AggregationOperationBuilder nativeMap(Map<String, Object> map) {
-        this.aggregationOperations.add(context -> context.getMappedObject(new Document(map)));
+        this.aggregationOperations.add(AggregationOperations.buildForMap(map));
         return this;
     }
 
     /**
      * 去重
-     *
-     * @return
      */
     public AggregationOperationBuilder distinct(String... fields) {
         /*

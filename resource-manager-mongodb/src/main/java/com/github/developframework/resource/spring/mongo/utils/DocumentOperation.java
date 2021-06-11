@@ -6,15 +6,15 @@ import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperationContext;
 
 /**
- * @author qiushui on 2021-06-10.
+ * @author qiushui on 2021-06-11.
  */
 @RequiredArgsConstructor
-class JsonOperation implements AggregationOperation {
+public class DocumentOperation implements AggregationOperation {
 
-    private final String json;
+    private final Document document;
 
     @Override
     public Document toDocument(AggregationOperationContext context) {
-        return context.getMappedObject(Document.parse(json));
+        return context.getMappedObject(document);
     }
 }
