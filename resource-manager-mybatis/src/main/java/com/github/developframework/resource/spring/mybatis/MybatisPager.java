@@ -21,6 +21,12 @@ public class MybatisPager extends Pager {
      * @return LIMIT 语句
      */
     public String limitSQL() {
-        return String.format("LIMIT %d, %d", page * size, size);
+        return String.format("LIMIT %d, %d", getOffset(), size);
     }
+
+    public int getOffset() {
+        return page * size;
+    }
+
+
 }
