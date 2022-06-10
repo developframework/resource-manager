@@ -51,6 +51,12 @@ public abstract class MergeResourceOperate<
      */
     protected abstract Optional<ENTITY> find(DTO dto);
 
+    protected void merge(DTO dto, ENTITY entity) {
+        if (mapper != null) {
+            mapper.toENTITY(dto, entity);
+        }
+    }
+
     /**
      * 在save之前的一步
      */
@@ -70,10 +76,12 @@ public abstract class MergeResourceOperate<
                 ENTITY entity;
                 if (optional.isPresent()) {
                     entity = optional.get();
+                    merge(dto, entity);
                     prepare(dto, entity);
                     resourceHandler.update(entity);
                 } else {
                     entity = create(dto);
+                    merge(dto, entity);
                     prepare(dto, entity);
                     resourceHandler.insert(entity);
                 }
