@@ -10,6 +10,7 @@ import develop.toolkit.base.utils.CollectionAdvice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.aggregation.AggregationOptions;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -103,5 +104,9 @@ public class MongoResourceManager<
      */
     public final AggregationOperationBuilder aggregationOperationBuilder() {
         return new AggregationOperationBuilder(mongoOperations);
+    }
+
+    public final AggregationOperationBuilder aggregationOperationBuilder(AggregationOptions options) {
+        return new AggregationOperationBuilder(mongoOperations, options);
     }
 }

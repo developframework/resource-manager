@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOptions;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -27,14 +28,30 @@ public final class AggregationOperationBuilder {
 
     private final MongoOperations mongoOperations;
 
+    private final AggregationOptions options;
+
     public AggregationOperationBuilder(MongoOperations mongoOperations) {
         this.aggregationOperations = new LinkedList<>();
         this.mongoOperations = mongoOperations;
+        this.options = null;
+    }
+
+    public AggregationOperationBuilder(MongoOperations mongoOperations, AggregationOptions options) {
+        this.aggregationOperations = new LinkedList<>();
+        this.mongoOperations = mongoOperations;
+        this.options = options;
     }
 
     public AggregationOperationBuilder(MongoOperations mongoOperations, List<AggregationOperation> aggregationOperations) {
         this.aggregationOperations = new LinkedList<>(aggregationOperations);
         this.mongoOperations = mongoOperations;
+        this.options = null;
+    }
+
+    public AggregationOperationBuilder(MongoOperations mongoOperations, List<AggregationOperation> aggregationOperations, AggregationOptions options) {
+        this.aggregationOperations = new LinkedList<>(aggregationOperations);
+        this.mongoOperations = mongoOperations;
+        this.options = options;
     }
 
     /**
@@ -224,11 +241,11 @@ public final class AggregationOperationBuilder {
     }
 
     public <ENTITY extends Entity<?>, OUT> List<OUT> list(Class<ENTITY> entityClass, Class<OUT> outputClass) {
-        return AggregationQueryHelper.aggregationList(mongoOperations, aggregationOperations, entityClass, outputClass);
+        return AggregationQueryHelper.aggregationList(mongoOperations, aggregationOperations, entityClass, outputClass, options);
     }
 
     public <OUT> List<OUT> list(String collectionName, Class<OUT> outputClass) {
-        return AggregationQueryHelper.aggregationList(mongoOperations, aggregationOperations, collectionName, outputClass);
+        return AggregationQueryHelper.aggregationList(mongoOperations, aggregationOperations, collectionName, outputClass, options);
     }
 
     public <ENTITY extends Entity<?>, OUT> Stream<OUT> stream(Class<ENTITY> entityClass, Class<OUT> outputClass) {

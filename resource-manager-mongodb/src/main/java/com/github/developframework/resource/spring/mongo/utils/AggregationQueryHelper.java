@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOptions;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.repository.support.PageableExecutionUtils;
 
@@ -31,7 +32,7 @@ public final class AggregationQueryHelper {
      * @return
      */
     public static <T> Optional<T> aggregationOne(MongoOperations mongoOperations, List<AggregationOperation> aggregationOperations, String collectionName, Class<T> outputClass) {
-        List<T> list = aggregationList(mongoOperations, aggregationOperations, collectionName, outputClass);
+        List<T> list = aggregationList(mongoOperations, aggregationOperations, collectionName, outputClass, null);
         return Optional.ofNullable(list.isEmpty() ? null : list.get(0));
     }
 
@@ -46,7 +47,7 @@ public final class AggregationQueryHelper {
      * @return
      */
     public static <T> Optional<T> aggregationOne(MongoOperations mongoOperations, List<AggregationOperation> aggregationOperations, Class<?> docClass, Class<T> outputClass) {
-        List<T> list = aggregationList(mongoOperations, aggregationOperations, docClass, outputClass);
+        List<T> list = aggregationList(mongoOperations, aggregationOperations, docClass, outputClass, null);
         return Optional.ofNullable(list.isEmpty() ? null : list.get(0));
     }
 
@@ -60,12 +61,12 @@ public final class AggregationQueryHelper {
      * @param <T>
      * @return
      */
-    public static <T> List<T> aggregationList(MongoOperations mongoOperations, List<AggregationOperation> aggregationOperations, String collectionName, Class<T> outputClass) {
-        return mongoOperations.aggregate(
-                Aggregation.newAggregation(aggregationOperations),
-                collectionName,
-                outputClass
-        ).getMappedResults();
+    public static <T> List<T> aggregationList(MongoOperations mongoOperations, List<AggregationOperation> aggregationOperations, String collectionName, Class<T> outputClass, AggregationOptions options) {
+        Aggregation aggregation = Aggregation.newAggregation(aggregationOperations);
+        if (options != null) {
+            aggregation = aggregation.withOptions(options);
+        }
+        return mongoOperations.aggregate(aggregation, collectionName, outputClass).getMappedResults();
     }
 
     /**
@@ -78,9 +79,9 @@ public final class AggregationQueryHelper {
      * @param <T>
      * @return
      */
-    public static <T> List<T> aggregationList(MongoOperations mongoOperations, List<AggregationOperation> aggregationOperations, Class<?> docClass, Class<T> outputClass) {
+    public static <T> List<T> aggregationList(MongoOperations mongoOperations, List<AggregationOperation> aggregationOperations, Class<?> docClass, Class<T> outputClass, AggregationOptions options) {
         String collectionName = AggregationOperations.collectionNameFormDocumentAnnotation(docClass);
-        return aggregationList(mongoOperations, aggregationOperations, collectionName, outputClass);
+        return aggregationList(mongoOperations, aggregationOperations, collectionName, outputClass, options);
     }
 
     /**
