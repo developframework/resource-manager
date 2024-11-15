@@ -5,7 +5,7 @@
     <groupId>com.github.developframework</groupId>
     <artifactId>resource-manager</artifactId>
     <packaging>pom</packaging>
-    <version>1.1</version>
+    <version>1.2-SNAPSHOT</version>
     <description>资源管理器</description>
     <modules>
         <module>resource-manager-commons</module>
@@ -44,7 +44,7 @@
         <connection>scm:git:git@github.com:developframework/resource-manager.git</connection>
         <developerConnection>scm:git:git@github.com:developframework/resource-manager.git</developerConnection>
         <url>https://github.com/developframework/resource-manager</url>
-        <tag>v1.1</tag>
+        <tag>${project.version}</tag>
     </scm>
 
     <properties>
@@ -66,12 +66,12 @@
             <dependency>
                 <groupId>com.github.developframework</groupId>
                 <artifactId>resource-manager-commons</artifactId>
-                <version>1.1</version>
+                <version>1.2-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>com.github.developframework</groupId>
                 <artifactId>resource-manager-spring-data</artifactId>
-                <version>1.1</version>
+                <version>1.2-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.data</groupId>
