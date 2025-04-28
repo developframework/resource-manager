@@ -3,6 +3,7 @@ package com.github.developframework.resource.spring.jpa;
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.Search;
 import com.github.developframework.resource.spring.SpringDataResourceHandler;
+import develop.toolkit.base.utils.CollectionAdvice;
 import develop.toolkit.base.utils.K;
 import lombok.Getter;
 import org.apache.commons.collections4.IterableUtils;
@@ -15,7 +16,9 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
+import javax.persistence.criteria.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,13 +27,13 @@ import java.util.Optional;
  *
  * @author qiushui on 2019-08-15.
  */
+@Getter
 public class JpaResourceHandler<
         PO extends com.github.developframework.resource.spring.jpa.PO<ID>,
         ID extends Serializable,
         REPOSITORY extends PagingAndSortingRepository<PO, ID> & JpaSpecificationExecutor<PO>
         > extends SpringDataResourceHandler<PO, ID, REPOSITORY> {
 
-    @Getter
     private final EntityManager entityManager;
 
     public JpaResourceHandler(REPOSITORY repository, ResourceDefinition<PO> resourceDefinition, EntityManager entityManager) {
@@ -39,8 +42,37 @@ public class JpaResourceHandler<
     }
 
     @Override
-    public Optional<PO> queryByIdForUpdate(ID id) {
-        return Optional.ofNullable(entityManager.find(resourceDefinition.getEntityClass(), id, LockModeType.PESSIMISTIC_WRITE));
+    public final boolean existsByIdAndOwnerId(ID id, Object ownerId) {
+        final Class<PO> entityClass = resourceDefinition.getEntityClass();
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        Root<PO> root = query.from(entityClass);
+        query.select(cb.count(root)).where(buildPredicates(cb, root, id, ownerId));
+        return entityManager.createQuery(query).getSingleResult() > 0;
+    }
+
+    @Override
+    public final void deleteByIdAndOwnerId(ID id, Object ownerId) {
+        final Class<PO> entityClass = resourceDefinition.getEntityClass();
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaDelete<PO> query = cb.createCriteriaDelete(entityClass);
+        Root<PO> root = query.from(entityClass);
+        query.where(buildPredicates(cb, root, id, ownerId));
+        entityManager.createQuery(query).executeUpdate();
+    }
+
+    @Override
+    public final Optional<PO> queryByIdAndOwnerId(ID id, Object ownerId) {
+        final List<PO> list = entityManager.createQuery(buildQuery(id, ownerId)).getResultList();
+        return CollectionAdvice.get(list, 0);
+    }
+
+    @Override
+    public final Optional<PO> queryByIdForUpdate(ID id, Object ownerId) {
+        final List<PO> list = entityManager.createQuery(buildQuery(id, ownerId))
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+                .getResultList();
+        return CollectionAdvice.get(list, 0);
     }
 
     @Override
@@ -63,5 +95,25 @@ public class JpaResourceHandler<
 
     private Specification<PO> safeSearch(Search<PO> search) {
         return K.map(search, s -> ((JpaSearch<PO>) s).toSpecification());
+    }
+
+    private CriteriaQuery<PO> buildQuery(ID id, Object ownerId) {
+        final Class<PO> entityClass = resourceDefinition.getEntityClass();
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<PO> query = cb.createQuery(entityClass);
+        Root<PO> root = query.from(entityClass);
+        query.where(buildPredicates(cb, root, id, ownerId));
+        return query;
+    }
+
+    private Predicate[] buildPredicates(CriteriaBuilder cb, Root<PO> root, ID id, Object ownerId) {
+        final String primaryKeyFieldName = primaryKeyFieldName();
+        final String ownerFieldName = ownerFieldName();
+        final List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(root.get(primaryKeyFieldName), id));
+        if (ownerId != null) {
+            predicates.add(cb.equal(root.get(ownerFieldName), ownerId));
+        }
+        return predicates.toArray(Predicate[]::new);
     }
 }

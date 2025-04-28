@@ -6,11 +6,14 @@ import com.github.developframework.resource.spring.SpringDataResourceHandler;
 import com.github.developframework.resource.spring.mongo.utils.AggregationOperationBuilder;
 import develop.toolkit.base.utils.K;
 import lombok.Getter;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.Fields;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
@@ -37,8 +40,8 @@ public class MongoResourceHandler<DOC extends com.github.developframework.resour
     }
 
     @Override
-    public Optional<DOC> queryByIdForUpdate(ID id) {
-        return queryById(id);
+    public Optional<DOC> queryByIdForUpdate(ID id, Object ownerId) {
+        return queryById(id, ownerId);
     }
 
     @Override
@@ -56,6 +59,39 @@ public class MongoResourceHandler<DOC extends com.github.developframework.resour
     }
 
     @Override
+    protected boolean existsByIdAndOwnerId(ID id, Object ownerId) {
+        return mongoOperations.exists(
+                buildQuery(id, ownerId),
+                resourceDefinition.getEntityClass()
+        );
+    }
+
+    @Override
+    protected void deleteByIdAndOwnerId(ID id, Object ownerId) {
+        mongoOperations.remove(
+                buildQuery(id, ownerId),
+                resourceDefinition.getEntityClass()
+        );
+    }
+
+    @Override
+    protected Optional<DOC> queryByIdAndOwnerId(ID id, Object ownerId) {
+        return Optional.ofNullable(
+                mongoOperations.findOne(
+                        buildQuery(id, ownerId),
+                        resourceDefinition.getEntityClass()
+                )
+        );
+    }
+
+    private Query buildQuery(ID id, Object ownerId) {
+        return Query.query(
+                Criteria.where(Fields.UNDERSCORE_ID).is(id instanceof ObjectId ? id : new ObjectId((String) id))
+                        .and(ownerFieldName()).is(ownerId)
+        );
+    }
+
+    @Override
     public <SEARCH extends Search<DOC>> Page<DOC> queryPager(Pageable pageable, SEARCH search) {
         Query query = safeSearch(search);
         AggregationOperationBuilder builder = new AggregationOperationBuilder(mongoOperations);
@@ -66,4 +102,6 @@ public class MongoResourceHandler<DOC extends com.github.developframework.resour
     private Query safeSearch(Search<DOC> search) {
         return K.map(search, s -> ((MongoSearch<DOC>) s).toQuery());
     }
+
+
 }

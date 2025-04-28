@@ -1,10 +1,8 @@
 package com.github.developframework.resource.spring;
 
-import com.github.developframework.resource.AbstractResourceManager;
-import com.github.developframework.resource.Entity;
-import com.github.developframework.resource.ResourceDefinition;
-import com.github.developframework.resource.Search;
+import com.github.developframework.resource.*;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -34,6 +32,11 @@ public abstract class SpringDataResourceManager<
     public SpringDataResourceManager(REPOSITORY repository, ResourceDefinition<ENTITY> resourceDefinition) {
         super(resourceDefinition);
         this.repository = repository;
+    }
+
+    @Autowired
+    public void setOwnerProvider(OwnerProvider ownerProvider) {
+        this.ownerProvider = ownerProvider;
     }
 
     @Override

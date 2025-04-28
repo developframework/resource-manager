@@ -4,7 +4,6 @@ import com.github.developframework.resource.Entity;
 import com.github.developframework.resource.ResourceOperate;
 
 import java.io.Serializable;
-import java.util.Optional;
 
 /**
  * 删除资源操作
@@ -33,17 +32,6 @@ public class RemoveResourceOperate<
      */
     protected void after(ENTITY entity) {
         // 默认无处理
-    }
-
-    /**
-     * 根据ID删除
-     *
-     * @param id
-     */
-    public Optional<ENTITY> removeById(ID id) {
-        Optional<ENTITY> optional = resourceHandler.queryById(id);
-        optional.ifPresent(this::removeResource);
-        return optional;
     }
 
     /**

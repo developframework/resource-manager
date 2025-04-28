@@ -5,7 +5,6 @@ import com.github.developframework.resource.Entity;
 import com.github.developframework.resource.exception.DTOCastException;
 
 import java.io.Serializable;
-import java.util.Optional;
 
 /**
  * @author qiushui on 2019-08-10.
@@ -51,34 +50,6 @@ public class ModifyResourceOperate<
     protected void merge(DTO dto, ENTITY entity) {
         if (mapper != null) {
             mapper.toENTITY(dto, entity);
-        }
-    }
-
-    /**
-     * 根据ID修改资源
-     *
-     * @param obj
-     * @param id
-     */
-    @SuppressWarnings("unchecked")
-    public Optional<ENTITY> modifyById(Object obj, ID id) {
-        if (dtoClass.isAssignableFrom(obj.getClass())) {
-            DTO dto = (DTO) obj;
-            return resourceHandler
-                    .queryById(id)
-                    .map(entity -> {
-                        if (before(dto, entity)) {
-                            merge(dto, entity);
-                            prepare(dto, entity);
-                            boolean success = resourceHandler.update(entity);
-                            after(dto, entity);
-                            return success ? entity : null;
-                        } else {
-                            return null;
-                        }
-                    });
-        } else {
-            throw new DTOCastException();
         }
     }
 

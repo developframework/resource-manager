@@ -1,7 +1,7 @@
 package com.github.developframework.resource;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.io.Serializable;
 
@@ -9,10 +9,10 @@ import java.io.Serializable;
  * @author qiushui on 2019-08-10.
  */
 @Getter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ResourceDefinition<ENTITY extends Entity<? extends Serializable>> {
 
-    private Class<ENTITY> entityClass;
+    private final Class<ENTITY> entityClass;
 
-    private String resourceName;
+    private final String resourceName;
 }

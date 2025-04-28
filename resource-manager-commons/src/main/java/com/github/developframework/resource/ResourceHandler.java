@@ -13,12 +13,26 @@ import java.util.Optional;
 public interface ResourceHandler<ENTITY extends Entity<ID>, ID extends Serializable> {
 
     /**
+     * 获取主键字段名称
+     *
+     * @return
+     */
+    String primaryKeyFieldName();
+
+    /**
+     * 获取物主字段名称
+     *
+     * @return
+     */
+    String ownerFieldName();
+
+    /**
      * 根据ID验证存在
      *
      * @param id
      * @return
      */
-    boolean existsById(ID id);
+    boolean existsById(ID id, Object ownerId);
 
     /**
      * 插入资源
@@ -49,7 +63,7 @@ public interface ResourceHandler<ENTITY extends Entity<ID>, ID extends Serializa
      * @param id
      * @return
      */
-    void deleteById(ID id);
+    void deleteById(ID id, Object ownerId);
 
     /**
      * 删除资源
@@ -64,7 +78,7 @@ public interface ResourceHandler<ENTITY extends Entity<ID>, ID extends Serializa
      * @param id
      * @return
      */
-    Optional<ENTITY> queryById(ID id);
+    Optional<ENTITY> queryById(ID id, Object ownerId);
 
     /**
      * 根据ID查询单个资源（悲观锁模式）
@@ -72,7 +86,7 @@ public interface ResourceHandler<ENTITY extends Entity<ID>, ID extends Serializa
      * @param id
      * @return
      */
-    Optional<ENTITY> queryByIdForUpdate(ID id);
+    Optional<ENTITY> queryByIdForUpdate(ID id, Object ownerId);
 
     /**
      * 查询列表

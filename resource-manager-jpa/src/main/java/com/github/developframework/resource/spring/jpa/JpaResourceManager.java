@@ -52,13 +52,13 @@ public abstract class JpaResourceManager<
     }
 
     public Optional<PO> findOneByIdForUpdate(ID id) {
-        return resourceHandler.queryByIdForUpdate(id).map(this::execSearchOperate);
+        return resourceHandler.queryByIdForUpdate(id, ownerProvider.provide()).map(this::execSearchOperate);
     }
 
     @SuppressWarnings("unchecked")
     public PO findOneByIdRequiredForUpdate(ID id) {
         return (PO) ResourceAssert
-                .resourceExistAssertBuilder(resourceDefinition.getResourceName(), resourceHandler.queryByIdForUpdate(id))
+                .resourceExistAssertBuilder(resourceDefinition.getResourceName(), resourceHandler.queryByIdForUpdate(id, ownerProvider))
                 .addParameter("id", id)
                 .returnValue();
     }

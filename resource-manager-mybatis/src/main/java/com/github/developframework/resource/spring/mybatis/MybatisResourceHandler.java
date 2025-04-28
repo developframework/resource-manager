@@ -30,7 +30,17 @@ public class MybatisResourceHandler<
     }
 
     @Override
-    public boolean existsById(ID id) {
+    public String primaryKeyFieldName() {
+        return "";
+    }
+
+    @Override
+    public String ownerFieldName() {
+        return "";
+    }
+
+    @Override
+    public boolean existsById(ID id, Object ownerId) {
         return daoMapper.existsById(resourceDefinition.getEntityClass(), id);
     }
 
@@ -50,7 +60,7 @@ public class MybatisResourceHandler<
     }
 
     @Override
-    public void deleteById(ID id) {
+    public void deleteById(ID id, Object ownerId) {
         daoMapper.deleteById(resourceDefinition.getEntityClass(), id);
     }
 
@@ -60,12 +70,12 @@ public class MybatisResourceHandler<
     }
 
     @Override
-    public Optional<PO> queryById(ID id) {
+    public Optional<PO> queryById(ID id, Object ownerId) {
         return daoMapper.findById(resourceDefinition.getEntityClass(), id);
     }
 
     @Override
-    public Optional<PO> queryByIdForUpdate(ID id) {
+    public Optional<PO> queryByIdForUpdate(ID id, Object ownerId) {
         return daoMapper.findByIdForUpdate(resourceDefinition.getEntityClass(), id);
     }
 

@@ -28,6 +28,8 @@ public abstract class AbstractResourceManager <
 
     protected ResourceOperateRegistry<ENTITY, ID> resourceOperateRegistry;
 
+    protected OwnerProvider ownerProvider;
+
     public AbstractResourceManager(ResourceDefinition<ENTITY> resourceDefinition) {
         this.resourceDefinition = resourceDefinition;
     }
@@ -37,7 +39,7 @@ public abstract class AbstractResourceManager <
      */
     @Override
     public boolean existsById(ID id) {
-        return resourceHandler.existsById(id);
+        return resourceHandler.existsById(id, ownerProvider.provide());
     }
 
     /**
@@ -45,7 +47,7 @@ public abstract class AbstractResourceManager <
      */
     @Override
     public void assertExistsById(ID id) {
-        if (!resourceHandler.existsById(id)) {
+        if (!resourceHandler.existsById(id, ownerProvider.provide())) {
             throw new ResourceNotExistException(resourceDefinition.getResourceName()).addParameter("id", id);
         }
     }
@@ -63,7 +65,9 @@ public abstract class AbstractResourceManager <
      */
     @Override
     public Optional<ENTITY> modifyById(ID id, Object dto) {
-        return resourceOperateRegistry.getModifyResourceOperate(dto.getClass()).modifyById(dto, id);
+        final Optional<ENTITY> optional = findOneById(id);
+        optional.ifPresent(entity -> modify(dto, entity));
+        return optional;
     }
 
     /**
@@ -87,7 +91,9 @@ public abstract class AbstractResourceManager <
      */
     @Override
     public Optional<ENTITY> removeById(ID id) {
-        return resourceOperateRegistry.getRemoveResourceOperate().removeById(id);
+        final Optional<ENTITY> optional = findOneById(id);
+        optional.ifPresent(this::remove);
+        return optional;
     }
 
     /**
@@ -103,7 +109,7 @@ public abstract class AbstractResourceManager <
      */
     @Override
     public Optional<ENTITY> findOneById(ID id) {
-        return resourceHandler.queryById(id).map(this::execSearchOperate);
+        return resourceHandler.queryById(id, ownerProvider.provide()).map(this::execSearchOperate);
     }
 
     /**
@@ -112,11 +118,10 @@ public abstract class AbstractResourceManager <
     @Override
     @SuppressWarnings("unchecked")
     public ENTITY findOneByIdRequired(ID id) {
-        ENTITY entity = (ENTITY) ResourceAssert
-                .resourceExistAssertBuilder(resourceDefinition.getResourceName(), resourceHandler.queryById(id))
+        return (ENTITY) ResourceAssert
+                .resourceExistAssertBuilder(resourceDefinition.getResourceName(), findOneById(id))
                 .addParameter("id", id)
                 .returnValue();
-        return execSearchOperate(entity);
     }
 
     protected final ENTITY execSearchOperate(ENTITY entity) {
