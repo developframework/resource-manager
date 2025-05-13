@@ -1,8 +1,11 @@
 package com.github.developframework.resource.spring.jpa;
 
+import com.github.developframework.resource.Owner;
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.Search;
 import com.github.developframework.resource.spring.SpringDataResourceHandler;
+import com.github.developframework.resource.spring.jpa.utils.Specifications;
+import develop.toolkit.base.utils.ArrayAdvice;
 import develop.toolkit.base.utils.CollectionAdvice;
 import develop.toolkit.base.utils.K;
 import lombok.Getter;
@@ -15,6 +18,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.LockModeType;
 import javax.persistence.criteria.*;
 import java.io.Serializable;
@@ -39,6 +44,22 @@ public class JpaResourceHandler<
     public JpaResourceHandler(REPOSITORY repository, ResourceDefinition<PO> resourceDefinition, EntityManager entityManager) {
         super(repository, resourceDefinition);
         this.entityManager = entityManager;
+    }
+
+    @Override
+    public String ownerFieldName() {
+        return ArrayAdvice
+                .getFirstTrue(resourceDefinition.getEntityClass().getDeclaredFields(), f -> f.isAnnotationPresent(Owner.class))
+                .map(field -> {
+                    if (field.isAnnotationPresent(JoinColumn.class)) {
+                        return ArrayAdvice
+                                .getFirstTrue(field.getType().getDeclaredFields(), f -> f.isAnnotationPresent(Id.class))
+                                .map(f -> f.getName() + "." + f.getName())
+                                .orElse(null);
+                    }
+                    return field.getName();
+                })
+                .orElse(null);
     }
 
     @Override
@@ -112,7 +133,7 @@ public class JpaResourceHandler<
         final List<Predicate> predicates = new ArrayList<>();
         predicates.add(cb.equal(root.get(primaryKeyFieldName), id));
         if (ownerId != null) {
-            predicates.add(cb.equal(root.get(ownerFieldName), ownerId));
+            predicates.add(cb.equal(Specifications.path(root, ownerFieldName), ownerId));
         }
         return predicates.toArray(Predicate[]::new);
     }
