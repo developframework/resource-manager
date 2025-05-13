@@ -54,7 +54,7 @@ public class JpaResourceHandler<
                     if (field.isAnnotationPresent(JoinColumn.class)) {
                         return ArrayAdvice
                                 .getFirstTrue(field.getType().getDeclaredFields(), f -> f.isAnnotationPresent(Id.class))
-                                .map(f -> f.getName() + "." + f.getName())
+                                .map(f -> field.getName() + "." + f.getName())
                                 .orElse(null);
                     }
                     return field.getName();
@@ -132,7 +132,7 @@ public class JpaResourceHandler<
         final String ownerFieldName = ownerFieldName();
         final List<Predicate> predicates = new ArrayList<>();
         predicates.add(cb.equal(root.get(primaryKeyFieldName), id));
-        if (ownerId != null) {
+        if (ownerId != null && ownerFieldName != null) {
             predicates.add(cb.equal(Specifications.path(root, ownerFieldName), ownerId));
         }
         return predicates.toArray(Predicate[]::new);
