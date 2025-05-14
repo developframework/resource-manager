@@ -132,7 +132,7 @@ public class JpaResourceHandler<
         final String ownerFieldName = ownerFieldName();
         final List<Predicate> predicates = new ArrayList<>();
         predicates.add(cb.equal(root.get(primaryKeyFieldName), id));
-        if (ownerId != null && ownerFieldName != null) {
+        if (ownerId != null && ownerFieldName != null && !ownerFieldName.equals(primaryKeyFieldName)) {
             predicates.add(cb.equal(Specifications.path(root, ownerFieldName), ownerId));
         }
         return predicates.toArray(Predicate[]::new);
