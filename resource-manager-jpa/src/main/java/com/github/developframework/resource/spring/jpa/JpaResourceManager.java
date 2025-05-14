@@ -58,7 +58,7 @@ public abstract class JpaResourceManager<
     @SuppressWarnings("unchecked")
     public PO findOneByIdRequiredForUpdate(ID id) {
         return (PO) ResourceAssert
-                .resourceExistAssertBuilder(resourceDefinition.getResourceName(), resourceHandler.queryByIdForUpdate(id, ownerProvider))
+                .resourceExistAssertBuilder(resourceDefinition.getResourceName(), resourceHandler.queryByIdForUpdate(id, ownerProvider.provide()))
                 .addParameter("id", id)
                 .returnValue();
     }
