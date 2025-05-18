@@ -1,6 +1,7 @@
 package com.github.developframework.resource.spring.jpa;
 
 import com.github.developframework.resource.Owner;
+import com.github.developframework.resource.OwnerInfo;
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.Search;
 import com.github.developframework.resource.spring.SpringDataResourceHandler;
@@ -63,34 +64,34 @@ public class JpaResourceHandler<
     }
 
     @Override
-    public final boolean existsByIdAndOwnerId(ID id, Object ownerId) {
+    public final boolean existsByIdAndOwnerId(ID id, OwnerInfo ownerInfo) {
         final Class<PO> entityClass = resourceDefinition.getEntityClass();
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<PO> root = query.from(entityClass);
-        query.select(cb.count(root)).where(buildPredicates(cb, root, id, ownerId));
+        query.select(cb.count(root)).where(buildPredicates(cb, root, id, ownerInfo));
         return entityManager.createQuery(query).getSingleResult() > 0;
     }
 
     @Override
-    public final void deleteByIdAndOwnerId(ID id, Object ownerId) {
+    public final void deleteByIdAndOwnerId(ID id, OwnerInfo ownerInfo) {
         final Class<PO> entityClass = resourceDefinition.getEntityClass();
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaDelete<PO> query = cb.createCriteriaDelete(entityClass);
         Root<PO> root = query.from(entityClass);
-        query.where(buildPredicates(cb, root, id, ownerId));
+        query.where(buildPredicates(cb, root, id, ownerInfo));
         entityManager.createQuery(query).executeUpdate();
     }
 
     @Override
-    public final Optional<PO> queryByIdAndOwnerId(ID id, Object ownerId) {
-        final List<PO> list = entityManager.createQuery(buildQuery(id, ownerId)).getResultList();
+    public final Optional<PO> queryByIdAndOwnerId(ID id, OwnerInfo ownerInfo) {
+        final List<PO> list = entityManager.createQuery(buildQuery(id, ownerInfo)).getResultList();
         return CollectionAdvice.get(list, 0);
     }
 
     @Override
-    public final Optional<PO> queryByIdForUpdate(ID id, Object ownerId) {
-        final List<PO> list = entityManager.createQuery(buildQuery(id, ownerId))
+    public final Optional<PO> queryByIdForUpdate(ID id, OwnerInfo ownerInfo) {
+        final List<PO> list = entityManager.createQuery(buildQuery(id, ownerInfo))
                 .setLockMode(LockModeType.PESSIMISTIC_WRITE)
                 .getResultList();
         return CollectionAdvice.get(list, 0);
@@ -118,22 +119,26 @@ public class JpaResourceHandler<
         return K.map(search, s -> ((JpaSearch<PO>) s).toSpecification());
     }
 
-    private CriteriaQuery<PO> buildQuery(ID id, Object ownerId) {
+    private CriteriaQuery<PO> buildQuery(ID id, OwnerInfo ownerInfo) {
         final Class<PO> entityClass = resourceDefinition.getEntityClass();
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<PO> query = cb.createQuery(entityClass);
         Root<PO> root = query.from(entityClass);
-        query.where(buildPredicates(cb, root, id, ownerId));
+        query.where(buildPredicates(cb, root, id, ownerInfo));
         return query;
     }
 
-    private Predicate[] buildPredicates(CriteriaBuilder cb, Root<PO> root, ID id, Object ownerId) {
+    private Predicate[] buildPredicates(CriteriaBuilder cb, Root<PO> root, ID id, OwnerInfo ownerInfo) {
         final String primaryKeyFieldName = primaryKeyFieldName();
         final String ownerFieldName = ownerFieldName();
         final List<Predicate> predicates = new ArrayList<>();
         predicates.add(cb.equal(root.get(primaryKeyFieldName), id));
-        if (ownerId != null && ownerFieldName != null && !ownerFieldName.equals(primaryKeyFieldName)) {
-            predicates.add(cb.equal(Specifications.path(root, ownerFieldName), ownerId));
+        if (ownerInfo != null
+                && ownerInfo.getOwnerId() != null
+                && ownerFieldName != null
+                && !ownerFieldName.equals(primaryKeyFieldName)
+        ) {
+            predicates.add(cb.equal(Specifications.path(root, ownerFieldName), ownerInfo.getOwnerId()));
         }
         return predicates.toArray(Predicate[]::new);
     }

@@ -51,11 +51,11 @@ public abstract class SpringDataResourceHandler<
     }
 
     @Override
-    public final boolean existsById(ID id, Object ownerId) {
-        if (ownerId == null) {
+    public final boolean existsById(ID id, OwnerInfo ownerInfo) {
+        if (ownerInfo == null) {
             return repository.existsById(id);
         } else {
-            return existsByIdAndOwnerId(id, ownerId);
+            return existsByIdAndOwnerId(id, ownerInfo);
         }
     }
 
@@ -76,11 +76,11 @@ public abstract class SpringDataResourceHandler<
     }
 
     @Override
-    public final void deleteById(ID id, Object ownerId) {
-        if (ownerId == null) {
+    public final void deleteById(ID id, OwnerInfo ownerInfo) {
+        if (ownerInfo == null) {
             repository.deleteById(id);
         } else {
-            deleteByIdAndOwnerId(id, ownerId);
+            deleteByIdAndOwnerId(id, ownerInfo);
         }
     }
 
@@ -90,19 +90,19 @@ public abstract class SpringDataResourceHandler<
     }
 
     @Override
-    public final Optional<ENTITY> queryById(ID id, Object ownerId) {
-        if (ownerId == null) {
+    public final Optional<ENTITY> queryById(ID id, OwnerInfo ownerInfo) {
+        if (ownerInfo == null) {
             return repository.findById(id);
         } else {
-            return queryByIdAndOwnerId(id, ownerId);
+            return queryByIdAndOwnerId(id, ownerInfo);
         }
     }
 
-    protected abstract boolean existsByIdAndOwnerId(ID id, Object ownerId);
+    protected abstract boolean existsByIdAndOwnerId(ID id, OwnerInfo ownerInfo);
 
-    protected abstract void deleteByIdAndOwnerId(ID id, Object ownerId);
+    protected abstract void deleteByIdAndOwnerId(ID id, OwnerInfo ownerInfo);
 
-    protected abstract Optional<ENTITY> queryByIdAndOwnerId(ID id, Object ownerId);
+    protected abstract Optional<ENTITY> queryByIdAndOwnerId(ID id, OwnerInfo ownerInfo);
 
     public abstract <SEARCH extends Search<ENTITY>> Page<ENTITY> queryPager(Pageable pageable, SEARCH search);
 

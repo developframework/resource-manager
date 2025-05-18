@@ -32,7 +32,7 @@ public interface ResourceHandler<ENTITY extends Entity<ID>, ID extends Serializa
      * @param id
      * @return
      */
-    boolean existsById(ID id, Object ownerId);
+    boolean existsById(ID id, OwnerInfo ownerInfo);
 
     /**
      * 插入资源
@@ -63,7 +63,7 @@ public interface ResourceHandler<ENTITY extends Entity<ID>, ID extends Serializa
      * @param id
      * @return
      */
-    void deleteById(ID id, Object ownerId);
+    void deleteById(ID id, OwnerInfo ownerInfo);
 
     /**
      * 删除资源
@@ -78,7 +78,7 @@ public interface ResourceHandler<ENTITY extends Entity<ID>, ID extends Serializa
      * @param id
      * @return
      */
-    Optional<ENTITY> queryById(ID id, Object ownerId);
+    Optional<ENTITY> queryById(ID id, OwnerInfo ownerInfo);
 
     /**
      * 根据ID查询单个资源（悲观锁模式）
@@ -86,7 +86,7 @@ public interface ResourceHandler<ENTITY extends Entity<ID>, ID extends Serializa
      * @param id
      * @return
      */
-    Optional<ENTITY> queryByIdForUpdate(ID id, Object ownerId);
+    Optional<ENTITY> queryByIdForUpdate(ID id, OwnerInfo ownerInfo);
 
     /**
      * 查询列表

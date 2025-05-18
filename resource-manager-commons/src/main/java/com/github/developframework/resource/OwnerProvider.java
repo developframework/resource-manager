@@ -5,5 +5,5 @@ package com.github.developframework.resource;
  */
 public interface OwnerProvider {
 
-    Object provide();
+    OwnerInfo provide();
 }
