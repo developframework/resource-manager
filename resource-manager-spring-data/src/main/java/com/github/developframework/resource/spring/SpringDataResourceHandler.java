@@ -43,9 +43,12 @@ public abstract class SpringDataResourceHandler<
     }
 
     @Override
-    public String ownerFieldName() {
+    public String ownerFieldName(String ownerType) {
         return ArrayAdvice
-                .getFirstTrue(resourceDefinition.getEntityClass().getDeclaredFields(), f -> f.isAnnotationPresent(Owner.class))
+                .getFirstTrue(resourceDefinition.getEntityClass().getDeclaredFields(), f -> {
+                    final Owner owner = f.getAnnotation(Owner.class);
+                    return owner.value().isEmpty() || owner.value().equals(ownerType);
+                })
                 .map(Field::getName)
                 .orElse(null);
     }

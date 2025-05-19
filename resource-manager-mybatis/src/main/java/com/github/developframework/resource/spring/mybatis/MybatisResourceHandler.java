@@ -1,5 +1,6 @@
 package com.github.developframework.resource.spring.mybatis;
 
+import com.github.developframework.resource.OwnerInfo;
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.ResourceHandler;
 import com.github.developframework.resource.Search;
@@ -35,12 +36,12 @@ public class MybatisResourceHandler<
     }
 
     @Override
-    public String ownerFieldName() {
+    public String ownerFieldName(String ownerType) {
         return "";
     }
 
     @Override
-    public boolean existsById(ID id, Object ownerId) {
+    public boolean existsById(ID id, OwnerInfo ownerInfo) {
         return daoMapper.existsById(resourceDefinition.getEntityClass(), id);
     }
 
@@ -60,7 +61,7 @@ public class MybatisResourceHandler<
     }
 
     @Override
-    public void deleteById(ID id, Object ownerId) {
+    public void deleteById(ID id, OwnerInfo ownerInfo) {
         daoMapper.deleteById(resourceDefinition.getEntityClass(), id);
     }
 
@@ -70,12 +71,12 @@ public class MybatisResourceHandler<
     }
 
     @Override
-    public Optional<PO> queryById(ID id, Object ownerId) {
+    public Optional<PO> queryById(ID id, OwnerInfo ownerInfo) {
         return daoMapper.findById(resourceDefinition.getEntityClass(), id);
     }
 
     @Override
-    public Optional<PO> queryByIdForUpdate(ID id, Object ownerId) {
+    public Optional<PO> queryByIdForUpdate(ID id, OwnerInfo ownerInfo) {
         return daoMapper.findByIdForUpdate(resourceDefinition.getEntityClass(), id);
     }
 

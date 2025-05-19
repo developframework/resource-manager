@@ -48,9 +48,12 @@ public class JpaResourceHandler<
     }
 
     @Override
-    public String ownerFieldName() {
+    public String ownerFieldName(String ownerType) {
         return ArrayAdvice
-                .getFirstTrue(resourceDefinition.getEntityClass().getDeclaredFields(), f -> f.isAnnotationPresent(Owner.class))
+                .getFirstTrue(resourceDefinition.getEntityClass().getDeclaredFields(), f -> {
+                    final Owner owner = f.getAnnotation(Owner.class);
+                    return owner.value().isEmpty() || owner.value().equals(ownerType);
+                })
                 .map(field -> {
                     if (field.isAnnotationPresent(JoinColumn.class)) {
                         return ArrayAdvice
@@ -130,7 +133,7 @@ public class JpaResourceHandler<
 
     private Predicate[] buildPredicates(CriteriaBuilder cb, Root<PO> root, ID id, OwnerInfo ownerInfo) {
         final String primaryKeyFieldName = primaryKeyFieldName();
-        final String ownerFieldName = ownerFieldName();
+        final String ownerFieldName = ownerFieldName(ownerInfo.getOwnerType());
         final List<Predicate> predicates = new ArrayList<>();
         predicates.add(cb.equal(root.get(primaryKeyFieldName), id));
         if (ownerInfo != null

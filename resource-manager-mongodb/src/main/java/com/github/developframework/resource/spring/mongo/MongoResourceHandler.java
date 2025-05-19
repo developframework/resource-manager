@@ -1,5 +1,6 @@
 package com.github.developframework.resource.spring.mongo;
 
+import com.github.developframework.resource.OwnerInfo;
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.Search;
 import com.github.developframework.resource.spring.SpringDataResourceHandler;
@@ -40,8 +41,8 @@ public class MongoResourceHandler<DOC extends com.github.developframework.resour
     }
 
     @Override
-    public Optional<DOC> queryByIdForUpdate(ID id, Object ownerId) {
-        return queryById(id, ownerId);
+    public Optional<DOC> queryByIdForUpdate(ID id, OwnerInfo ownerInfo) {
+        return queryById(id, ownerInfo);
     }
 
     @Override
@@ -59,35 +60,35 @@ public class MongoResourceHandler<DOC extends com.github.developframework.resour
     }
 
     @Override
-    protected boolean existsByIdAndOwnerId(ID id, Object ownerId) {
+    protected boolean existsByIdAndOwnerId(ID id, OwnerInfo ownerInfo) {
         return mongoOperations.exists(
-                buildQuery(id, ownerId),
+                buildQuery(id, ownerInfo),
                 resourceDefinition.getEntityClass()
         );
     }
 
     @Override
-    protected void deleteByIdAndOwnerId(ID id, Object ownerId) {
+    protected void deleteByIdAndOwnerId(ID id, OwnerInfo ownerInfo) {
         mongoOperations.remove(
-                buildQuery(id, ownerId),
+                buildQuery(id, ownerInfo),
                 resourceDefinition.getEntityClass()
         );
     }
 
     @Override
-    protected Optional<DOC> queryByIdAndOwnerId(ID id, Object ownerId) {
+    protected Optional<DOC> queryByIdAndOwnerId(ID id, OwnerInfo ownerInfo) {
         return Optional.ofNullable(
                 mongoOperations.findOne(
-                        buildQuery(id, ownerId),
+                        buildQuery(id, ownerInfo),
                         resourceDefinition.getEntityClass()
                 )
         );
     }
 
-    private Query buildQuery(ID id, Object ownerId) {
+    private Query buildQuery(ID id, OwnerInfo ownerInfo) {
         return Query.query(
                 Criteria.where(Fields.UNDERSCORE_ID).is(id instanceof ObjectId ? id : new ObjectId((String) id))
-                        .and(ownerFieldName()).is(ownerId)
+                        .and(ownerFieldName(ownerInfo.getOwnerType())).is(ownerInfo.getOwnerId())
         );
     }
 

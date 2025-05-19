@@ -24,7 +24,7 @@ public interface ResourceHandler<ENTITY extends Entity<ID>, ID extends Serializa
      *
      * @return
      */
-    String ownerFieldName();
+    String ownerFieldName(String ownerType);
 
     /**
      * 根据ID验证存在
