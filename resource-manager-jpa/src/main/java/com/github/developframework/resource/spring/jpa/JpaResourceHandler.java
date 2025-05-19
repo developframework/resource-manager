@@ -133,15 +133,14 @@ public class JpaResourceHandler<
 
     private Predicate[] buildPredicates(CriteriaBuilder cb, Root<PO> root, ID id, OwnerInfo ownerInfo) {
         final String primaryKeyFieldName = primaryKeyFieldName();
-        final String ownerFieldName = ownerFieldName(ownerInfo.getOwnerType());
         final List<Predicate> predicates = new ArrayList<>();
         predicates.add(cb.equal(root.get(primaryKeyFieldName), id));
-        if (ownerInfo != null
-                && ownerInfo.getOwnerId() != null
-                && ownerFieldName != null
-                && !ownerFieldName.equals(primaryKeyFieldName)
-        ) {
-            predicates.add(cb.equal(Specifications.path(root, ownerFieldName), ownerInfo.getOwnerId()));
+        if (ownerInfo != null) {
+            final String ownerFieldName = ownerFieldName(ownerInfo.getOwnerType());
+            final Object ownerId = ownerInfo.getOwnerId();
+            if (ownerId != null && ownerFieldName != null && !ownerFieldName.equals(primaryKeyFieldName)) {
+                predicates.add(cb.equal(Specifications.path(root, ownerFieldName), ownerId));
+            }
         }
         return predicates.toArray(Predicate[]::new);
     }
