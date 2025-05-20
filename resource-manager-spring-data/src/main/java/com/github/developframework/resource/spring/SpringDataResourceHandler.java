@@ -47,7 +47,7 @@ public abstract class SpringDataResourceHandler<
         return ArrayAdvice
                 .getFirstTrue(resourceDefinition.getEntityClass().getDeclaredFields(), f -> {
                     final Owner owner = f.getAnnotation(Owner.class);
-                    return owner.value().isEmpty() || owner.value().equals(ownerType);
+                    return owner != null && (owner.value().isEmpty() || owner.value().equals(ownerType));
                 })
                 .map(Field::getName)
                 .orElse(null);
