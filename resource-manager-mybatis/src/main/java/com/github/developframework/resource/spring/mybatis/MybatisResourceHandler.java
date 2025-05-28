@@ -4,6 +4,7 @@ import com.github.developframework.resource.OwnerInfo;
 import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.ResourceHandler;
 import com.github.developframework.resource.Search;
+import develop.toolkit.base.struct.TwoValues;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -36,8 +37,8 @@ public class MybatisResourceHandler<
     }
 
     @Override
-    public String ownerFieldName(String ownerType) {
-        return "";
+    public TwoValues<String, ? extends Class<?>> ownerField(String ownerType) {
+        return null;
     }
 
     @Override

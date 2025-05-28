@@ -88,7 +88,7 @@ public class MongoResourceHandler<DOC extends com.github.developframework.resour
     private Query buildQuery(ID id, OwnerInfo ownerInfo) {
         return Query.query(
                 Criteria.where(Fields.UNDERSCORE_ID).is(id instanceof ObjectId ? id : new ObjectId((String) id))
-                        .and(ownerFieldName(ownerInfo.getOwnerType())).is(ownerInfo.getOwnerId())
+                        .and(ownerField(ownerInfo.getOwnerType()).getFirstValue()).is(ownerInfo.getOwnerId())
         );
     }
 

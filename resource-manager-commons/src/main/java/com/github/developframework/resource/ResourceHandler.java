@@ -1,5 +1,7 @@
 package com.github.developframework.resource;
 
+import develop.toolkit.base.struct.TwoValues;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
@@ -24,7 +26,7 @@ public interface ResourceHandler<ENTITY extends Entity<ID>, ID extends Serializa
      *
      * @return
      */
-    String ownerFieldName(String ownerType);
+    TwoValues<String, ? extends Class<?>> ownerField(String ownerType);
 
     /**
      * 根据ID验证存在

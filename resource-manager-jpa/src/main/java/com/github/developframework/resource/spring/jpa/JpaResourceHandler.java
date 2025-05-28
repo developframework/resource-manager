@@ -6,6 +6,7 @@ import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.Search;
 import com.github.developframework.resource.spring.SpringDataResourceHandler;
 import com.github.developframework.resource.spring.jpa.utils.Specifications;
+import develop.toolkit.base.struct.TwoValues;
 import develop.toolkit.base.utils.ArrayAdvice;
 import develop.toolkit.base.utils.CollectionAdvice;
 import develop.toolkit.base.utils.K;
@@ -48,7 +49,7 @@ public class JpaResourceHandler<
     }
 
     @Override
-    public String ownerFieldName(String ownerType) {
+    public TwoValues<String, ? extends Class<?>> ownerField(String ownerType) {
         return ArrayAdvice
                 .getFirstTrue(resourceDefinition.getEntityClass().getDeclaredFields(), f -> {
                     final Owner owner = f.getAnnotation(Owner.class);
@@ -58,10 +59,10 @@ public class JpaResourceHandler<
                     if (field.isAnnotationPresent(JoinColumn.class)) {
                         return ArrayAdvice
                                 .getFirstTrue(field.getType().getDeclaredFields(), f -> f.isAnnotationPresent(Id.class))
-                                .map(f -> field.getName() + "." + f.getName())
+                                .map(f -> TwoValues.of(field.getName() + "." + f.getName(), f.getType()))
                                 .orElse(null);
                     }
-                    return field.getName();
+                    return TwoValues.of(field.getName(), field.getType());
                 })
                 .orElse(null);
     }
@@ -136,12 +137,29 @@ public class JpaResourceHandler<
         final List<Predicate> predicates = new ArrayList<>();
         predicates.add(cb.equal(root.get(primaryKeyFieldName), id));
         if (ownerInfo != null) {
-            final String ownerFieldName = ownerFieldName(ownerInfo.getOwnerType());
-            final Object ownerId = ownerInfo.getOwnerId();
+            final TwoValues<String, ? extends Class<?>> ownerField = ownerField(ownerInfo.getOwnerType());
+            final String ownerFieldName = ownerField.getFirstValue();
+            final Class<?> ownerFieldType = ownerField.getSecondValue();
+            final Object ownerId = transformOwnerFieldType(ownerInfo.getOwnerId(), ownerFieldType);
             if (ownerId != null && ownerFieldName != null && !ownerFieldName.equals(primaryKeyFieldName)) {
                 predicates.add(cb.equal(Specifications.path(root, ownerFieldName), ownerId));
             }
         }
         return predicates.toArray(Predicate[]::new);
+    }
+
+    private Object transformOwnerFieldType(Object ownerId, Class<?> ownerFieldType) {
+        if (ownerId == null || ownerId.getClass() == ownerFieldType) {
+            return ownerId;
+        } else if (ownerFieldType == String.class) {
+            return String.valueOf(ownerId);
+        } else if (ownerId instanceof String) {
+            if (ownerFieldType == Integer.class || ownerFieldType == int.class) {
+                return Integer.parseInt((String) ownerId);
+            } else if (ownerFieldType == Long.class || ownerFieldType == long.class) {
+                return Long.parseLong((String) ownerId);
+            }
+        }
+        return ownerId;
     }
 }

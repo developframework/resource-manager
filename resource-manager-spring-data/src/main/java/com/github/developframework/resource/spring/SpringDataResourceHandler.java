@@ -1,6 +1,7 @@
 package com.github.developframework.resource.spring;
 
 import com.github.developframework.resource.*;
+import develop.toolkit.base.struct.TwoValues;
 import develop.toolkit.base.utils.ArrayAdvice;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Page;
@@ -37,19 +38,19 @@ public abstract class SpringDataResourceHandler<
     @Override
     public String primaryKeyFieldName() {
         return ArrayAdvice
-                .getFirstTrue(resourceDefinition.getEntityClass().getDeclaredFields(), f -> f.isAnnotationPresent(Id.class))
+                .getFirstTrue(resourceDefinition.getEntityClass().getDeclaredFields(), f -> f.isAnnotationPresent(Id.class) || f.isAnnotationPresent(javax.persistence.Id.class))
                 .map(Field::getName)
                 .orElse("id");
     }
 
     @Override
-    public String ownerFieldName(String ownerType) {
+    public TwoValues<String, ? extends Class<?>> ownerField(String ownerType) {
         return ArrayAdvice
                 .getFirstTrue(resourceDefinition.getEntityClass().getDeclaredFields(), f -> {
                     final Owner owner = f.getAnnotation(Owner.class);
                     return owner != null && (owner.value().isEmpty() || owner.value().equals(ownerType));
                 })
-                .map(Field::getName)
+                .map(f -> TwoValues.of(f.getName(), f.getType()))
                 .orElse(null);
     }
 
