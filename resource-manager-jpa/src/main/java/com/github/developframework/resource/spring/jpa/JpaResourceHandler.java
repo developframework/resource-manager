@@ -138,11 +138,13 @@ public class JpaResourceHandler<
         predicates.add(cb.equal(root.get(primaryKeyFieldName), id));
         if (ownerInfo != null) {
             final TwoValues<String, ? extends Class<?>> ownerField = ownerField(ownerInfo.getOwnerType());
-            final String ownerFieldName = ownerField.getFirstValue();
-            final Class<?> ownerFieldType = ownerField.getSecondValue();
-            final Object ownerId = transformOwnerFieldType(ownerInfo.getOwnerId(), ownerFieldType);
-            if (ownerId != null && ownerFieldName != null && !ownerFieldName.equals(primaryKeyFieldName)) {
-                predicates.add(cb.equal(Specifications.path(root, ownerFieldName), ownerId));
+            if (ownerField != null) {
+                final String ownerFieldName = ownerField.getFirstValue();
+                final Class<?> ownerFieldType = ownerField.getSecondValue();
+                final Object ownerId = transformOwnerFieldType(ownerInfo.getOwnerId(), ownerFieldType);
+                if (ownerId != null && ownerFieldName != null && !ownerFieldName.equals(primaryKeyFieldName)) {
+                    predicates.add(cb.equal(Specifications.path(root, ownerFieldName), ownerId));
+                }
             }
         }
         return predicates.toArray(Predicate[]::new);

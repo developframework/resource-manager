@@ -5,6 +5,7 @@ import com.github.developframework.resource.ResourceDefinition;
 import com.github.developframework.resource.Search;
 import com.github.developframework.resource.spring.SpringDataResourceHandler;
 import com.github.developframework.resource.spring.mongo.utils.AggregationOperationBuilder;
+import develop.toolkit.base.struct.TwoValues;
 import develop.toolkit.base.utils.K;
 import lombok.Getter;
 import org.bson.types.ObjectId;
@@ -86,10 +87,12 @@ public class MongoResourceHandler<DOC extends com.github.developframework.resour
     }
 
     private Query buildQuery(ID id, OwnerInfo ownerInfo) {
-        return Query.query(
-                Criteria.where(Fields.UNDERSCORE_ID).is(id instanceof ObjectId ? id : new ObjectId((String) id))
-                        .and(ownerField(ownerInfo.getOwnerType()).getFirstValue()).is(ownerInfo.getOwnerId())
-        );
+        Criteria criteria = Criteria.where(Fields.UNDERSCORE_ID).is(id instanceof ObjectId ? id : new ObjectId((String) id));
+        final TwoValues<String, ? extends Class<?>> ownerField = ownerField(ownerInfo.getOwnerType());
+        if (ownerField != null) {
+            criteria = criteria.and(ownerField.getFirstValue()).is(ownerInfo.getOwnerId());
+        }
+        return Query.query(criteria);
     }
 
     @Override
