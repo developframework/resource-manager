@@ -65,9 +65,7 @@ public abstract class AbstractResourceManager <
      */
     @Override
     public Optional<ENTITY> modifyById(ID id, Object dto) {
-        final Optional<ENTITY> optional = findOneById(id);
-        optional.ifPresent(entity -> modify(dto, entity));
-        return optional;
+        return resourceOperateRegistry.getModifyResourceOperate(dto.getClass()).modifyById(dto, id, ownerProvider.provide());
     }
 
     /**

@@ -1,12 +1,11 @@
 package com.github.developframework.resource.operate;
 
-import com.github.developframework.resource.AbstractResourceManager;
-import com.github.developframework.resource.BasicMapper;
-import com.github.developframework.resource.Entity;
-import com.github.developframework.resource.ModifyCheckExistsLogic;
+import com.github.developframework.resource.*;
+import com.github.developframework.resource.exception.DTOCastException;
 import lombok.Getter;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 /**
  * @author qiushui on 2019-08-10.
@@ -38,37 +37,37 @@ public abstract class ModifyUniqueResourceOperate<
      */
     public abstract ModifyCheckExistsLogic<ENTITY, DTO, ID> configureCheckExistsLogic();
 
-//    /**
-//     * 根据ID修改资源
-//     *
-//     * @param obj
-//     * @param id
-//     */
-//    @Override
-//    @SuppressWarnings("unchecked")
-//    public Optional<ENTITY> modifyById(Object obj, ID id) {
-//        if (dtoClass.isAssignableFrom(obj.getClass())) {
-//            DTO dto = (DTO) obj;
-//            return resourceHandler
-//                    .queryByIdForUpdate(id)
-//                    .map(entity -> {
-//                        if (before(dto, entity)) {
-//                            if (logic.check(dto, entity)) {
-//                                throw logic.getResourceExistException(dto, resourceDefinition.getResourceName());
-//                            }
-//                            merge(dto, entity);
-//                            prepare(dto, entity);
-//                            boolean success = resourceHandler.update(entity);
-//                            after(dto, entity);
-//                            return success ? entity : null;
-//                        } else {
-//                            return null;
-//                        }
-//                    });
-//        } else {
-//            throw new DTOCastException();
-//        }
-//    }
+    /**
+     * 根据ID修改资源
+     *
+     * @param obj
+     * @param id
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public Optional<ENTITY> modifyById(Object obj, ID id, OwnerInfo ownerInfo) {
+        if (dtoClass.isAssignableFrom(obj.getClass())) {
+            DTO dto = (DTO) obj;
+            return resourceHandler
+                    .queryByIdForUpdate(id, ownerInfo)
+                    .map(entity -> {
+                        if (before(dto, entity)) {
+                            if (logic.check(dto, entity)) {
+                                throw logic.getResourceExistException(dto, resourceDefinition.getResourceName());
+                            }
+                            merge(dto, entity);
+                            prepare(dto, entity);
+                            boolean success = resourceHandler.update(entity);
+                            after(dto, entity);
+                            return success ? entity : null;
+                        } else {
+                            return null;
+                        }
+                    });
+        } else {
+            throw new DTOCastException();
+        }
+    }
 
 
     public ModifyCheckExistsLogic<ENTITY, DTO, ID> byField(String... fields) {
